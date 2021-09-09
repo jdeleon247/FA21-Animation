@@ -61,7 +61,7 @@ struct a3_ClipController
 	a3ui32 keyframeIndex;
 
 	//current time relative to current keyframe | between 0 and current keyframe's duration
-	a3real keyframeParam;
+	a3real keyframeTime;
 
 	//normalized keyframe time [0-1]
 	a3real keyframeParam;
@@ -71,6 +71,12 @@ struct a3_ClipController
 
 	//pointer to pool of clips to control
 	a3_ClipPool* clipPool;
+
+	//pointer to current clip
+	a3_Clip* currentClip;
+
+	//pointer to current keyframe
+	a3_Keyframe* currentKeyframe;
 };
 
 

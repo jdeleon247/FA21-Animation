@@ -35,5 +35,65 @@ a3i32 a3clipControllerInit(a3_ClipController* clipCtrl_out, const a3byte ctrlNam
 	return -1;
 }
 
+// update clip controller
+a3i32 a3clipControllerUpdate(a3_ClipController* clipCtrl, const a3real dt)
+{
+	clipCtrl->currentClip = &clipCtrl->clipPool->clip[clipCtrl->clipIndex];
+	clipCtrl->currentKeyframe = &clipCtrl->currentClip->framePool[clipCtrl->keyframeIndex];
+
+
+	
+	if (clipCtrl->playbackDirection == 0)
+	{
+		//break;
+	}
+	//forward
+	if (clipCtrl->playbackDirection == 1)
+	{
+		clipCtrl->clipTime += dt;
+		clipCtrl->keyframeTime += dt;
+
+		if (clipCtrl->keyframeTime >= clipCtrl->currentKeyframe->duration)
+		{
+			//move to next keyframe
+			clipCtrl->keyframeIndex++;
+			clipCtrl->currentKeyframe = &clipCtrl->currentClip->framePool[clipCtrl->keyframeIndex];
+
+			//move keyFrameTime to next keyframe
+			clipCtrl->keyframeTime = clipCtrl->keyframeTime - clipCtrl->currentKeyframe->duration;
+		}
+
+		//t = (current time - key start * durationInv
+		clipCtrl->keyframeParam = (clipCtrl->keyframeTime - clipCtrl->currentKeyframe->duration) * clipCtrl->currentKeyframe->durationInv;
+	}
+
+	//reverse
+	if (clipCtrl->playbackDirection == -1)
+	{
+		clipCtrl->clipTime -= dt;
+		clipCtrl->keyframeTime -= dt;
+
+		if (clipCtrl->keyframeTime < clipCtrl->currentKeyframe->duration)
+		{
+			//move to next keyframe
+			clipCtrl->keyframeIndex--;
+			clipCtrl->currentKeyframe = &clipCtrl->currentClip->framePool[clipCtrl->keyframeIndex];
+
+			//move keyFrameTime to next keyframe
+			clipCtrl->keyframeTime = clipCtrl->keyframeTime - clipCtrl->currentKeyframe->duration;
+		}
+
+		//t = (current time - key start * durationInv
+		clipCtrl->keyframeParam = (clipCtrl->keyframeTime - clipCtrl->currentKeyframe->duration) * clipCtrl->currentKeyframe->durationInv;
+	}
+	
+}
+
+// set clip to play
+a3i32 a3clipControllerSetClip(a3_ClipController* clipCtrl, const a3_ClipPool* clipPool, const a3ui32 clipIndex_pool)
+{
+
+}
+
 
 //-----------------------------------------------------------------------------
