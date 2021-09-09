@@ -36,7 +36,6 @@
 #include "animal3D/animal3D.h"
 #include "animal3D-A3DG/animal3D-A3DG.h"
 
-
 //-----------------------------------------------------------------------------
 // other demo includes
 
@@ -45,6 +44,7 @@
 
 #include "a3_DemoMode0_Starter.h"
 
+#include "_animation/a3_KeyframeAnimationController.h"
 
 //-----------------------------------------------------------------------------
 
@@ -161,6 +161,8 @@ struct a3_DemoState
 	a3f64 t_timer, dt_timer, dt_timer_tot;
 	a3i64 n_timer;
 
+	
+	a3_ClipController controller1, controller2, controller3;
 
 	//-------------------------------------------------------------------------
 	// scene variables and objects

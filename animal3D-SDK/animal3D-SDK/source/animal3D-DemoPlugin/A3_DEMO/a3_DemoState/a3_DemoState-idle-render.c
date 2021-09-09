@@ -168,7 +168,21 @@ void a3demo_render_animation_controller_data(const a3_DemoState* demoState,
 	a3f32 const textAlign, a3f32 const textDepth, a3f32 const textOffsetDelta, a3f32 textOffset)
 {
 	// display clip controller data
-	// need to create clip controller and keyframes and stuff
+	// need to initialize clip controller and keyframes and stuff
+	a3textDraw(text, textAlign, textOffset += textOffsetDelta, textDepth, col.r, col.g, col.b, col.a,
+		"Playback Direction = ", demoState->controller1.playbackDirection);
+	a3textDraw(text, textAlign, textOffset += textOffsetDelta, textDepth, col.r, col.g, col.b, col.a,
+		"Clip Index = ", demoState->controller1.clipIndex);
+	a3textDraw(text, textAlign, textOffset += textOffsetDelta, textDepth, col.r, col.g, col.b, col.a,
+		"Clip Param = ", demoState->controller1.clipParam);
+	a3textDraw(text, textAlign, textOffset += textOffsetDelta, textDepth, col.r, col.g, col.b, col.a,
+		"Clip Time = %07.4lf s", demoState->controller1.clipTime);
+	a3textDraw(text, textAlign, textOffset += textOffsetDelta, textDepth, col.r, col.g, col.b, col.a,
+		"Keyframe = ", demoState->controller1.keyframeIndex);
+	a3textDraw(text, textAlign, textOffset += textOffsetDelta, textDepth, col.r, col.g, col.b, col.a,
+		"Keyframe Param = ", demoState->controller1.keyframeParam);
+	a3textDraw(text, textAlign, textOffset += textOffsetDelta, textDepth, col.r, col.g, col.b, col.a,
+		"Keyframe Time = %07.4lf s", demoState->controller1.keyframeTime);
 
 	// global controls
 	textOffset = -0.8f;
