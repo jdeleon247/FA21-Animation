@@ -32,7 +32,74 @@
 // update clip controller
 inline a3i32 a3clipControllerUpdate(a3_ClipController* clipCtrl, const a3real dt)
 {
-	return -1;
+	clipCtrl->currentClip = &clipCtrl->clipPool->clip[clipCtrl->clipIndex];
+	clipCtrl->currentKeyframe = &clipCtrl->currentClip->framePool->keyframe[clipCtrl->keyframeIndex];
+
+	if (clipCtrl->playbackDirection == 0)
+	{
+		//break;
+	}
+	//forward
+	if (clipCtrl->playbackDirection == 1)
+	{
+		//Pre-resolution | increment time.
+		clipCtrl->clipTime += dt;
+		clipCtrl->keyframeTime += dt;
+
+		//Resolve time | Update keyframe details if necessary
+		if (clipCtrl->keyframeTime >= clipCtrl->currentKeyframe->duration)
+		{
+			//move to next keyframe
+			clipCtrl->keyframeIndex++;
+			clipCtrl->currentKeyframe = &clipCtrl->currentClip->framePool->keyframe[clipCtrl->keyframeIndex];
+
+			//move keyFrameTime to next keyframe
+			clipCtrl->keyframeTime = clipCtrl->keyframeTime - clipCtrl->currentKeyframe->duration;
+		}
+
+		//Post-resolution | normalize params.
+		//t = (current time - key start * durationInv
+		clipCtrl->keyframeParam = (clipCtrl->keyframeTime - clipCtrl->currentKeyframe->duration) * clipCtrl->currentKeyframe->durationInv;
+		clipCtrl->clipParam = (clipCtrl->clipTime - clipCtrl->currentClip->duration) * clipCtrl->currentClip->durationInv;
+
+		//Loop after finish
+		if (clipCtrl->clipParam == 1)
+		{
+			clipCtrl->keyframeIndex = clipCtrl->currentClip->first_keyframe;
+			clipCtrl->currentKeyframe = &clipCtrl->currentClip->framePool->keyframe[clipCtrl->keyframeIndex];
+		}
+	}
+
+	//reverse
+	if (clipCtrl->playbackDirection == -1)
+	{
+		//Pre-resolution | increment time.
+		clipCtrl->clipTime -= dt;
+		clipCtrl->keyframeTime -= dt;
+
+		//Resolve time | Update keyframe details if necessary
+		if (clipCtrl->keyframeTime < clipCtrl->currentKeyframe->duration)
+		{
+			//move to next keyframe
+			clipCtrl->keyframeIndex--;
+			clipCtrl->currentKeyframe = &clipCtrl->currentClip->framePool->keyframe[clipCtrl->keyframeIndex];
+
+			//move keyFrameTime to next keyframe
+			clipCtrl->keyframeTime = clipCtrl->keyframeTime - clipCtrl->currentKeyframe->duration;
+		}
+
+		//Post-resolution | normalize params.
+		//t = (current time - key start * durationInv
+		clipCtrl->keyframeParam = (clipCtrl->keyframeTime - clipCtrl->currentKeyframe->duration) * clipCtrl->currentKeyframe->durationInv;
+		clipCtrl->keyframeParam = (clipCtrl->keyframeTime - clipCtrl->currentKeyframe->duration) * clipCtrl->currentKeyframe->durationInv;
+
+		//Loop after finish
+		if (clipCtrl->clipParam == 0)
+		{
+			clipCtrl->keyframeIndex = clipCtrl->currentClip->last_keyframe;
+			clipCtrl->currentKeyframe = &clipCtrl->currentClip->framePool->keyframe[clipCtrl->keyframeIndex];
+		}
+	}
 }
 
 // set clip to play
