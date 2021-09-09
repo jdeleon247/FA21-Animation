@@ -100,6 +100,7 @@ inline a3i32 a3clipControllerUpdate(a3_ClipController* clipCtrl, const a3real dt
 			clipCtrl->currentKeyframe = &clipCtrl->currentClip->framePool->keyframe[clipCtrl->keyframeIndex];
 		}
 	}
+	return 1;
 }
 
 // set clip to play

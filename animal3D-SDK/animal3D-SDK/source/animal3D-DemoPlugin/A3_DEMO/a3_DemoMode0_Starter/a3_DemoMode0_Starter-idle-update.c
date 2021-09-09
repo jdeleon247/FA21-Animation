@@ -35,6 +35,8 @@
 
 #include "../_a3_demo_utilities/a3_DemoMacros.h"
 
+#include "../_animation/a3_KeyframeAnimationController.h"
+
 
 //-----------------------------------------------------------------------------
 // UPDATE
@@ -83,6 +85,8 @@ void a3starter_update(a3_DemoState* demoState, a3_DemoMode0_Starter* demoMode, a
 			activeCamera->projectionMat.m, activeCameraObject->modelMat.m, activeCameraObject->modelMatInv.m,
 			demoMode->object_scene[i].modelMat.m, a3mat4_identity.m);
 	}
+
+	a3clipControllerUpdate(&demoState->controller1, (a3real)dt);
 }
 
 
