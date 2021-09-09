@@ -47,6 +47,30 @@ typedef struct a3_ClipController			a3_ClipController;
 struct a3_ClipController
 {
 	a3byte name[a3keyframeAnimation_nameLenMax];
+
+	//index of clip to control in referenced clip pool
+	a3ui32 clipIndex;
+
+	//current time relative to start of clip between 0 and current clip's duration
+	a3real clipTime;
+
+	//normalized clip time [0-1]
+	a3real clipParam;
+
+	//index of current keyframe in referenced keyframe pool
+	a3ui32 keyframeIndex;
+
+	//current time relative to current keyframe | between 0 and current keyframe's duration
+	a3real keyframeParam;
+
+	//normalized keyframe time [0-1]
+	a3real keyframeParam;
+
+	//playback behavior: +1 for forward | 0 for pause | -1 for reverse
+	a3i32 playbackDirection;
+
+	//pointer to pool of clips to control
+	a3_ClipPool* clipPool;
 };
 
 
