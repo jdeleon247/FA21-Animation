@@ -185,6 +185,8 @@ void a3demo_render_animation_controller_data(const a3_DemoState* demoState, a3_D
 			"Keyframe Param = %07.4lf s", demoMode->clipController[i].keyframeParam);
 		a3textDraw(text, textAlign, textOffset += textOffsetDelta, textDepth, col.r, col.g, col.b, col.a,
 			"Keyframe Time = %07.4lf s", demoMode->clipController[i].keyframeTime);
+		a3textDraw(text, textAlign, textOffset += textOffsetDelta, textDepth, col.r, col.g, col.b, col.a,
+			"Keyframe Data = %07.4lf s", demoMode->clipController[i].currentKeyframe->data);
 	}
 	
 
