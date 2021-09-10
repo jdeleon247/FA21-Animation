@@ -113,7 +113,7 @@ struct a3_Clip
 	a3ui32 last_keyframe;
 
 	// array of keyframes
-	a3_KeyframePool* framePool;
+	const a3_KeyframePool* framePool;
 };
 
 // group of clips
