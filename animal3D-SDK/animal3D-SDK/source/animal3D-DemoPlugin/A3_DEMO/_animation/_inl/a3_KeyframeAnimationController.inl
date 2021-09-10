@@ -32,6 +32,17 @@
 // update clip controller
 inline a3i32 a3clipControllerUpdate(a3_ClipController* clipCtrl, const a3real dt)
 {
+	// step/nearest:
+	// nothing special, same as lab1
+
+	// lerp:
+	// if end, k0 <- k1, calc new k1
+	// if begin, k1 <- k0, calc new k0
+
+	// Catmull:
+	// if over: kp <- k0 <- k1 <- kn, calc new kn
+	// if begin: kn <- k1 <- k0 <- kp, calc new kp
+
 	clipCtrl->currentClip = &clipCtrl->clipPool->clip[clipCtrl->clipIndex];
 	clipCtrl->keyframePtr0 = &clipCtrl->currentClip->framePool->keyframe[clipCtrl->keyframeIndex0];
 
