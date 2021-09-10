@@ -40,6 +40,8 @@ a3i32 a3keyframePoolCreate(a3_KeyframePool* keyframePool_out, const a3ui32 count
 {
 	// initialize array of keyframes
 	keyframePool_out->keyframe = malloc(count * sizeof(a3_Keyframe));
+
+	keyframePool_out->count = count;
 	return -1;
 }
 
@@ -97,6 +99,8 @@ a3i32 a3clipInit(a3_Clip* clip_out, const a3byte clipName[a3keyframeAnimation_na
 	// set first and last keyframe indices
 	clip_out->first_keyframe = firstKeyframeIndex;
 	clip_out->last_keyframe = finalKeyframeIndex;
+
+	a3clipCalculateDuration(clip_out);
 	return -1;
 }
 
