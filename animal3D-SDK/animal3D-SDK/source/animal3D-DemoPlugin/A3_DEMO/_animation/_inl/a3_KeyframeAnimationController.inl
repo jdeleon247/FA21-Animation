@@ -33,7 +33,7 @@
 inline a3i32 a3clipControllerUpdate(a3_ClipController* clipCtrl, const a3real dt)
 {
 	clipCtrl->currentClip = &clipCtrl->clipPool->clip[clipCtrl->clipIndex];
-	clipCtrl->currentKeyframe = &clipCtrl->currentClip->framePool->keyframe[clipCtrl->keyframeIndex];
+	clipCtrl->keyframePtr0 = &clipCtrl->currentClip->framePool->keyframe[clipCtrl->keyframeIndex0];
 
 	if (clipCtrl->playbackDirection == 0)
 	{
@@ -47,29 +47,29 @@ inline a3i32 a3clipControllerUpdate(a3_ClipController* clipCtrl, const a3real dt
 		clipCtrl->keyframeTime += dt;
 
 		//Resolve time | Update keyframe details if necessary
-		if (clipCtrl->keyframeTime >= clipCtrl->currentKeyframe->duration)
+		if (clipCtrl->keyframeTime >= clipCtrl->keyframePtr0->duration)
 		{
 			//move keyFrameTime to next keyframe
-			clipCtrl->keyframeTime = clipCtrl->keyframeTime - clipCtrl->currentKeyframe->duration;
+			clipCtrl->keyframeTime = clipCtrl->keyframeTime - clipCtrl->keyframePtr0->duration;
 
 			//move to next keyframe
-			if (clipCtrl->currentClip->keyframeCount > clipCtrl->keyframeIndex)
+			if (clipCtrl->currentClip->keyframeCount > clipCtrl->keyframeIndex0)
 			{
-				clipCtrl->keyframeIndex = clipCtrl->keyframeIndex + 1;
-				clipCtrl->currentKeyframe = &clipCtrl->currentClip->framePool->keyframe[clipCtrl->keyframeIndex];
+				clipCtrl->keyframeIndex0 = clipCtrl->keyframeIndex0 + 1;
+				clipCtrl->keyframePtr0 = &clipCtrl->currentClip->framePool->keyframe[clipCtrl->keyframeIndex0];
 			}
 		}
 
 		//Post-resolution | normalize params.
 		//t = (current time - key start * durationInv
-		clipCtrl->keyframeParam = 1 + (clipCtrl->keyframeTime - clipCtrl->currentKeyframe->duration) * clipCtrl->currentKeyframe->durationInv;
+		clipCtrl->keyframeParam = 1 + (clipCtrl->keyframeTime - clipCtrl->keyframePtr0->duration) * clipCtrl->keyframePtr0->durationInv;
 		clipCtrl->clipParam = 1 + (clipCtrl->clipTime - clipCtrl->currentClip->duration) * clipCtrl->currentClip->durationInv;
 
 		//Loop after finish
 		if (clipCtrl->clipParam >= 1)
 		{
-			clipCtrl->keyframeIndex = clipCtrl->currentClip->first_keyframe;
-			clipCtrl->currentKeyframe = &clipCtrl->currentClip->framePool->keyframe[clipCtrl->keyframeIndex];
+			clipCtrl->keyframeIndex0 = clipCtrl->currentClip->first_keyframe;
+			clipCtrl->keyframePtr0 = &clipCtrl->currentClip->framePool->keyframe[clipCtrl->keyframeIndex0];
 			clipCtrl->clipTime = 0;
 		}
 	}
@@ -82,29 +82,29 @@ inline a3i32 a3clipControllerUpdate(a3_ClipController* clipCtrl, const a3real dt
 		clipCtrl->keyframeTime -= dt;
 
 		//Resolve time | Update keyframe details if necessary
-		if (clipCtrl->keyframeTime >= clipCtrl->currentKeyframe->duration)
+		if (clipCtrl->keyframeTime >= clipCtrl->keyframePtr0->duration)
 		{
 			//move keyFrameTime to next keyframe
-			clipCtrl->keyframeTime = clipCtrl->keyframeTime - clipCtrl->currentKeyframe->duration;
+			clipCtrl->keyframeTime = clipCtrl->keyframeTime - clipCtrl->keyframePtr0->duration;
 
 			//move to next keyframe
-			if (clipCtrl->currentClip->first_keyframe > clipCtrl->keyframeIndex)
+			if (clipCtrl->currentClip->first_keyframe > clipCtrl->keyframeIndex0)
 			{
-				clipCtrl->keyframeIndex = clipCtrl->keyframeIndex - 1;
-				clipCtrl->currentKeyframe = &clipCtrl->currentClip->framePool->keyframe[clipCtrl->keyframeIndex];
+				clipCtrl->keyframeIndex0 = clipCtrl->keyframeIndex0 - 1;
+				clipCtrl->keyframePtr0 = &clipCtrl->currentClip->framePool->keyframe[clipCtrl->keyframeIndex0];
 			}
 		}
 
 		//Post-resolution | normalize params.
 		//t = (current time - key start * durationInv
-		clipCtrl->keyframeParam = (clipCtrl->keyframeTime - clipCtrl->currentKeyframe->duration) * clipCtrl->currentKeyframe->durationInv;
-		clipCtrl->keyframeParam = (clipCtrl->keyframeTime - clipCtrl->currentKeyframe->duration) * clipCtrl->currentKeyframe->durationInv;
+		clipCtrl->keyframeParam = (clipCtrl->keyframeTime - clipCtrl->keyframePtr0->duration) * clipCtrl->keyframePtr0->durationInv;
+		clipCtrl->keyframeParam = (clipCtrl->keyframeTime - clipCtrl->keyframePtr0->duration) * clipCtrl->keyframePtr0->durationInv;
 
 		//Loop after finish
 		if (clipCtrl->clipParam <= 0)
 		{
-			clipCtrl->keyframeIndex = clipCtrl->currentClip->last_keyframe;
-			clipCtrl->currentKeyframe = &clipCtrl->currentClip->framePool->keyframe[clipCtrl->keyframeIndex];
+			clipCtrl->keyframeIndex0 = clipCtrl->currentClip->last_keyframe;
+			clipCtrl->keyframePtr0 = &clipCtrl->currentClip->framePool->keyframe[clipCtrl->keyframeIndex0];
 			clipCtrl->clipTime = clipCtrl->currentClip->duration;
 		}
 	}
@@ -116,6 +116,33 @@ inline a3i32 a3clipControllerSetClip(a3_ClipController* clipCtrl, const a3_ClipP
 {
 	clipCtrl->clipIndex = clipIndex_pool;
 	clipCtrl->clipPool = clipPool;
+	return -1;
+}
+
+// evaluate the current value at time
+inline a3i32 a3clipControllerEvaluate(a3_ClipController const* clipCtrl, a3_Sample* sample_out)
+{
+	if (clipCtrl && clipCtrl->currentClip && sample_out)
+	{
+		// 0: no interpolation
+		*sample_out = clipCtrl->keyframePtr0->sample;
+
+		// 1:
+		// if (u <0.5) then k0, else k1
+
+		// 2: lerp
+		sample_out->time = clipCtrl->keyframeTime;
+		sample_out->value = a3lerp(
+			clipCtrl->keyframePtr0->sample.value,
+			clipCtrl->keyframePtr1->sample.value,
+			clipCtrl->keyframeParam
+		);
+
+		// 3: Catmull-Rom/cubic Hermite
+
+
+		return clipCtrl->keyframeIndex0;
+	}
 	return -1;
 }
 
