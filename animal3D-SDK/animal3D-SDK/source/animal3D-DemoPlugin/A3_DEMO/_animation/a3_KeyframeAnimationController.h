@@ -49,7 +49,7 @@ struct a3_ClipController
 	a3byte name[a3keyframeAnimation_nameLenMax];
 
 	//index of clip to control in referenced clip pool
-	a3ui32 clipIndex;
+	a3index clipIndex;
 
 	//current time relative to start of clip between 0 and current clip's duration
 	a3f32 clipTime;
@@ -58,7 +58,7 @@ struct a3_ClipController
 	a3f32 clipParam;
 
 	//index of current keyframe in referenced keyframe pool
-	a3ui32 keyframeIndex;
+	a3index keyframeIndex;
 
 	//current time relative to current keyframe | between 0 and current keyframe's duration
 	a3f32 keyframeTime;

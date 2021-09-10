@@ -65,7 +65,7 @@ struct a3_Sample
 struct a3_Keyframe
 {
 	// index in keyframe pool
-	a3ui32 index;
+	a3index index;
 
 	// active time interval and its reciprocal
 	
@@ -111,7 +111,7 @@ struct a3_Clip
 	a3byte name[a3keyframeAnimation_nameLenMax];
 
 	// index in clip pool
-	a3ui32 index;
+	a3index index;
 
 	// duration of clip and its reciprocal
 	a3f32 duration, durationInv;
@@ -120,10 +120,10 @@ struct a3_Clip
 	a3ui32 keyframeCount;
 
 	// index of first referenced keyframe in pool
-	a3ui32 first_keyframe;
+	a3index first_keyframe;
 
 	// index of final referenced keyframe in pool
-	a3ui32 last_keyframe;
+	a3index last_keyframe;
 
 	// array of keyframes
 	const a3_KeyframePool* framePool;
