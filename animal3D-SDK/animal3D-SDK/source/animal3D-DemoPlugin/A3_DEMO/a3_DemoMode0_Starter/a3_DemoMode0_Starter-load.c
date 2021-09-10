@@ -165,6 +165,30 @@ void a3starter_load(a3_DemoState const* demoState, a3_DemoMode0_Starter* demoMod
 
 	demoMode->targetCount[starter_passScene] = starter_target_scene_max;
 	demoMode->targetCount[starter_passComposite] = 1;
+
+	// initialize all the animation things
+
+	// initialize pools of keyframes and clips
+	a3clipPoolCreate(demoMode->clipPool, 5);
+	a3keyframePoolCreate(demoMode->keyframePool, 20);
+
+	// initialize clip controllers
+	a3clipControllerInit(demoMode->clipController + 0, "Controller 1", demoMode->clipPool, 0);
+	a3clipControllerInit(demoMode->clipController + 1, "Controller 2", demoMode->clipPool, 1);
+	a3clipControllerInit(demoMode->clipController + 2, "Controller 3", demoMode->clipPool, 2);
+
+	// initialize keyframes
+	for (a3ui32 i = 0; i < demoMode->keyframePool->count; i++)
+	{
+		a3keyframeInit(demoMode->keyframePool->keyframe + i, (float)i / 20.0f, 45 - i);
+	}
+
+	a3clipInit(demoMode->clipPool->clip + 0, "0 -> 19", demoMode->keyframePool, 0, 19);
+	a3clipInit(demoMode->clipPool->clip + 1, "0 -> 10", demoMode->keyframePool, 0, 10);
+	a3clipInit(demoMode->clipPool->clip + 2, "3 -> 5", demoMode->keyframePool, 3, 5);
+	a3clipInit(demoMode->clipPool->clip + 3, "5 -> 15", demoMode->keyframePool, 5, 15);
+	a3clipInit(demoMode->clipPool->clip + 4, "12 -> 16", demoMode->keyframePool, 12, 16);
+
 }
 
 

@@ -70,7 +70,7 @@ struct a3_ClipController
 	a3i32 playbackDirection;
 
 	//pointer to pool of clips to control
-	a3_ClipPool* clipPool;
+	const a3_ClipPool* clipPool;
 
 	//pointer to current clip
 	a3_Clip* currentClip;

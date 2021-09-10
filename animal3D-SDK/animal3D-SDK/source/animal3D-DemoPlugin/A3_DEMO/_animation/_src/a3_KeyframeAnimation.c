@@ -70,7 +70,8 @@ a3i32 a3clipPoolCreate(a3_ClipPool* clipPool_out, const a3ui32 count)
 {
 	// initialize array of clips
 	clipPool_out->clip = malloc(count * sizeof(a3_Clip));
-	return -1;
+	clipPool_out->count = count;
+	return 1;
 }
 
 // release clip pool

@@ -85,8 +85,11 @@ void a3starter_update(a3_DemoState* demoState, a3_DemoMode0_Starter* demoMode, a
 			activeCamera->projectionMat.m, activeCameraObject->modelMat.m, activeCameraObject->modelMatInv.m,
 			demoMode->object_scene[i].modelMat.m, a3mat4_identity.m);
 	}
+	for (i = 0; i < 3; i++)
+	{
+		a3clipControllerUpdate(demoMode->clipController + i, (a3real)dt);
+	}
 
-	a3clipControllerUpdate(&demoState->controller1, (a3real)dt);
 }
 
 
