@@ -106,6 +106,8 @@ inline a3i32 a3clipControllerUpdate(a3_ClipController* clipCtrl, const a3real dt
 // set clip to play
 inline a3i32 a3clipControllerSetClip(a3_ClipController* clipCtrl, const a3_ClipPool* clipPool, const a3ui32 clipIndex_pool)
 {
+	clipCtrl->clipIndex = clipIndex_pool;
+	clipCtrl->clipPool = clipPool;
 	return -1;
 }
 

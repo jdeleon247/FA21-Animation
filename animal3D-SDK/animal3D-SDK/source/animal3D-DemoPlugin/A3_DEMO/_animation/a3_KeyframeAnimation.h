@@ -104,7 +104,7 @@ struct a3_Clip
 	a3f32 duration, durationInv;
 
 	// number of referenced keyframes
-	a3i32 keyframeCount;
+	a3ui32 keyframeCount;
 
 	// index of first referenced keyframe in pool
 	a3ui32 first_keyframe;
