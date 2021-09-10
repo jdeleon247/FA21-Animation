@@ -104,6 +104,8 @@ void a3starter_render_controls(a3_DemoState const* demoState, a3_DemoMode0_Start
 	a3_DemoMode0_Starter_TargetName const targetIndex = demoMode->targetIndex[pass];
 	a3_DemoMode0_Starter_TargetName const targetCount = demoMode->targetCount[pass];
 
+	
+
 	// demo modes
 	a3textDraw(text, textAlign, textOffset += textOffsetDelta, textDepth, col.r, col.g, col.b, col.a,
 		"    Pipeline (%u / %u) ('[' | ']'): %s", pipeline + 1, starter_pipeline_max, pipelineText[pipeline]);

@@ -161,9 +161,6 @@ struct a3_DemoState
 	a3f64 t_timer, dt_timer, dt_timer_tot;
 	a3i64 n_timer;
 
-	
-	a3_ClipController controller1, controller2, controller3;
-
 	//-------------------------------------------------------------------------
 	// scene variables and objects
 

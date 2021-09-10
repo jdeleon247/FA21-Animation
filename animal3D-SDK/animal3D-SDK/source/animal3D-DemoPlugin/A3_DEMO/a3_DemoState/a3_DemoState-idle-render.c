@@ -163,26 +163,30 @@ void a3demo_render_data(const a3_DemoState* demoState,
 		"Reload all shader programs: 'P' ****CHECK CONSOLE FOR ERRORS!**** ");
 }
 
-void a3demo_render_animation_controller_data(const a3_DemoState* demoState,
+void a3demo_render_animation_controller_data(const a3_DemoState* demoState, a3_DemoMode0_Starter const* demoMode,
 	a3_TextRenderer const* text, a3vec4 const col,
 	a3f32 const textAlign, a3f32 const textDepth, a3f32 const textOffsetDelta, a3f32 textOffset)
 {
 	// display clip controller data
 	// need to initialize clip controller and keyframes and stuff
-	a3textDraw(text, textAlign, textOffset += textOffsetDelta, textDepth, col.r, col.g, col.b, col.a,
-		"Playback Direction = ", demoState->controller1.playbackDirection);
-	a3textDraw(text, textAlign, textOffset += textOffsetDelta, textDepth, col.r, col.g, col.b, col.a,
-		"Clip Index = ", demoState->controller1.clipIndex);
-	a3textDraw(text, textAlign, textOffset += textOffsetDelta, textDepth, col.r, col.g, col.b, col.a,
-		"Clip Param = ", demoState->controller1.clipParam);
-	a3textDraw(text, textAlign, textOffset += textOffsetDelta, textDepth, col.r, col.g, col.b, col.a,
-		"Clip Time = %07.4lf s", demoState->controller1.clipTime);
-	a3textDraw(text, textAlign, textOffset += textOffsetDelta, textDepth, col.r, col.g, col.b, col.a,
-		"Keyframe = ", demoState->controller1.keyframeIndex);
-	a3textDraw(text, textAlign, textOffset += textOffsetDelta, textDepth, col.r, col.g, col.b, col.a,
-		"Keyframe Param = ", demoState->controller1.keyframeParam);
-	a3textDraw(text, textAlign, textOffset += textOffsetDelta, textDepth, col.r, col.g, col.b, col.a,
-		"Keyframe Time = %07.4lf s", demoState->controller1.keyframeTime);
+	for (int i = 0; i < 3; i++)
+	{
+		a3textDraw(text, textAlign, textOffset += textOffsetDelta, textDepth, col.r, col.g, col.b, col.a,
+			"Playback Direction = %07.4lf s", demoMode->clipController[i].playbackDirection);
+		a3textDraw(text, textAlign, textOffset += textOffsetDelta, textDepth, col.r, col.g, col.b, col.a,
+			"Clip Index = %07.4lf s", demoMode->clipController[i].clipIndex);
+		a3textDraw(text, textAlign, textOffset += textOffsetDelta, textDepth, col.r, col.g, col.b, col.a,
+			"Clip Param = %07.4lf s", demoMode->clipController[i].clipParam);
+		a3textDraw(text, textAlign, textOffset += textOffsetDelta, textDepth, col.r, col.g, col.b, col.a,
+			"Clip Time = %07.4lf s", demoMode->clipController[i].clipTime);
+		a3textDraw(text, textAlign, textOffset += textOffsetDelta, textDepth, col.r, col.g, col.b, col.a,
+			"Keyframe Index = %07.4lf s", demoMode->clipController[i].keyframeIndex);
+		a3textDraw(text, textAlign, textOffset += textOffsetDelta, textDepth, col.r, col.g, col.b, col.a,
+			"Keyframe Param = %07.4lf s", demoMode->clipController[i].keyframeParam);
+		a3textDraw(text, textAlign, textOffset += textOffsetDelta, textDepth, col.r, col.g, col.b, col.a,
+			"Keyframe Time = %07.4lf s", demoMode->clipController[i].keyframeTime);
+	}
+	
 
 	// global controls
 	textOffset = -0.8f;
@@ -273,7 +277,7 @@ void a3demo_render(a3_DemoState const* demoState, a3f64 const dt)
 				
 				// animation controller data
 			case demoState_animationCtrlData:
-				a3demo_render_animation_controller_data(demoState, text, col, textAlign + x, textDepth, textOffsetDelta, textOffset + y);
+				a3demo_render_animation_controller_data(demoState, demoState->demoMode0_starter, text, col, textAlign + x, textDepth, textOffsetDelta, textOffset + y);
 				break;
 			}
 		}

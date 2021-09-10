@@ -95,6 +95,7 @@ a3i32 a3clipInit(a3_Clip* clip_out, const a3byte clipName[a3keyframeAnimation_na
 
 	// set referenced keyframe pool
 	clip_out->framePool = keyframePool;
+	clip_out->keyframeCount = clip_out->framePool->count;
 
 	// set first and last keyframe indices
 	clip_out->first_keyframe = firstKeyframeIndex;
