@@ -174,19 +174,19 @@ void a3demo_render_animation_controller_data(const a3_DemoState* demoState, a3_D
 		a3textDraw(text, textAlign, textOffset += textOffsetDelta, textDepth, col.r, col.g, col.b, col.a,
 			"Playback Direction = %07.4lf s", demoMode->clipController[i].playbackDirection);
 		a3textDraw(text, textAlign, textOffset += textOffsetDelta, textDepth, col.r, col.g, col.b, col.a,
-			"Clip Index = %07.4lf s", demoMode->clipController[i].clipIndex);
+			"Clip Index = %u", demoMode->clipController[i].clipIndex);
 		a3textDraw(text, textAlign, textOffset += textOffsetDelta, textDepth, col.r, col.g, col.b, col.a,
-			"Clip Param = %07.4lf s", demoMode->clipController[i].clipParam);
+			"Clip Param = %f", demoMode->clipController[i].clipParam);
 		a3textDraw(text, textAlign, textOffset += textOffsetDelta, textDepth, col.r, col.g, col.b, col.a,
-			"Clip Time = %07.4lf s", demoMode->clipController[i].clipTime);
+			"Clip Time = %f", demoMode->clipController[i].clipTime);
 		a3textDraw(text, textAlign, textOffset += textOffsetDelta, textDepth, col.r, col.g, col.b, col.a,
-			"Keyframe Index = %07.4lf s", demoMode->clipController[i].keyframeIndex0);
+			"Keyframe Index = %u", demoMode->clipController[i].keyframeIndex0);
 		a3textDraw(text, textAlign, textOffset += textOffsetDelta, textDepth, col.r, col.g, col.b, col.a,
-			"Keyframe Param = %07.4lf s", demoMode->clipController[i].keyframeParam);
+			"Keyframe Param = %f", demoMode->clipController[i].keyframeParam);
 		a3textDraw(text, textAlign, textOffset += textOffsetDelta, textDepth, col.r, col.g, col.b, col.a,
-			"Keyframe Time = %07.4lf s", demoMode->clipController[i].keyframeTime);
+			"Keyframe Time = %f", demoMode->clipController[i].keyframeTime);
 		a3textDraw(text, textAlign, textOffset += textOffsetDelta, textDepth, col.r, col.g, col.b, col.a,
-			"Keyframe Data = %07.4lf s", demoMode->clipController[i].keyframePtr0->data);
+			"Keyframe Data = %u", demoMode->clipController[i].keyframePtr0->data);
 	}
 	
 
