@@ -43,8 +43,14 @@ inline a3i32 a3clipControllerUpdate(a3_ClipController* clipCtrl, const a3real dt
 	// if over: kp <- k0 <- k1 <- kn, calc new kn
 	// if begin: kn <- k1 <- k0 <- kp, calc new kp
 
-	clipCtrl->currentClip = &clipCtrl->clipPool->clip[clipCtrl->clipIndex];
-	clipCtrl->keyframePtr0 = &clipCtrl->currentClip->framePool->keyframe[clipCtrl->keyframeIndex0];
+	/*if (!clipCtrl->currentClip)
+	{
+		clipCtrl->currentClip = &clipCtrl->clipPool->clip[clipCtrl->clipIndex];
+	}
+	if (!clipCtrl->keyframePtr0)
+	{
+		clipCtrl->keyframePtr0 = &clipCtrl->currentClip->framePool->keyframe[clipCtrl->keyframeIndex0];
+	}*/
 
 	if (clipCtrl->playbackDirection == 0)
 	{
@@ -93,16 +99,16 @@ inline a3i32 a3clipControllerUpdate(a3_ClipController* clipCtrl, const a3real dt
 		clipCtrl->keyframeTime -= dt;
 
 		//Resolve time | Update keyframe details if necessary
-		if (clipCtrl->keyframeTime < clipCtrl->keyframePtr0->duration)
+		if (clipCtrl->keyframeTime < 0.0)
 		{
 			//move keyFrameTime to next keyframe
-			clipCtrl->keyframeTime = clipCtrl->keyframeTime - clipCtrl->keyframePtr0->duration;
+			clipCtrl->keyframeTime = clipCtrl->keyframePtr0->duration + clipCtrl->keyframeTime;
 
 			//move to next keyframe
-			if (clipCtrl->currentClip->keyframeCount > clipCtrl->keyframeIndex0)
+			if (clipCtrl->currentClip->first_keyframe < clipCtrl->keyframeIndex0)
 			{
-					clipCtrl->keyframeIndex0--;
-					clipCtrl->keyframePtr0 = &clipCtrl->currentClip->framePool->keyframe[clipCtrl->keyframeIndex0];
+				clipCtrl->keyframeIndex0--;
+				clipCtrl->keyframePtr0 = &clipCtrl->currentClip->framePool->keyframe[clipCtrl->keyframeIndex0];
 			}
 		}
 
@@ -112,11 +118,11 @@ inline a3i32 a3clipControllerUpdate(a3_ClipController* clipCtrl, const a3real dt
 		clipCtrl->clipParam = clipCtrl->clipTime * clipCtrl->currentClip->durationInv;
 
 		//Loop after finish
-		if (clipCtrl->clipParam < 0)
+		if (clipCtrl->clipParam <= 0)
 		{
-			clipCtrl->keyframeIndex0 = clipCtrl->currentClip->first_keyframe;
+			clipCtrl->keyframeIndex0 = clipCtrl->currentClip->last_keyframe;
 			clipCtrl->keyframePtr0 = &clipCtrl->currentClip->framePool->keyframe[clipCtrl->keyframeIndex0];
-			clipCtrl->clipTime = 0;
+			clipCtrl->clipTime = 0 + clipCtrl->currentClip->duration - clipCtrl->clipTime;
 		}
 	}
 	return 1;
