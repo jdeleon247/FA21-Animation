@@ -175,22 +175,22 @@ void a3starter_load(a3_DemoState const* demoState, a3_DemoMode0_Starter* demoMod
 	// initialize keyframes
 	for (a3ui32 i = 0; i < demoMode->keyframePool->count; i++)
 	{
-		a3keyframeInit(demoMode->keyframePool->keyframe + i, (float)i / 20.0f, 45 - i);
+		a3keyframeInit(demoMode->keyframePool->keyframe + i, 0.5f, 45 - i);
 	}
 
-	a3clipInit(demoMode->clipPool->clip + 0, "0 -> 19", demoMode->keyframePool, 0, 19);
-	a3clipInit(demoMode->clipPool->clip + 1, "0 -> 10", demoMode->keyframePool, 0, 10);
-	a3clipInit(demoMode->clipPool->clip + 2, "3 -> 5", demoMode->keyframePool, 3, 5);
-	a3clipInit(demoMode->clipPool->clip + 3, "5 -> 15", demoMode->keyframePool, 5, 15);
-	a3clipInit(demoMode->clipPool->clip + 4, "12 -> 16", demoMode->keyframePool, 12, 16);
+	a3clipTransitionInit(demoMode->clipTransition + 0, demoMode->clipPool, 1, 0, -1);
+	a3clipTransitionInit(demoMode->clipTransition + 1, demoMode->clipPool, 1, 0, 1);
+
+	a3clipInit(demoMode->clipPool->clip + 0, "0 -> 19", demoMode->keyframePool, 0, 19, demoMode->clipTransition + 0, demoMode->clipTransition + 1);
+	a3clipInit(demoMode->clipPool->clip + 1, "0 -> 10", demoMode->keyframePool, 0, 10, demoMode->clipTransition + 0, demoMode->clipTransition + 1);
+	a3clipInit(demoMode->clipPool->clip + 2, "3 -> 5", demoMode->keyframePool, 3, 5, demoMode->clipTransition + 0, demoMode->clipTransition + 1);
+	a3clipInit(demoMode->clipPool->clip + 3, "5 -> 15", demoMode->keyframePool, 5, 15, demoMode->clipTransition + 0, demoMode->clipTransition + 1);
+	a3clipInit(demoMode->clipPool->clip + 4, "12 -> 16", demoMode->keyframePool, 12, 16, demoMode->clipTransition + 0, demoMode->clipTransition + 1);
 
 	// initialize clip controllers
-	a3clipControllerInit(demoMode->clipController + 0, "Controller 1", demoMode->clipPool, 0);
-	a3clipControllerInit(demoMode->clipController + 1, "Controller 2", demoMode->clipPool, 0);
-	a3clipControllerInit(demoMode->clipController + 2, "Controller 3", demoMode->clipPool, 0);
-	demoMode->clipController[0].playbackDirection = 0;
-	demoMode->clipController[1].playbackDirection = 1;
-	demoMode->clipController[2].playbackDirection = -1;
+	a3clipControllerInit(demoMode->clipController + 0, "Controller 1", demoMode->clipPool, 1, 0, 0);
+	a3clipControllerInit(demoMode->clipController + 1, "Controller 2", demoMode->clipPool, 1, 0, 1);
+	a3clipControllerInit(demoMode->clipController + 2, "Controller 3", demoMode->clipPool, 1, 0, -1);
 }
 
 

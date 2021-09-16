@@ -63,7 +63,15 @@ inline a3i32 a3clipControllerUpdate(a3_ClipController* clipCtrl, const a3real dt
 		clipCtrl->clipTime += dt;
 		clipCtrl->keyframeTime += dt;
 
-		//Resolve time | Update keyframe details if necessary
+		//Resolve time
+		// Forward terminus
+		if (clipCtrl->clipParam >= 1)
+		{
+			a3clipControllerInit(clipCtrl, clipCtrl->name, clipCtrl->currentClip->forwardTransition->clipPool,
+				clipCtrl->currentClip->forwardTransition->clipIndex, clipCtrl->currentClip->forwardTransition->clipTime,
+				clipCtrl->currentClip->forwardTransition->playbackDirection);
+		}
+		// Update keyframe details if necessary
 		if (clipCtrl->keyframeTime >= clipCtrl->keyframePtr0->duration)
 		{
 			//move keyFrameTime to next keyframe
@@ -82,13 +90,6 @@ inline a3i32 a3clipControllerUpdate(a3_ClipController* clipCtrl, const a3real dt
 		clipCtrl->keyframeParam = clipCtrl->keyframeTime * clipCtrl->keyframePtr0->durationInv;
 		clipCtrl->clipParam = clipCtrl->clipTime * clipCtrl->currentClip->durationInv;
 
-		//Loop after finish
-		if (clipCtrl->clipParam >= 1)
-		{
-			clipCtrl->keyframeIndex0 = clipCtrl->currentClip->first_keyframe;
-			clipCtrl->keyframePtr0 = &clipCtrl->currentClip->framePool->keyframe[clipCtrl->keyframeIndex0];
-			clipCtrl->clipTime = 0;
-		}
 	}
 
 	//reverse
@@ -98,7 +99,17 @@ inline a3i32 a3clipControllerUpdate(a3_ClipController* clipCtrl, const a3real dt
 		clipCtrl->clipTime -= dt;
 		clipCtrl->keyframeTime -= dt;
 
-		//Resolve time | Update keyframe details if necessary
+		//Resolve time
+		// Reverse terminus
+		if (clipCtrl->clipTime <= 0)
+		{
+			// apply reverse transition
+			a3clipControllerInit(clipCtrl, clipCtrl->name, clipCtrl->currentClip->reverseTransition->clipPool,
+				clipCtrl->currentClip->reverseTransition->clipIndex,
+				clipCtrl->currentClip->reverseTransition->clipTime,
+				clipCtrl->currentClip->reverseTransition->playbackDirection);
+		}
+		// Update keyframe details if necessary
 		if (clipCtrl->keyframeTime < 0.0)
 		{
 			//move keyFrameTime to next keyframe
@@ -117,13 +128,7 @@ inline a3i32 a3clipControllerUpdate(a3_ClipController* clipCtrl, const a3real dt
 		clipCtrl->keyframeParam = clipCtrl->keyframeTime * clipCtrl->keyframePtr0->durationInv;
 		clipCtrl->clipParam = clipCtrl->clipTime * clipCtrl->currentClip->durationInv;
 
-		//Loop after finish
-		if (clipCtrl->clipParam <= 0)
-		{
-			clipCtrl->keyframeIndex0 = clipCtrl->currentClip->last_keyframe;
-			clipCtrl->keyframePtr0 = &clipCtrl->currentClip->framePool->keyframe[clipCtrl->keyframeIndex0];
-			clipCtrl->clipTime = 0 + clipCtrl->currentClip->duration - clipCtrl->clipTime;
-		}
+		
 	}
 	return 1;
 }

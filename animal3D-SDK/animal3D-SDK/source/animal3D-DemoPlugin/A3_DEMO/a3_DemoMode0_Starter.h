@@ -161,6 +161,7 @@ typedef enum a3_DemoMode0_Starter_TargetName				a3_DemoMode0_Starter_TargetName;
 	a3_ClipController clipController[3];
 	a3_KeyframePool keyframePool[1];
 	a3_ClipPool clipPool[1];
+	a3_ClipTransition clipTransition[2];
 	};
 
 

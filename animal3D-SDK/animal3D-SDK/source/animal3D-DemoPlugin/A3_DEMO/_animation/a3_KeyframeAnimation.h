@@ -41,6 +41,7 @@ typedef struct a3_Keyframe					a3_Keyframe;
 typedef struct a3_KeyframePool				a3_KeyframePool;
 typedef struct a3_Clip						a3_Clip;
 typedef struct a3_ClipPool					a3_ClipPool;
+typedef struct a3_ClipTransition			a3_ClipTransition;
 #endif	// __cplusplus
 
 
@@ -125,6 +126,10 @@ struct a3_Clip
 	// index of final referenced keyframe in pool
 	a3index last_keyframe;
 
+	const a3_ClipTransition* forwardTransition;
+
+	const a3_ClipTransition* reverseTransition;
+
 	// array of keyframes
 	const a3_KeyframePool* framePool;
 };
@@ -139,6 +144,22 @@ struct a3_ClipPool
 	a3ui32 count;
 };
 
+// clip transition
+struct a3_ClipTransition
+{
+	// array of clips
+	const a3_ClipPool* clipPool;
+
+	// index of target clip
+	a3index clipIndex;
+
+	// clip time;
+	a3f32 clipTime;
+
+	// playbackDirection;
+	a3f32 playbackDirection;
+};
+
 
 // allocate clip pool
 a3i32 a3clipPoolCreate(a3_ClipPool* clipPool_out, const a3ui32 count);
@@ -147,7 +168,8 @@ a3i32 a3clipPoolCreate(a3_ClipPool* clipPool_out, const a3ui32 count);
 a3i32 a3clipPoolRelease(a3_ClipPool* clipPool);
 
 // initialize clip with first and last indices
-a3i32 a3clipInit(a3_Clip* clip_out, const a3byte clipName[a3keyframeAnimation_nameLenMax], const a3_KeyframePool* keyframePool, const a3ui32 firstKeyframeIndex, const a3ui32 finalKeyframeIndex);
+a3i32 a3clipInit(a3_Clip* clip_out, const a3byte clipName[a3keyframeAnimation_nameLenMax], const a3_KeyframePool* keyframePool, const a3ui32 firstKeyframeIndex, const a3ui32 finalKeyframeIndex,
+const a3_ClipTransition* forwardClipTransition, const a3_ClipTransition* reverseClipTransition);
 
 // get clip index from pool
 a3i32 a3clipGetIndexInPool(const a3_ClipPool* clipPool, const a3byte clipName[a3keyframeAnimation_nameLenMax]);
@@ -157,6 +179,9 @@ a3i32 a3clipCalculateDuration(a3_Clip* clip);
 
 // calculate keyframes' durations by distributing clip's duration
 a3i32 a3clipDistributeDuration(a3_Clip* clip, const a3real newClipDuration);
+
+// initialize clip transition with desired transition attributes
+a3i32 a3clipTransitionInit(a3_ClipTransition* clipTransition_out, a3_ClipPool* pool, a3index index, a3f32 startTime, a3f32 clipPlaybackDirection);
 
 
 //-----------------------------------------------------------------------------

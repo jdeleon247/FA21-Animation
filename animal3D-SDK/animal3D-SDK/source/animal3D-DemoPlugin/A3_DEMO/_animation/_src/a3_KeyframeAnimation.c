@@ -85,7 +85,8 @@ a3i32 a3clipPoolRelease(a3_ClipPool* clipPool)
 }
 
 // initialize clip with first and last indices
-a3i32 a3clipInit(a3_Clip* clip_out, const a3byte clipName[a3keyframeAnimation_nameLenMax], const a3_KeyframePool* keyframePool, const a3ui32 firstKeyframeIndex, const a3ui32 finalKeyframeIndex)
+a3i32 a3clipInit(a3_Clip* clip_out, const a3byte clipName[a3keyframeAnimation_nameLenMax], const a3_KeyframePool* keyframePool, const a3ui32 firstKeyframeIndex, const a3ui32 finalKeyframeIndex,
+const a3_ClipTransition* forwardClipTransition, const a3_ClipTransition* reverseClipTransition)
 {
 	// set name
 	for (a3ui32 i = 0; i < a3keyframeAnimation_nameLenMax; i++)
@@ -95,11 +96,14 @@ a3i32 a3clipInit(a3_Clip* clip_out, const a3byte clipName[a3keyframeAnimation_na
 
 	// set referenced keyframe pool
 	clip_out->framePool = keyframePool;
-	clip_out->keyframeCount = clip_out->framePool->count;
+	clip_out->keyframeCount = finalKeyframeIndex - firstKeyframeIndex;
 
 	// set first and last keyframe indices
 	clip_out->first_keyframe = firstKeyframeIndex;
 	clip_out->last_keyframe = finalKeyframeIndex;
+
+	clip_out->forwardTransition = forwardClipTransition;
+	clip_out->reverseTransition = reverseClipTransition;
 
 	a3clipCalculateDuration(clip_out);
 	return -1;
@@ -114,6 +118,16 @@ a3i32 a3clipGetIndexInPool(const a3_ClipPool* clipPool, const a3byte clipName[a3
 			return i;
 	}
 	return -1;
+}
+
+a3i32 a3clipTransitionInit(a3_ClipTransition* clipTransition_out, a3_ClipPool* pool, a3index index, a3f32 startTime, a3f32 clipPlaybackDirection)
+{
+	clipTransition_out->clipPool = pool;
+	clipTransition_out->clipIndex = index;
+	clipTransition_out->clipTime = startTime;
+	clipTransition_out->playbackDirection = clipPlaybackDirection;
+
+	return 1;
 }
 
 
