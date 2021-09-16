@@ -178,6 +178,15 @@ void a3starter_load(a3_DemoState const* demoState, a3_DemoMode0_Starter* demoMod
 		a3keyframeInit(demoMode->keyframePool->keyframe + i, 0.5f, 45 - i);
 	}
 
+	// initialize text streaming
+	a3_FileStream fileStream[1] = { 0 };
+	const a3byte* const animStream = "resource/animdata/sprite_anim.txt";
+
+	if (a3fileStreamOpenRead(fileStream, animStream))
+	{
+		(a3_FileStreamReadFunc)fileStream;
+	}
+
 	a3clipTransitionInit(demoMode->clipTransition + 0, demoMode->clipPool, 1, 0, -1);
 	a3clipTransitionInit(demoMode->clipTransition + 1, demoMode->clipPool, 1, 0, 1);
 
