@@ -43,14 +43,17 @@ inline a3i32 a3clipControllerUpdate(a3_ClipController* clipCtrl, const a3real dt
 	// if over: kp <- k0 <- k1 <- kn, calc new kn
 	// if begin: kn <- k1 <- k0 <- kp, calc new kp
 
-	/*if (!clipCtrl->currentClip)
+
+	clipCtrl->currentClip = &clipCtrl->clipPool->clip[clipCtrl->clipIndex];
+	clipCtrl->keyframePtr0 = &clipCtrl->currentClip->framePool->keyframe[clipCtrl->keyframeIndex0];
+
+	if (clipCtrl->clipIndex != clipCtrl->currentClip->index);
 	{
 		clipCtrl->currentClip = &clipCtrl->clipPool->clip[clipCtrl->clipIndex];
+		//a3clipControllerInit(clipCtrl, clipCtrl->name, clipCtrl->currentClip->forwardTransition->clipPool,
+			//clipCtrl->currentClip->forwardTransition->clipIndex, clipCtrl->currentClip->forwardTransition->clipTime,
+			//clipCtrl->currentClip->forwardTransition->playbackDirection);
 	}
-	if (!clipCtrl->keyframePtr0)
-	{
-		clipCtrl->keyframePtr0 = &clipCtrl->currentClip->framePool->keyframe[clipCtrl->keyframeIndex0];
-	}*/
 
 	if (clipCtrl->playbackDirection == 0)
 	{

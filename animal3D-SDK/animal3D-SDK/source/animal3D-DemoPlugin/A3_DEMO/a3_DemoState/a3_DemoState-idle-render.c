@@ -171,8 +171,16 @@ void a3demo_render_animation_controller_data(const a3_DemoState* demoState, a3_D
 	// need to initialize clip controller and keyframes and stuff
 	for (int i = 0; i < 3; i++)
 	{
-		a3textDraw(text, textAlign, textOffset += textOffsetDelta, textDepth, col.r, col.g, col.b, col.a,
-			"%s:", demoMode->clipController[i].name);
+		if (demoMode->currentClipController == i)
+		{
+			a3textDraw(text, textAlign, textOffset += textOffsetDelta, textDepth, col.r, col.g, col.b, col.a,
+				"-->%s: <--", demoMode->clipController[i].name);
+		}
+		else
+		{
+			a3textDraw(text, textAlign, textOffset += textOffsetDelta, textDepth, col.r, col.g, col.b, col.a,
+				"%s:", demoMode->clipController[i].name);
+		}
 		a3textDraw(text, textAlign, textOffset += textOffsetDelta, textDepth, col.r, col.g, col.b, col.a,
 			"Clip Name = %s |  Playback Direction = %f", demoMode->clipController[i].currentClip->name,
 			demoMode->clipController[i].playbackDirection);

@@ -54,11 +54,12 @@ typedef enum a3_DemoMode0_Starter_TargetName				a3_DemoMode0_Starter_TargetName;
 //-----------------------------------------------------------------------------
 
 	// maximum unique objects
-	enum a3_DemoMode0_Starter_ObjectMaxCount
-	{
-		starterMaxCount_sceneObject = 8,
-		starterMaxCount_cameraObject = 1,
-		starterMaxCount_projector = 1,
+enum a3_DemoMode0_Starter_ObjectMaxCount
+{
+	starterMaxCount_sceneObject = 8,
+	starterMaxCount_cameraObject = 1,
+	starterMaxCount_projector = 1,
+	starterMaxCount_clipController = 3,
 	};
 
 	// scene object rendering program names
@@ -158,10 +159,12 @@ typedef enum a3_DemoMode0_Starter_TargetName				a3_DemoMode0_Starter_TargetName;
 			};
 		};
 
-	a3_ClipController clipController[3];
+	a3_ClipController clipController[starterMaxCount_clipController];
 	a3_KeyframePool keyframePool[1];
 	a3_ClipPool clipPool[1];
 	a3_ClipTransition clipTransition[2];
+
+	a3index currentClipController;
 	};
 
 
