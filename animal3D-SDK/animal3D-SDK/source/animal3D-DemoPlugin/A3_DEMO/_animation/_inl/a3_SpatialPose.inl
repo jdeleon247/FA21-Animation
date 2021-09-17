@@ -68,7 +68,13 @@ inline a3i32 a3spatialPoseReset(a3_SpatialPose* spatialPose)
 {
 	if (spatialPose)
 	{
+		spatialPose->transform = a3mat4_identity; // diagonal 1s,
+		spatialPose->rotation = a3vec3_zero; // add 0 degres to each axis
+		spatialPose->translation = a3vec3_zero; // move 0 units in each direction
+		spatialPose->scale = a3vec3_one; // multiply size times 1;
 
+		// done
+		return 0;
 	}
 	return -1;
 }
@@ -93,6 +99,18 @@ inline a3i32 a3spatialPoseCopy(a3_SpatialPose* spatialPose_out, const a3_Spatial
 	return -1;
 }
 
+// concatenate/combine two node poses.
+inline a3i32 a3spatialPoseConcat(a3_SpatialPose* spatialPose_out, const a3_SpatialPose* spatialPose_lh, const a3_SpatialPose* spatialPose_rh)
+{
+	return 1;
+}
+
+// lerp
+inline a3i32 a3spatialPoseLerp(a3_SpatialPose* spatialPose_out,
+	const a3_SpatialPose* spatialPose0, const a3_SpatialPose* spatialPose1, const a3real u)
+{
+	return 1;
+}
 
 //-----------------------------------------------------------------------------
 
