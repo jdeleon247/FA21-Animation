@@ -160,6 +160,8 @@ struct a3_ClipTransition
 	a3f32 playbackDirection;
 };
 
+// create clip pool from file
+a3i32 a3clipPoolCreateFromFile(a3_ClipPool* clipPool_out, const char* filePath);
 
 // allocate clip pool
 a3i32 a3clipPoolCreate(a3_ClipPool* clipPool_out, const a3ui32 count);

@@ -31,7 +31,9 @@
 #include "../a3_DemoMode0_Starter.h"
 
 #include "../a3_DemoState.h"
-
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 //-----------------------------------------------------------------------------
 
@@ -172,19 +174,13 @@ void a3starter_load(a3_DemoState const* demoState, a3_DemoMode0_Starter* demoMod
 	a3clipPoolCreate(demoMode->clipPool, 5);
 	a3keyframePoolCreate(demoMode->keyframePool, 20);
 
+	const char* PATH = "../../../../resource/animdata/sprite_anim.txt";
+
+	a3clipPoolCreateFromFile(demoMode->clipPool, PATH);
 	// initialize keyframes
 	for (a3ui32 i = 0; i < demoMode->keyframePool->count; i++)
 	{
 		a3keyframeInit(demoMode->keyframePool->keyframe + i, 0.5f, 45 - i);
-	}
-
-	// initialize text streaming
-	a3_FileStream fileStream[1] = { 0 };
-	const a3byte* const animStream = "resource/animdata/sprite_anim.txt";
-
-	if (a3fileStreamOpenRead(fileStream, animStream))
-	{
-		(a3_FileStreamReadFunc)fileStream;
 	}
 
 	a3clipTransitionInit(demoMode->clipTransition + 0, demoMode->clipPool, 1, 0, -1);

@@ -26,7 +26,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-
+#include <stdio.h>
 
 // macros to help with names
 #define A3_CLIP_DEFAULTNAME		("unnamed clip")
@@ -66,6 +66,54 @@ a3i32 a3keyframeInit(a3_Keyframe* keyframe_out, const a3real duration, const a3u
 	return -1;
 }
 
+//create clip pool from file
+a3i32 a3clipPoolCreateFromFile(a3_ClipPool* clipPool_out, const char* filePath)
+{
+	// open specified file
+	a3i32 maxChars = 256;
+	a3ui64 fileSize = 0;
+	char* buffer;
+
+	FILE* file = fopen(filePath, "r");
+	if (file == NULL)
+	{
+		printf("Error opening file: ");
+		printf(filePath);
+		return -1;
+	}
+
+	// get size of file
+	else
+	{
+		fseek(file, 0L, SEEK_END);
+		fileSize = ftell(file);
+		fseek(file, 0L, SEEK_SET);
+	}
+
+
+
+	// read file into string
+	buffer = malloc(fileSize + 1);
+	if (!buffer) fclose(file), printf("failed to allocate memory"), stderr, exit(1);
+	fread(buffer, 1, fileSize, file);
+
+	// null terminate buffer for safety
+	buffer[fileSize] = '\0';
+
+	// close file
+	fclose(file);
+
+	// break up text using delimiters
+	char lineDelim[] = "\n";
+	char* ptr = strtok(buffer, lineDelim);
+	while (ptr != NULL)
+	{
+		printf("'%s'", ptr);
+		ptr = strtok(NULL, lineDelim);
+	}
+
+	return -1;
+}
 
 // allocate clip pool
 a3i32 a3clipPoolCreate(a3_ClipPool* clipPool_out, const a3ui32 count)
