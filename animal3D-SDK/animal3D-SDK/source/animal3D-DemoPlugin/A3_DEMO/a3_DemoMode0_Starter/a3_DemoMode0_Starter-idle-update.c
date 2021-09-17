@@ -97,6 +97,7 @@ void a3starter_update(a3_DemoState* demoState, a3_DemoMode0_Starter* demoMode, a
 	//a3_Sample evaluatedSample;
 	//a3clipControllerEvaluate(demoMode->clipController, &evaluatedSample);
 	//(a * (1.0 - t)) + (b * t)
+	// (1-t) * a + b * t
 	if (demoMode->clipController->playbackDirection > 0)
 	{
 		demoMode->obj_teapot->position.x = ((a3real)1.0 - demoMode->clipController->keyframeParam) * demoMode->clipController->keyframePtr0->data + (a3real)(demoMode->clipController->keyframePtr1->data * demoMode->clipController->keyframeParam);
