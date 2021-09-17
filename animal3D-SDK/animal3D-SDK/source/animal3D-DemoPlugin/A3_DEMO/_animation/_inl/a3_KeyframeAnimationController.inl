@@ -17,6 +17,8 @@
 /*
 	animal3D SDK: Minimal 3D Animation Framework
 	By Daniel S. Buckstein
+
+	modified by Rory Beebout
 	
 	a3_KeyframeAnimationController.h
 	inline definitions for keyframe animation controller.
@@ -46,7 +48,8 @@ inline a3i32 a3clipControllerUpdate(a3_ClipController* clipCtrl, const a3real dt
 
 	clipCtrl->currentClip = &clipCtrl->clipPool->clip[clipCtrl->clipIndex];
 	clipCtrl->keyframePtr0 = &clipCtrl->currentClip->framePool->keyframe[clipCtrl->keyframeIndex0];
-	clipCtrl->keyframePtr1 = &clipCtrl->currentClip->framePool->keyframe[clipCtrl->keyframeIndex0-1];
+	clipCtrl->keyframePtr1 = &clipCtrl->currentClip->framePool->keyframe[clipCtrl->keyframeIndex0];
+
 	if (clipCtrl->clipIndex != clipCtrl->currentClip->index);
 	{
 		clipCtrl->currentClip = &clipCtrl->clipPool->clip[clipCtrl->clipIndex];
@@ -62,6 +65,12 @@ inline a3i32 a3clipControllerUpdate(a3_ClipController* clipCtrl, const a3real dt
 	//forward
 	if (clipCtrl->playbackDirection == 1)
 	{
+		clipCtrl->keyframePtr1 = &clipCtrl->currentClip->framePool->keyframe[clipCtrl->keyframeIndex0 + 1];
+		if (!clipCtrl->keyframePtr1)
+		{
+			clipCtrl->keyframePtr1 = &clipCtrl->currentClip->framePool->keyframe[clipCtrl->keyframeIndex0];
+		}
+
 		//Pre-resolution | increment time.
 		clipCtrl->clipTime += dt;
 		clipCtrl->keyframeTime += dt;
@@ -98,6 +107,12 @@ inline a3i32 a3clipControllerUpdate(a3_ClipController* clipCtrl, const a3real dt
 	//reverse
 	if (clipCtrl->playbackDirection == -1)
 	{
+		clipCtrl->keyframePtr1 = &clipCtrl->currentClip->framePool->keyframe[clipCtrl->keyframeIndex0 - 1];
+		if (!clipCtrl->keyframePtr1)
+		{
+			clipCtrl->keyframePtr1 = &clipCtrl->currentClip->framePool->keyframe[clipCtrl->keyframeIndex0];
+		}
+
 		//Pre-resolution | increment time.
 		clipCtrl->clipTime -= dt;
 		clipCtrl->keyframeTime -= dt;

@@ -17,6 +17,8 @@
 /*
 	animal3D SDK: Minimal 3D Animation Framework
 	By Daniel S. Buckstein
+
+	modified by Rory Beebout
 	
 	a3_DemoMode0_Starter_idle-update.c
 	Demo mode implementations: starter scene.
@@ -92,10 +94,18 @@ void a3starter_update(a3_DemoState* demoState, a3_DemoMode0_Starter* demoMode, a
 	}
 
 	// change object position using animation data
-	a3_Sample evaluatedSample;
-	a3clipControllerEvaluate(demoMode->clipController, &evaluatedSample);
-	demoMode->obj_teapot->position.x = evaluatedSample.time;
-
+	//a3_Sample evaluatedSample;
+	//a3clipControllerEvaluate(demoMode->clipController, &evaluatedSample);
+	//(a * (1.0 - t)) + (b * t)
+	if (demoMode->clipController->playbackDirection > 0)
+	{
+		demoMode->obj_teapot->position.x = ((a3real)1.0 - demoMode->clipController->keyframeParam) * demoMode->clipController->keyframePtr0->data + (a3real)(demoMode->clipController->keyframePtr1->data * demoMode->clipController->keyframeParam);
+	}
+	else
+	{
+		demoMode->obj_teapot->position.x = ((a3real)1.0 - demoMode->clipController->keyframeParam) * demoMode->clipController->keyframePtr1->data + (a3real)(demoMode->clipController->keyframePtr0->data * demoMode->clipController->keyframeParam);
+	}
+	
 }
 
 

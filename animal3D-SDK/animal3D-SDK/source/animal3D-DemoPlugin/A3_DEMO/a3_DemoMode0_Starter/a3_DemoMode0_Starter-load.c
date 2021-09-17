@@ -18,6 +18,8 @@
 	animal3D SDK: Minimal 3D Animation Framework
 	By Daniel S. Buckstein
 
+	modified by Rory Beebout
+
 	a3_DemoMode0_Starter_initialize.c
 	Demo mode implementations: starter scene.
 
@@ -180,7 +182,7 @@ void a3starter_load(a3_DemoState const* demoState, a3_DemoMode0_Starter* demoMod
 	// initialize keyframes
 	for (a3ui32 i = 0; i < demoMode->keyframePool->count; i++)
 	{
-		a3keyframeInit(demoMode->keyframePool->keyframe + i, 0.5f, 45 - i);
+		a3keyframeInit(demoMode->keyframePool->keyframe + i, 0.5f, 10 - i);
 	}
 
 	a3clipTransitionInit(demoMode->clipTransition + 0, demoMode->clipPool, 1, 0, -1);

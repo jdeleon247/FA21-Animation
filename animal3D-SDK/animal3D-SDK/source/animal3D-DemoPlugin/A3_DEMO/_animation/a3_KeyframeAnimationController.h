@@ -17,6 +17,8 @@
 /*
 	animal3D SDK: Minimal 3D Animation Framework
 	By Daniel S. Buckstein
+
+	modified by Rory Beebout
 	
 	a3_KeyframeAnimationController.h
 	Keyframe animation clip controller. Basically a frame index manager. Very 

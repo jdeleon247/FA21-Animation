@@ -18,6 +18,8 @@
 	animal3D SDK: Minimal 3D Animation Framework
 	By Daniel S. Buckstein
 
+	modified by Rory Beebout
+
 	a3_DemoMode0_Starter_idle-input.c
 	Demo mode implementations: starter scene.
 
