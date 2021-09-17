@@ -59,6 +59,7 @@ struct a3_Sample
 {
 	a3real time; // (the x axis)
 	a3real value; // (the y axis)
+	a3vec3 pos;
 };
 
 // description of single keyframe
@@ -162,6 +163,9 @@ struct a3_ClipTransition
 
 // create clip pool from file
 a3i32 a3clipPoolCreateFromFile(a3_ClipPool* clipPool_out, const char* filePath);
+
+// split input strings using a specific char
+a3i32 a3ColumnCount(char* inputStr);
 
 // allocate clip pool
 a3i32 a3clipPoolCreate(a3_ClipPool* clipPool_out, const a3ui32 count);

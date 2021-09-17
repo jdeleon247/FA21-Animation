@@ -46,7 +46,7 @@ inline a3i32 a3clipControllerUpdate(a3_ClipController* clipCtrl, const a3real dt
 
 	clipCtrl->currentClip = &clipCtrl->clipPool->clip[clipCtrl->clipIndex];
 	clipCtrl->keyframePtr0 = &clipCtrl->currentClip->framePool->keyframe[clipCtrl->keyframeIndex0];
-
+	clipCtrl->keyframePtr1 = &clipCtrl->currentClip->framePool->keyframe[clipCtrl->keyframeIndex0-1];
 	if (clipCtrl->clipIndex != clipCtrl->currentClip->index);
 	{
 		clipCtrl->currentClip = &clipCtrl->clipPool->clip[clipCtrl->clipIndex];

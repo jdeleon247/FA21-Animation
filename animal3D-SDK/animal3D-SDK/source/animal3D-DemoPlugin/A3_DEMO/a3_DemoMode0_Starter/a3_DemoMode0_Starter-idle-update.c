@@ -75,6 +75,7 @@ void a3starter_update(a3_DemoState* demoState, a3_DemoMode0_Starter* demoMode, a
 	for (i = 0; i < starterMaxCount_sceneObject; ++i)
 		a3demo_applyScale_internal(demoMode->object_scene + i, scaleMat.m);
 
+
 	// update skybox
 	a3demo_update_bindSkybox(demoMode->obj_camera_main, demoMode->obj_skybox);
 
@@ -89,6 +90,11 @@ void a3starter_update(a3_DemoState* demoState, a3_DemoMode0_Starter* demoMode, a
 	{
 		a3clipControllerUpdate(demoMode->clipController + i, (a3real)dt);
 	}
+
+	// change object position using animation data
+	a3_Sample evaluatedSample;
+	a3clipControllerEvaluate(demoMode->clipController, &evaluatedSample);
+	demoMode->obj_teapot->position.x = evaluatedSample.time;
 
 }
 
