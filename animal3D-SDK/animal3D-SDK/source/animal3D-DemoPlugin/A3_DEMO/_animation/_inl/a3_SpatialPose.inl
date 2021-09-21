@@ -84,7 +84,38 @@ inline a3i32 a3spatialPoseConvert(a3mat4* mat_out, const a3_SpatialPose* spatial
 {
 	if (mat_out && spatialPose_in)
 	{
+		// RST -> mat4
 
+		// M = T * ((R * R * R) * S) -> a3_SpatialPoseEulerOrder for rotation order
+
+		//	  |      tx |
+		//	M |	 RS  ty |
+		//	  |		 tz |
+		//	  | 0 0 0 1 |
+
+		//    | x		|
+		//	S |	   y 	|
+		//	  |		  z	|
+
+		// Rx | 1  0  0  0 |
+		//	  | 0  c -s  0 |
+		//	  | 0 +s  c  0 |
+		//	  | 0  0  0  1 |
+
+		// Ry | c  0 +s  0 |
+		//	  | 0  1  0  0 |
+		//	  |-s  0  c  0 |
+		//	  | 0  0  0  1 |
+
+		// Rz | c -s  0  0 |
+		//	  | +s c  0  0 |
+		//	  | 0  0  1  0 |
+		//	  | 0  0  0  1 |
+
+		//	  |	1	  x |
+		//	T |	  1   y |
+		//	  |	    1 z |
+		//	  | 0 0 0 1 |
 	}
 	return -1;
 }
@@ -102,13 +133,29 @@ inline a3i32 a3spatialPoseCopy(a3_SpatialPose* spatialPose_out, const a3_Spatial
 // concatenate/combine two node poses.
 inline a3i32 a3spatialPoseConcat(a3_SpatialPose* spatialPose_out, const a3_SpatialPose* spatialPose_lh, const a3_SpatialPose* spatialPose_rh)
 {
-	return 1;
+	if (spatialPose_out && spatialPose_lh && spatialPose_rh)
+	{
+		// spatialPose_out->transform; // No matrices yet, won't do anything - Dan
+		spatialPose_out->rotation; // Euler: add ->validate(lh+rh) -> constrain sum to rotation domain (+-360 degrees)
+		spatialPose_out->scale; // multiply (lh * rh) -> component-wise.
+		spatialPose_out->translation;  // (lh + rh)
+	}
+	return -1;
 }
 
 // lerp
 inline a3i32 a3spatialPoseLerp(a3_SpatialPose* spatialPose_out,
 	const a3_SpatialPose* spatialPose0, const a3_SpatialPose* spatialPose1, const a3real u)
 {
+	if (spatialPose_out && spatialPose0 && spatialPose1)
+	{
+		// spatialPose_out->transform; // No matrices yet, won't do anything, also matrix-lerps destroy space fabric - Dan
+		spatialPose_out->rotation; // Euler: lerp(p0,p1,u) -> (p1-p0)u + p0;
+		spatialPose_out->scale; // lerp is ok... but really... exponent_lerp() -> (p1(p0^(-1)))^u * p0
+		spatialPose_out->translation; // lerp(p0,p1,u)
+		return 0;
+	}
+
 	return 1;
 }
 

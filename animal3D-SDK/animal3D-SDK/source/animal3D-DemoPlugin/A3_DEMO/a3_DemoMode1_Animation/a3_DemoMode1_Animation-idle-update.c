@@ -81,6 +81,18 @@ void a3animation_update(a3_DemoState* demoState, a3_DemoMode1_Animation* demoMod
 			activeCamera->projectionMat.m, activeCameraObject->modelMat.m, activeCameraObject->modelMatInv.m,
 			demoMode->object_scene[i].modelMat.m, a3mat4_identity.m);
 	}
+
+	// ****TO-DO:
+	// resolve animation: "the 4 steps"
+	// -> interpolate (between deltas)
+	// -< concatenate (with base)
+	// -> convert
+	// -> forward kinematics (FK)
+
+
+	// ****TO-DO:
+	// resolve graphics:
+	// -> upload results of FK to UBO
 }
 
 
