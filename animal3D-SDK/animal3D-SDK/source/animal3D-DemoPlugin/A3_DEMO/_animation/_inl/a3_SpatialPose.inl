@@ -116,6 +116,23 @@ inline a3i32 a3spatialPoseConvert(a3mat4* mat_out, const a3_SpatialPose* spatial
 		//	T |	  1   y |
 		//	  |	    1 z |
 		//	  | 0 0 0 1 |
+
+		// set scale and translation -> technically out of order but I don't think that matters?
+		a3mat4 out = {spatialPose_in->scale.x, 0, 0, 0,
+						0, spatialPose_in->scale.y, 0, 0,
+						0, 0, spatialPose_in->scale.z, 0,
+						spatialPose_in->translation.x, spatialPose_in->translation.y, spatialPose_in->translation.z, 0};
+
+		// use euler order?
+		a3mat4 rotMat = a3mat4_identity;
+		a3real4x4SetRotateX(rotMat.m, spatialPose_in->rotation.x);
+		a3real4x4SetRotateY(rotMat.m, spatialPose_in->rotation.y);
+		a3real4x4SetRotateZ(rotMat.m, spatialPose_in->rotation.z);
+
+		a3real4x4Concat(rotMat.m, out.m);
+
+		mat_out = out.m;
+
 	}
 	return -1;
 }
@@ -137,8 +154,19 @@ inline a3i32 a3spatialPoseConcat(a3_SpatialPose* spatialPose_out, const a3_Spati
 	{
 		// spatialPose_out->transform; // No matrices yet, won't do anything - Dan
 		spatialPose_out->rotation; // Euler: add ->validate(lh+rh) -> constrain sum to rotation domain (+-360 degrees)
-		spatialPose_out->scale; // multiply (lh * rh) -> component-wise.
-		spatialPose_out->translation;  // (lh + rh)
+		a3real3Add(spatialPose_out->rotation.v, spatialPose_lh->rotation.v);
+		a3real3Add(spatialPose_out->rotation.v, spatialPose_rh->rotation.v);
+		a3clamp(-360, 360, spatialPose_out->rotation.x);
+		a3clamp(-360, 360, spatialPose_out->rotation.y);
+		a3clamp(-360, 360, spatialPose_out->rotation.z);
+
+		// multiply (lh * rh) -> component-wise.
+		a3real3ProductComp(spatialPose_out->scale.v, spatialPose_lh->scale.v, spatialPose_rh->scale.v);
+		spatialPose_out->scale; 
+
+		// (lh + rh)
+		a3real4Add(spatialPose_out->translation.v, spatialPose_lh->translation.v); 
+		a3real4Add(spatialPose_out->translation.v, spatialPose_rh->translation.v);
 	}
 	return -1;
 }
