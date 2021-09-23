@@ -68,7 +68,7 @@ struct a3_HierarchyPoseGroup
 	const a3_HierarchyPose* HierarchyPosePool; 
 
 	// array of transformation channels for each node in the hierarchy
-	a3_SpatialPoseChannel channels[1];
+	a3_SpatialPoseChannel channels[32];
 
 	// describes concatenation order of orientation channels
 	a3_SpatialPoseEulerOrder eulerOrder; 
