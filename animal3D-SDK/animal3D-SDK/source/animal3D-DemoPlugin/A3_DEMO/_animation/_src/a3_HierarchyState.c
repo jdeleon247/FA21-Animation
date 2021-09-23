@@ -38,9 +38,10 @@ a3i32 a3hierarchyPoseGroupCreate(a3_HierarchyPoseGroup *poseGroup_out, const a3_
 	if (poseGroup_out && hierarchy && !poseGroup_out->hierarchy && hierarchy->nodes)
 	{
 		// determine memory requirements
+		
 
 		// allocate everything (one malloc)
-		//??? = (...)malloc(sz);
+
 
 		// set pointers
 		poseGroup_out->hierarchy = hierarchy;
@@ -82,9 +83,10 @@ a3i32 a3hierarchyStateCreate(a3_HierarchyState *state_out, const a3_Hierarchy *h
 	if (state_out && hierarchy && !state_out->hierarchy && hierarchy->nodes)
 	{
 		// determine memory requirements
+		a3ui32 sz = sizeof(hierarchy->nodes) * hierarchy->numNodes;
 
 		// allocate everything (one malloc)
-		//??? = (...)malloc(sz);
+		state_out->hierarchy = malloc(sz);
 
 		// set pointers
 		state_out->hierarchy = hierarchy;
