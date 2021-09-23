@@ -89,6 +89,14 @@ void a3animation_update(a3_DemoState* demoState, a3_DemoMode1_Animation* demoMod
 	// -> convert
 	// -> forward kinematics (FK)
 
+	for (i = 0; i < 1; i++)
+	{
+		//a3spatialPoseLerp();
+		//a3spatialPoseConcat();
+		//a3spatialPoseConvert();
+		//a3kinematicsSolveForward();
+	}
+
 
 	// ****TO-DO:
 	// resolve graphics:

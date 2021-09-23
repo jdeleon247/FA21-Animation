@@ -286,9 +286,9 @@ struct a3_DemoState
 	// ****TO-DO: UBOs
 	union {
 		a3_UniformBuffer ubo[demoStateMaxCount_uniformBuffer];
-		//struct {
-		//a3_UniformBuffer...
-		//}
+		struct {
+			a3_UniformBuffer ubo_transformLMVP_joint[2];
+		};
 	};
 
 	// textures
