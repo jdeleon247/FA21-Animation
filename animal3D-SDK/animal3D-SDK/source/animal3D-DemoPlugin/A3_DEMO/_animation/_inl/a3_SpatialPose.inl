@@ -131,7 +131,7 @@ inline a3i32 a3spatialPoseConvert(a3mat4* mat_out, const a3_SpatialPose* spatial
 
 		a3real4x4Concat(rotMat.m, out.m);
 
-		mat_out = out.m;
+		*mat_out = out;
 
 	}
 	return -1;
