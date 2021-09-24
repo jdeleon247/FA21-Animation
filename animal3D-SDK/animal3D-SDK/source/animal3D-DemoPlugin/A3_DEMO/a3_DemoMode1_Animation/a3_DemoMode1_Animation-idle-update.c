@@ -35,6 +35,8 @@
 
 #include "../_a3_demo_utilities/a3_DemoMacros.h"
 
+#include "../animal3D-DemoPlugin/A3_DEMO/_animation/a3_Kinematics.h"
+
 
 //-----------------------------------------------------------------------------
 // UPDATE
@@ -94,13 +96,15 @@ void a3animation_update(a3_DemoState* demoState, a3_DemoMode1_Animation* demoMod
 		//a3spatialPoseLerp();
 		//a3spatialPoseConcat();
 		//a3spatialPoseConvert();
-		//a3kinematicsSolveForward();
+		//a3kinematicsSolveForward(demoMode->hierarchyState_skel);
 	}
 
 
 	// ****TO-DO:
 	// resolve graphics:
 	// -> upload results of FK to UBO
+
+	//a3bufferRefill(demoState->ubo_transformLMVP_joint, 0, sizeof(FORWARDKINEMATICS), FORWARDKINEMATICS);
 }
 
 

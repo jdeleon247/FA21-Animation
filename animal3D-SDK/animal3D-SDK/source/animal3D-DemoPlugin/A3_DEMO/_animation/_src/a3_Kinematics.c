@@ -60,7 +60,7 @@ a3i32 a3kinematicsSolveForwardPartial(const a3_HierarchyState *hierarchyState, c
 			// root
 			else
 			{	// copy local matrix to object matrix
-				hierarchyState->objectSpacePose.spatialPose[i].transform = hierarchyState->localSpacePose.spatialPose[i].transform;
+				//hierarchyState->objectSpacePose.spatialPose[i].transform = hierarchyState->localSpacePose.spatialPose[i].transform;
 			}
 		}
 		return 1;
