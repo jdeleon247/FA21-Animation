@@ -104,13 +104,27 @@ a3i32 a3hierarchyStateCreate(a3_HierarchyState *state_out, const a3_Hierarchy *h
 	if (state_out && hierarchy && !state_out->hierarchy && hierarchy->nodes)
 	{
 		// determine memory requirements
-
+		a3ui32 numNodes = hierarchy->numNodes;
+		a3ui32 hierarchyPoseCount = 4;
+		a3ui32 spatialPoseCount = hierarchyPoseCount * numNodes;
+		a3ui32 memSize = sizeof(a3_SpatialPose) * spatialPoseCount;
 		// allocate everything (one malloc)
+		state_out->localSpacePose->spatialPose = (a3_SpatialPose*)malloc(memSize);
 
 		// set pointers
 		state_out->hierarchy = hierarchy;
+		state_out->objectSpacePose->spatialPose = state_out->objectSpacePose->spatialPose + numNodes;
+
+		for (a3ui32 i = 0; i < hierarchyPoseCount; i++)
+		{
+			for (a3ui32 j = 0; j < numNodes; j++)
+			{
+				state_out->localSpacePose[i].spatialPose = state_out->localSpacePose->spatialPose + j;
+			}
+		}
 
 		// reset all data
+		a3hierarchyPoseReset(state_out->localSpacePose, spatialPoseCount);
 
 		// done
 		return 1;
