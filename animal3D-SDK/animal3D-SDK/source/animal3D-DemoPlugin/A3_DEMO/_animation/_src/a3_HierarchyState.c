@@ -175,5 +175,23 @@ a3i32 a3hierarchyPoseGroupLoadBVH(a3_HierarchyPoseGroup* poseGroup_out, a3_Hiera
 	return -1;
 }
 
+// save HTR file, write and store complete pose group and hierarchy
+a3i32 a3hierarchyPoseGroupSaveHTR(a3_HierarchyPoseGroup* const poseGroup_in, a3_Hierarchy* const hierarchy_in, const a3byte* resourceFilePath)
+{
+	if (poseGroup_in && !poseGroup_in->poseCount && hierarchy_in && !hierarchy_in->numNodes && resourceFilePath && *resourceFilePath)
+	{
+
+	}
+	return -1;
+}
+// save BVH file, write and store complete pose group and hierarchy
+a3i32 a3hierarchyPoseGroupSaveBVH(a3_HierarchyPoseGroup* const poseGroup_in, a3_Hierarchy* const hierarchy_in, const a3byte* resourceFilePath)
+{
+	if (poseGroup_in && !poseGroup_in->poseCount && hierarchy_in && !hierarchy_in->numNodes && resourceFilePath && *resourceFilePath)
+	{
+
+	}
+	return -1;
+}
 
 //-----------------------------------------------------------------------------
