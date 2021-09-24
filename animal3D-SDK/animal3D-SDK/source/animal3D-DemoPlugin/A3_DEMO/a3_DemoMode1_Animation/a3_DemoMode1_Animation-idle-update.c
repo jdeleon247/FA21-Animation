@@ -90,20 +90,28 @@ void a3animation_update(a3_DemoState* demoState, a3_DemoMode1_Animation* demoMod
 	// -< concatenate (with base)
 	// -> convert
 	// -> forward kinematics (FK)
+	a3ui32 j = 0;
 
-	for (i = 0; i < 1; i++)
+	for (i = 0; i < 1; ++i)
 	{
-		//a3spatialPoseLerp();
-		//a3spatialPoseConcat();
-		//a3spatialPoseConvert();
-		//a3kinematicsSolveForward(demoMode->hierarchyState_skel);
+		// For each node
+		for (j = 0; j < demoMode->hierarchyState_skel->hierarchy->numNodes; ++j)
+		{
+			a3spatialPoseLerp(demoMode->hierarchyState_skel->samplePose.spatialPose, demoMode->hierarchyState_skel->localSpacePose[0].spatialPose, demoMode->hierarchyState_skel->localSpacePose[j].spatialPose, 1);
+			a3spatialPoseConcat(demoMode->hierarchyState_skel->samplePose.spatialPose, demoMode->hierarchyState_skel->localSpacePose[0].spatialPose, demoMode->hierarchyState_skel->localSpacePose[j].spatialPose);
+
+			a3mat4 temp = a3mat4_identity;
+			a3spatialPoseConvert(&temp, &demoMode->hierarchyState_skel->samplePose.spatialPose[j], a3poseChannel_none, a3poseEulerOrder_xyz);
+			demoMode->hierarchyState_skel->samplePose.spatialPose[j].transform = temp;
+		}
+		a3kinematicsSolveForward(demoMode->hierarchyState_skel);
 	}
 
 
 	// ****TO-DO:
 	// resolve graphics:
 	// -> upload results of FK to UBO
-	a3kinematicsSolveForward(demoMode->hierarchyState_skel);
+	//a3kinematicsSolveForward(demoMode->hierarchyState_skel);
 	a3bufferRefillOffset(demoState->ubo_transformLMVP_joint, 0, 0, sizeof(demoMode->skeletonPose_transformLMVP_joint), demoMode->skeletonPose_transformLMVP_joint);
 }
 
