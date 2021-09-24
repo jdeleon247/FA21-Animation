@@ -103,8 +103,8 @@ void a3animation_update(a3_DemoState* demoState, a3_DemoMode1_Animation* demoMod
 	// ****TO-DO:
 	// resolve graphics:
 	// -> upload results of FK to UBO
-
-	//a3bufferRefill(demoState->ubo_transformLMVP_joint, 0, sizeof(FORWARDKINEMATICS), FORWARDKINEMATICS);
+	a3kinematicsSolveForward(demoMode->hierarchyState_skel);
+	a3bufferRefillOffset(demoState->ubo_transformLMVP_joint, 0, 0, sizeof(demoMode->skeletonPose_transformLMVP_joint), demoMode->skeletonPose_transformLMVP_joint);
 }
 
 

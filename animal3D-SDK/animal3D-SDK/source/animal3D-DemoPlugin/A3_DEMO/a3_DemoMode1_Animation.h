@@ -56,11 +56,12 @@ typedef enum a3_DemoMode1_Animation_TargetName				a3_DemoMode1_Animation_TargetN
 //-----------------------------------------------------------------------------
 
 	// maximum unique objects
-	enum a3_DemoMode1_Animation_ObjectMaxCount
-	{
+enum a3_DemoMode1_Animation_ObjectMaxCount
+{
 		animationMaxCount_sceneObject = 8,
 		animationMaxCount_cameraObject = 1,
 		animationMaxCount_projector = 1,
+		animationMaxCount_skeletonJoint = 32,
 	};
 
 	// scene object rendering program names
@@ -134,6 +135,8 @@ typedef enum a3_DemoMode1_Animation_TargetName				a3_DemoMode1_Animation_TargetN
 		a3_Hierarchy hierarchy_skel[1];
 		a3_HierarchyState hierarchyState_skel[1];
 		a3_HierarchyPoseGroup hierarchyPoseGroup_skel[1];
+
+		a3mat4 skeletonPose_transformLMVP_bone[animationMaxCount_skeletonJoint], skeletonPose_transformLMVP_joint[animationMaxCount_skeletonJoint];
 
 		// objects
 		union {
