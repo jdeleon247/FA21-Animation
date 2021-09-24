@@ -17,6 +17,8 @@
 /*
 	animal3D SDK: Minimal 3D Animation Framework
 	By Daniel S. Buckstein
+
+	modified by Rory Beebout, Jonathan Deleon
 	
 	a3_SpatialPose.inl
 	Implementation of inline spatial pose operations.
@@ -126,12 +128,13 @@ inline a3i32 a3spatialPoseConvert(a3mat4* mat_out, const a3_SpatialPose* spatial
 						0, 0, spatialPose_in->scale.z, 0,
 						spatialPose_in->translation.x, spatialPose_in->translation.y, spatialPose_in->translation.z, 0};
 
-		// use euler order?
+		// Need to use euler order?
 		a3mat4 rotMat = a3mat4_identity;
 		a3real4x4SetRotateX(rotMat.m, spatialPose_in->rotation.x);
 		a3real4x4SetRotateY(rotMat.m, spatialPose_in->rotation.y);
 		a3real4x4SetRotateZ(rotMat.m, spatialPose_in->rotation.z);
 
+		//combine
 		a3real4x4Concat(rotMat.m, out.m);
 
 		*mat_out = out;

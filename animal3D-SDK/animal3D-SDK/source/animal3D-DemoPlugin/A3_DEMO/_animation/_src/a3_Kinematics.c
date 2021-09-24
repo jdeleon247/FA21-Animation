@@ -17,6 +17,8 @@
 /*
 	animal3D SDK: Minimal 3D Animation Framework
 	By Daniel S. Buckstein
+
+	modified by Rory Beebout, Jonathan Deleon
 	
 	a3_Kinematics.c
 	Implementation of kinematics solvers.
@@ -43,24 +45,23 @@ a3i32 a3kinematicsSolveForwardPartial(const a3_HierarchyState *hierarchyState, c
 
 		//Done?
 		a3ui32 i = firstIndex;
-		a3index p = 0;
+		a3ui32 p = 0;
 
 		for (i; i < nodeCount; i++)
 		{
 			//get parent index of current
-			p = hierarchyState->hierarchy->nodes[p].parentIndex;
+			p = hierarchyState->hierarchy->nodes[i].parentIndex;
 
 			// not root
 			if (p < i)
 			{
-				
 				// object matrix = parent object matrix * local matrix
 				a3real4x4Product(hierarchyState->objectSpacePose->spatialPose[i].transform.m, hierarchyState->objectSpacePose->spatialPose[p].transform.m, hierarchyState->localSpacePose->spatialPose[i].transform.m);
 			}
 			// root
 			else
 			{	// copy local matrix to object matrix
-				//hierarchyState->objectSpacePose.spatialPose[i].transform = hierarchyState->localSpacePose.spatialPose[i].transform;
+				hierarchyState->objectSpacePose->spatialPose[i].transform = hierarchyState->localSpacePose->spatialPose[i].transform;
 			}
 		}
 		return 1;

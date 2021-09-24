@@ -18,6 +18,8 @@
 	animal3D SDK: Minimal 3D Animation Framework
 	By Daniel S. Buckstein
 	
+	modified by Rory Beebout, Jonathan Deleon
+
 	a3_DemoMode1_Animation-idle-update.c
 	Demo mode implementations: animation scene.
 
@@ -112,6 +114,8 @@ void a3animation_update(a3_DemoState* demoState, a3_DemoMode1_Animation* demoMod
 	// resolve graphics:
 	// -> upload results of FK to UBO
 	//a3kinematicsSolveForward(demoMode->hierarchyState_skel);
+
+	// Note: Does nothing
 	a3bufferRefillOffset(demoState->ubo_transformLMVP_joint, 0, 0, sizeof(demoMode->skeletonPose_transformLMVP_joint), demoMode->skeletonPose_transformLMVP_joint);
 }
 

@@ -17,6 +17,8 @@
 /*
 	animal3D SDK: Minimal 3D Animation Framework
 	By Daniel S. Buckstein
+
+	modified by Rory Beebout, Jonathan Deleon
 	
 	a3_HierarchyState.inl
 	Implementation of inline transform hierarchy state operations.
@@ -57,7 +59,10 @@ inline a3i32 a3hierarchyPoseReset(const a3_HierarchyPose* pose_inout, const a3ui
 {
 	if (pose_inout && nodeCount)
 	{
-
+		for (a3ui32 i = 0; i < nodeCount; ++i)
+		{
+			a3spatialPoseReset(pose_inout->spatialPose);
+		}
 	}
 	return -1;
 }

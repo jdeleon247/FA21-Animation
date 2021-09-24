@@ -18,6 +18,8 @@
 	animal3D SDK: Minimal 3D Animation Framework Extended (A3DX)
 	By Daniel S. Buckstein
 	
+	modified by Rory Beebout, Jonathan Deleon
+
 	a3_Hierarchy.h
 	Node tree structure forming a hierarchy. Nodes belonging to the same 
 		hierarchy know the index of their parent node, but not child nodes.

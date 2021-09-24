@@ -18,6 +18,8 @@
 	animal3D SDK: Minimal 3D Animation Framework
 	By Daniel S. Buckstein
 	
+	modified by Rory Beebout, Jonathan Deleon
+
 	a3_HierarchyState.c
 	Implementation of transform hierarchy state.
 */
