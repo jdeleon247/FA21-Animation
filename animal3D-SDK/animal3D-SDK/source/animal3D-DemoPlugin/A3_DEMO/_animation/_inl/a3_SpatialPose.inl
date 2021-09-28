@@ -123,6 +123,8 @@ inline a3i32 a3spatialPoseConvert(a3mat4* mat_out, const a3_SpatialPose* spatial
 		//	  | 0 0 0 1 |
 
 		// set scale and translation -> technically out of order but I don't think that matters?
+
+		// Do rotate -> scale -> translate
 		a3mat4 out = {spatialPose_in->scale.x, 0, 0, 0,
 						0, spatialPose_in->scale.y, 0, 0,
 						0, 0, spatialPose_in->scale.z, 0,
@@ -162,7 +164,7 @@ inline a3i32 a3spatialPoseConcat(a3_SpatialPose* spatialPose_out, const a3_Spati
 		spatialPose_out->rotation; // Euler: add ->validate(lh+rh) -> constrain sum to rotation domain (+-360 degrees)
 		a3real3Add(spatialPose_out->rotation.v, spatialPose_lh->rotation.v);
 		a3real3Add(spatialPose_out->rotation.v, spatialPose_rh->rotation.v);
-		a3clamp(-360, 360, spatialPose_out->rotation.x);
+		a3clamp(-360, 360, spatialPose_out->rotation.x); // Use other validation
 		a3clamp(-360, 360, spatialPose_out->rotation.y);
 		a3clamp(-360, 360, spatialPose_out->rotation.z);
 

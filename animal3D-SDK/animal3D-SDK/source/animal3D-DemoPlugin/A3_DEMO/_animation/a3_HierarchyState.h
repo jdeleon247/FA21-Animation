@@ -66,7 +66,7 @@ struct a3_HierarchyPoseGroup
 	// set of all poses for all nodes
 	a3_SpatialPose* spatialPosePool; 
 
-	// organizes spatialPosePool (?)
+	// organizes spatialPosePool (?) // spatial poses are unordered, so hierarchical poses help order them
 	a3_HierarchyPose* HierarchyPosePool; 
 	//a3_HierarchyPose* HierarchyPosePool[1];
 

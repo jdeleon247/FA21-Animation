@@ -46,6 +46,7 @@ a3i32 a3kinematicsSolveForwardPartial(const a3_HierarchyState *hierarchyState, c
 		//Done?
 		a3ui32 i = firstIndex;
 		a3ui32 p = 0;
+		// add second index "j" just in case
 
 		for (i; i < nodeCount; i++)
 		{
