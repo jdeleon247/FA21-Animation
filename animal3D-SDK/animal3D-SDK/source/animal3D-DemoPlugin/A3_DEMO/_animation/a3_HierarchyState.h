@@ -63,14 +63,13 @@ struct a3_HierarchyPoseGroup
 	// pointer to hierarchy
 	const a3_Hierarchy* hierarchy;
 
-	// set of all poses for all nodes
+	// array of poses for all nodes
 	a3_SpatialPose* spatialPosePool; 
 
-	// organizes spatialPosePool (?)
-	a3_HierarchyPose* HierarchyPosePool; 
-	//a3_HierarchyPose* HierarchyPosePool[1];
+	// Array of pointers to beginning of each spatialPose in spatialPosePool.
+	a3_HierarchyPose* HPoses; 
 
-	// transformation channels for each node in the hierarchy
+	// Array of transformation channels for each node in the hierarchy
 	a3_SpatialPoseChannel* channels;
 
 	// describes concatenation order of orientation channels
@@ -90,9 +89,9 @@ struct a3_HierarchyState
 	// pointer to hierarcy
 	const a3_Hierarchy* hierarchy;
 
-	a3_HierarchyPose samplePose;
-	a3_HierarchyPose localSpacePose[1];
-	a3_HierarchyPose objectSpacePose[1];
+	a3_HierarchyPose* samplePose;
+	a3_HierarchyPose* localSpacePose;
+	a3_HierarchyPose* objectSpacePose;
 };
 	
 

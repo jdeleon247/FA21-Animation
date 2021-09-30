@@ -99,12 +99,14 @@ void a3animation_update(a3_DemoState* demoState, a3_DemoMode1_Animation* demoMod
 		// For each node
 		for (j = 0; j < demoMode->hierarchyState_skel->hierarchy->numNodes; ++j)
 		{
-			a3spatialPoseLerp(demoMode->hierarchyState_skel->samplePose.spatialPose, demoMode->hierarchyState_skel->localSpacePose[0].spatialPose, demoMode->hierarchyState_skel->localSpacePose[j].spatialPose, 1);
-			a3spatialPoseConcat(demoMode->hierarchyState_skel->samplePose.spatialPose, demoMode->hierarchyState_skel->localSpacePose[0].spatialPose, demoMode->hierarchyState_skel->localSpacePose[j].spatialPose);
+			a3spatialPoseLerp(demoMode->hierarchyState_skel->samplePose->spatialPose, &demoMode->hierarchyPoseGroup_skel->HPoses[0].spatialPose[j], &demoMode->hierarchyPoseGroup_skel->HPoses[1].spatialPose[j], 1, 0);
+			a3spatialPoseConcat(demoMode->hierarchyState_skel->samplePose->spatialPose, &demoMode->hierarchyPoseGroup_skel->HPoses[0].spatialPose[j], &demoMode->hierarchyPoseGroup_skel->HPoses[1].spatialPose[j],0);
+			//a3spatialPoseLerp(demoMode->hierarchyState_skel->samplePose->spatialPose, demoMode->hierarchyState_skel->localSpacePose[0].spatialPose, demoMode->hierarchyState_skel->localSpacePose[j].spatialPose, 1,0);
+			//a3spatialPoseConcat(demoMode->hierarchyState_skel->samplePose->spatialPose, demoMode->hierarchyState_skel->localSpacePose[0].spatialPose, demoMode->hierarchyState_skel->localSpacePose[j].spatialPose, 0);
 
 			a3mat4 temp = a3mat4_identity;
-			a3spatialPoseConvert(&temp, &demoMode->hierarchyState_skel->samplePose.spatialPose[j], a3poseChannel_none, a3poseEulerOrder_xyz);
-			demoMode->hierarchyState_skel->samplePose.spatialPose[j].transform = temp;
+			a3spatialPoseConvert(&temp, &demoMode->hierarchyState_skel->samplePose->spatialPose[j], a3poseChannel_none, a3poseEulerOrder_xyz);
+			demoMode->hierarchyState_skel->samplePose->spatialPose[j].transform = temp;
 		}
 		a3kinematicsSolveForward(demoMode->hierarchyState_skel);
 	}
