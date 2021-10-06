@@ -34,6 +34,7 @@
 
 #include "_a3_demo_utilities/a3_DemoSceneObject.h"
 
+#include "_animation/a3_Kinematics.h"
 #include "_animation/a3_HierarchyStateBlend.h"
 
 
@@ -133,8 +134,12 @@ enum a3_DemoMode1_Animation_ObjectMaxCount
 
 		// skeletal animation
 		a3_Hierarchy hierarchy_skel[1];
-		a3_HierarchyState hierarchyState_skel[1];
+		a3_HierarchyState hierarchyState_skel[2];
 		a3_HierarchyPoseGroup hierarchyPoseGroup_skel[1];
+		a3mat4 mvp_joint[128], mvp_bone[128], t_skin[128];
+		a3dualquat dq_skin[128];
+		a3ui32 hierarchyKeyPose_display[2];
+		a3real hierarchyKeyPose_param;
 
 		a3mat4 skeletonPose_transformLMVP_bone[animationMaxCount_skeletonJoint], skeletonPose_transformLMVP_joint[animationMaxCount_skeletonJoint];
 
