@@ -188,17 +188,27 @@ inline a3i32 a3spatialPoseLerp(a3_SpatialPose* spatialPose_out,
 	{
 		// spatialPose_out->transform; // No matrices yet, won't do anything, also matrix-lerps destroy space fabric - Dan
 		if (usingQuaternions)
+		{
 			spatialPose_out->rotate_quaternion; // Quat: 3 options...
-											// (1) slerp (q0, q1, u)
-											// = (sin([1-t]yq0 + sin([t]y)q1) / sin(y)
-											//		y = acos(q0 . q1)
-											// (2) lerp: non-unit-length -> uniform scale ||| Free squash and stretc(?) |||
-											//			s = |q|^2
-											// (3) nlerp = normalize(lerp(...)) ||| Free easing |||
+												// (1) slerp (q0, q1, u)
+												// = (sin([1-t]yq0 + sin([t]y)q1) / sin(y)
+												//		y = acos(q0 . q1)
+												// (2) lerp: non-unit-length -> uniform scale ||| Free squash and stretc(?) |||
+												//			s = |q|^2
+												// (3) nlerp = normalize(lerp(...)) ||| Free easing |||
+		}
 		else
+		{
 			spatialPose_out->rotate_euler; // Euler: lerp(p0,p1,u) -> (p1-p0)u + p0;
+		}
+			
 		spatialPose_out->scale; // lerp is ok... but really... exponent_lerp() -> (p1(p0^(-1)))^u * p0
 		spatialPose_out->translation; // lerp(p0,p1,u)
+
+		spatialPose_out->rotate_euler = spatialPose0->rotate_euler;
+		spatialPose_out->scale = spatialPose0->scale;
+		spatialPose_out->translation = spatialPose0->translation;
+
 		return 0;
 	}
 
