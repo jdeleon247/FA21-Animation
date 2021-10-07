@@ -27,6 +27,7 @@
 #include "../a3_HierarchyState.h"
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 
 
@@ -159,7 +160,218 @@ a3i32 a3hierarchyPoseGroupLoadHTR(a3_HierarchyPoseGroup* poseGroup_out, a3_Hiera
 {
 	if (poseGroup_out && !poseGroup_out->poseCount && hierarchy_out && !hierarchy_out->numNodes && resourceFilePath && *resourceFilePath)
 	{
+		// open specified file
+		a3i32 maxChars = 256;
+		a3ui64 fileSize = 0;
+		char* buffer;
 
+		FILE* file = fopen(resourceFilePath, "r");
+		if (file == NULL)
+		{
+			printf("Error opening file: ");
+			printf(resourceFilePath);
+			return -1;
+		}
+
+		// get size of file
+		else
+		{
+			fseek(file, 0L, SEEK_END);
+			fileSize = ftell(file);
+			fseek(file, 0L, SEEK_SET);
+		}
+
+		// read file into string
+		buffer = malloc(fileSize + 1);
+		if (!buffer) fclose(file), printf("failed to allocate memory"), stderr, exit(1);
+		fread(buffer, 1, fileSize, file);
+
+		// null terminate buffer for safety
+		buffer[fileSize] = '\0';
+
+		// close file
+		fclose(file);
+
+		// break up text using delimiters
+		char lineDelim[] = " \n\t";
+		char* ptr = strtok(buffer, lineDelim);
+
+		enum Tag
+		{
+			HEADER,
+			SEGMENTNAMES,
+			BASEPOSE,
+			NONE,
+		} currentTag = 0;
+		a3byte* nodeName;
+		while (ptr != NULL)
+		{
+			// skip comments
+			if (*ptr != '#')
+			{
+				if (strcmp(ptr, "[Header]") == 0)
+				{
+					currentTag = HEADER;
+				}
+				if (strcmp(ptr, "[SegmentNames&Hierarchy]") == 0)
+				{
+					currentTag = SEGMENTNAMES;
+					ptr = strtok(NULL, lineDelim);
+					if (*ptr == '#')
+					{
+						ptr = strtok(NULL, "\n");
+						ptr = strtok(NULL, lineDelim);
+					}
+				}
+				if (strcmp(ptr, "[BasePosition]") == 0)
+				{
+					currentTag = BASEPOSE;
+					ptr = strtok(NULL, lineDelim);
+					if (*ptr == '#')
+					{
+						ptr = strtok(NULL, "\n");
+						ptr = strtok(NULL, lineDelim);
+					}
+				}
+				
+
+
+				switch (currentTag)
+				{
+				case HEADER:
+					if (strcmp(ptr, "FileType") == 0)
+					{
+						ptr = strtok(NULL, lineDelim);
+					}
+					if (strcmp(ptr, "DataType") == 0)
+					{
+						ptr = strtok(NULL, lineDelim);
+					}
+					if (strcmp(ptr, "FileVersion") == 0)
+					{
+						ptr = strtok(NULL, lineDelim);
+					}
+					if (strcmp(ptr, "NumSegments") == 0)
+					{
+						ptr = strtok(NULL, lineDelim);
+						sscanf(ptr, "%d", &hierarchy_out->numNodes);
+					}
+					if (strcmp(ptr, "NumFrames") == 0)
+					{
+						ptr = strtok(NULL, lineDelim);
+						sscanf(ptr, "%d", &poseGroup_out->poseCount);
+					}
+					if (strcmp(ptr, "DataFrameRate") == 0)
+					{
+						ptr = strtok(NULL, lineDelim);
+					}
+					if (strcmp(ptr, "EulerRotationOrder") == 0)
+					{
+						ptr = strtok(NULL, lineDelim);
+						sscanf(ptr, "%d", &poseGroup_out->eulerOrder);
+					}
+					if (strcmp(ptr, "CalibrationUnits") == 0)
+					{
+						ptr = strtok(NULL, lineDelim);
+					}
+					if (strcmp(ptr, "RotationUnits") == 0)
+					{
+						ptr = strtok(NULL, lineDelim);
+					}
+					if (strcmp(ptr, "GlobalAxisofGravity") == 0)
+					{
+						ptr = strtok(NULL, lineDelim);
+					}
+					if (strcmp(ptr, "BoneLengthAxis") == 0)
+					{
+						ptr = strtok(NULL, lineDelim);
+					}
+					if (strcmp(ptr, "ScaleFactor") == 0)
+					{
+						ptr = strtok(NULL, lineDelim);
+					}
+					break;
+				case SEGMENTNAMES:
+					
+					a3hierarchyCreate(hierarchy_out, hierarchy_out->numNodes, 0);
+					ptr = strtok(NULL, lineDelim);
+					nodeName = ptr;
+					a3hierarchySetNode(hierarchy_out, 0, -1, nodeName);
+					for (a3ui32 i = 1; i < hierarchy_out->numNodes; i++)
+					{
+						if (*ptr != '#')
+						{
+							nodeName = ptr;
+							ptr = strtok(NULL, lineDelim);
+							nodeName = ptr;
+							ptr = strtok(NULL, lineDelim);
+							a3hierarchySetNode(hierarchy_out, i, a3hierarchyGetNodeIndex(hierarchy_out, ptr), nodeName);
+						}
+						else
+						{
+							// skip comment line
+							ptr = strtok(NULL, "\n");
+							i--;
+						}
+					}
+					//currentTag = NONE;
+					a3hierarchyPoseGroupCreate(poseGroup_out, hierarchy_out, poseGroup_out->poseCount);
+					break;
+				case BASEPOSE:
+
+					for (a3ui32 i = 1; i < hierarchy_out->numNodes; i++)
+					{
+						if (*ptr != '#')
+						{
+							nodeName = ptr;
+							ptr = strtok(NULL, lineDelim);
+							sscanf(ptr, "%f", &poseGroup_out->HPoses[0].spatialPose[a3hierarchyGetNodeIndex(hierarchy_out, nodeName)].translation.x);
+							ptr = strtok(NULL, lineDelim);
+							sscanf(ptr, "%f", &poseGroup_out->HPoses[0].spatialPose[a3hierarchyGetNodeIndex(hierarchy_out, nodeName)].translation.y);
+							ptr = strtok(NULL, lineDelim);
+							sscanf(ptr, "%f", &poseGroup_out->HPoses[0].spatialPose[a3hierarchyGetNodeIndex(hierarchy_out, nodeName)].translation.z);
+							poseGroup_out->HPoses[0].spatialPose[a3hierarchyGetNodeIndex(hierarchy_out, nodeName)].translation.w = 1;
+
+							ptr = strtok(NULL, lineDelim);
+							sscanf(ptr, "%f", &poseGroup_out->HPoses[0].spatialPose[a3hierarchyGetNodeIndex(hierarchy_out, nodeName)].rotate_euler.x);
+							ptr = strtok(NULL, lineDelim);
+							sscanf(ptr, "%f", &poseGroup_out->HPoses[0].spatialPose[a3hierarchyGetNodeIndex(hierarchy_out, nodeName)].rotate_euler.y);
+							ptr = strtok(NULL, lineDelim);
+							sscanf(ptr, "%f", &poseGroup_out->HPoses[0].spatialPose[a3hierarchyGetNodeIndex(hierarchy_out, nodeName)].rotate_euler.z);
+							poseGroup_out->HPoses[0].spatialPose[a3hierarchyGetNodeIndex(hierarchy_out, nodeName)].rotate_euler.w = 1;
+							
+							// bone length
+							ptr = strtok(NULL, lineDelim);
+
+							//next line
+							ptr = strtok(NULL, lineDelim);
+						}
+						else
+						{
+							// skip comment line
+							ptr = strtok(NULL, "\n");
+							i--;
+						}
+					}
+					currentTag = NONE;
+					break;
+				case NONE:
+					break;
+				}
+				
+
+
+				//printf("'%s'", ptr);
+				//printf("\n");
+			}
+			else
+			{
+				// skip comment line
+				ptr = strtok(NULL, "\n");
+			}
+			
+			ptr = strtok(NULL, lineDelim);
+		}
 	}
 	return -1;
 }
