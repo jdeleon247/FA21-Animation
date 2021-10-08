@@ -344,7 +344,7 @@ void a3animation_init_animation(a3_DemoState const* demoState, a3_DemoMode1_Anim
 	hierarchyState->hierarchy = 0;
 	a3hierarchyStateCreate(hierarchyState, hierarchy);
 	a3hierarchyPoseCopy(hierarchyState->localSpacePose, hierarchyPoseGroup->HPoses, hierarchy->numNodes);
-	a3hierarchyPoseConvert(hierarchyState->localSpacePose, hierarchy->numNodes, *hierarchyPoseGroup->channels, hierarchyPoseGroup->eulerOrder);
+	a3hierarchyPoseConvert(hierarchyState->localSpacePose, hierarchy->numNodes, hierarchyPoseGroup->channels, hierarchyPoseGroup->eulerOrder);
 	a3kinematicsSolveForward(hierarchyState);
 	a3hierarchyStateUpdateObjectInverse(hierarchyState);
 

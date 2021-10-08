@@ -122,7 +122,7 @@ void a3animation_update(a3_DemoState* demoState, a3_DemoMode1_Animation* demoMod
 		demoMode->hierarchy_skel->numNodes, 0);
 	a3hierarchyPoseConvert(activeHS->localSpacePose,
 		demoMode->hierarchy_skel->numNodes,
-		*demoMode->hierarchyPoseGroup_skel->channels,
+		demoMode->hierarchyPoseGroup_skel->channels,
 		demoMode->hierarchyPoseGroup_skel->eulerOrder);
 	a3kinematicsSolveForward(activeHS);
 	//a3hierarchyStateUpdateObjectInverse(activeHS);

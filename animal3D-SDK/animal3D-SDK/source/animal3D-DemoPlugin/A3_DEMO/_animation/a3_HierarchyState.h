@@ -82,16 +82,15 @@ struct a3_HierarchyPoseGroup
 	a3ui32 spatialPoseCount; 
 };
 
-
 // hierarchy state structure
 struct a3_HierarchyState
 {
 	// pointer to hierarcy
 	const a3_Hierarchy* hierarchy;
 
-	a3_HierarchyPose* samplePose;
-	a3_HierarchyPose* localSpacePose;
-	a3_HierarchyPose* objectSpacePose;
+	a3_HierarchyPose samplePose[1];
+	a3_HierarchyPose localSpacePose[1];
+	a3_HierarchyPose objectSpacePose[1];
 };
 	
 
@@ -116,7 +115,7 @@ a3i32 a3hierarchyPoseGroupGetNodePoseOffsetIndex(const a3_HierarchyPoseGroup *po
 a3i32 a3hierarchyPoseReset(const a3_HierarchyPose* pose_inout, const a3ui32 nodeCount);
 
 // convert full hierarchy pose to hierarchy transforms
-a3i32 a3hierarchyPoseConvert(const a3_HierarchyPose* pose_inout, const a3ui32 nodeCount, const a3_SpatialPoseChannel channel, const a3_SpatialPoseEulerOrder order);
+a3i32 a3hierarchyPoseConvert(const a3_HierarchyPose* pose_inout, const a3ui32 nodeCount, const a3_SpatialPoseChannel* channel, const a3_SpatialPoseEulerOrder order);
 
 // copy full hierarchy pose
 a3i32 a3hierarchyPoseCopy(const a3_HierarchyPose* pose_out, const a3_HierarchyPose* pose_in, const a3ui32 nodeCount);
