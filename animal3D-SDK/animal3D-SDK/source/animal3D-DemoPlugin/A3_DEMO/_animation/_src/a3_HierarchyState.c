@@ -237,6 +237,11 @@ a3i32 a3hierarchyPoseGroupLoadHTR(a3_HierarchyPoseGroup* poseGroup_out, a3_Hiera
 					ptr = strtok(NULL, lineDelim);
 				}
 			}
+			else if (strcmp(ptr, "[EndOfFile]") == 0)
+			{
+				currentTag = NONE;
+				return -1;
+			}
 			else if (*ptr == '[')
 			{
 				currentTag = FRAMES;
