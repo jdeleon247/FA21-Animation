@@ -132,9 +132,12 @@ inline a3i32 a3spatialPoseConvert(a3mat4* mat_out, const a3_SpatialPose* spatial
 		// Need to use euler order?
 		a3mat4 rotMat = a3mat4_identity;
 		
-		a3real4x4SetRotateX(rotMat.m, (a3real)((a3ui32)spatialPose_in->rotate_euler.x % 360));
-		a3real4x4SetRotateY(rotMat.m, (a3real)((a3ui32)spatialPose_in->rotate_euler.y % 360));
-		a3real4x4SetRotateZ(rotMat.m, (a3real)((a3ui32)spatialPose_in->rotate_euler.z % 360));
+		//a3real4x4SetRotateX(rotMat.m, (a3real)((a3ui32)spatialPose_in->rotate_euler.x % 360));
+		//a3real4x4SetRotateY(rotMat.m, (a3real)((a3ui32)spatialPose_in->rotate_euler.y % 360));
+		//a3real4x4SetRotateZ(rotMat.m, (a3real)((a3ui32)spatialPose_in->rotate_euler.z % 360));
+		a3real4x4SetRotateXYZ(rotMat.m, (a3real)((a3ui32)spatialPose_in->rotate_euler.x % 360),
+										(a3real)((a3ui32)spatialPose_in->rotate_euler.y % 360),
+										(a3real)((a3ui32)spatialPose_in->rotate_euler.z % 360));
 
 		//combine
 		a3real4x4Concat(rotMat.m, out.m);
@@ -168,17 +171,16 @@ inline a3i32 a3spatialPoseConcat(a3_SpatialPose* spatialPose_out, const a3_Spati
 			spatialPose_out->rotate_quaternion; // Quat: (1h*rh) = (w_l + v_l)(w_r + v_r)
 												//				 = w_l*w_r - v_l . v_r) + (w_l*v_r + w_r*v_l + v_l x v_r)
 		else
-			spatialPose_out->rotate_euler; // Euler: add ->validate(lh+rh) -> constrain sum to rotation domain (+-360 degrees)
-		a3real3Add(spatialPose_out->rotate_euler.v, spatialPose_lh->rotate_euler.v);
-		a3real3Add(spatialPose_out->rotate_euler.v, spatialPose_rh->rotate_euler.v);
+		{
+			// Euler: add ->validate(lh+rh) -> constrain sum to rotation domain (+-360 degrees)
+			a3real3Sum(spatialPose_out->rotate_euler.v, spatialPose_lh->rotate_euler.v, spatialPose_rh->rotate_euler.v);
+		}
 
 		// multiply (lh * rh) -> component-wise.
 		a3real3ProductComp(spatialPose_out->scale.v, spatialPose_lh->scale.v, spatialPose_rh->scale.v);
-		spatialPose_out->scale;
 
 		// (lh + rh)
-		a3real4Add(spatialPose_out->translation.v, spatialPose_lh->translation.v);
-		a3real4Add(spatialPose_out->translation.v, spatialPose_rh->translation.v);
+		a3real3Sum(spatialPose_out->translation.v, spatialPose_lh->translation.v, spatialPose_rh->translation.v);
 	}
 	return -1;
 }
