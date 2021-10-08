@@ -131,9 +131,10 @@ inline a3i32 a3spatialPoseConvert(a3mat4* mat_out, const a3_SpatialPose* spatial
 
 		// Need to use euler order?
 		a3mat4 rotMat = a3mat4_identity;
-		a3real4x4SetRotateX(rotMat.m, spatialPose_in->rotate_euler.x);
-		a3real4x4SetRotateY(rotMat.m, spatialPose_in->rotate_euler.y);
-		a3real4x4SetRotateZ(rotMat.m, spatialPose_in->rotate_euler.z);
+		
+		a3real4x4SetRotateX(rotMat.m, (a3real)((a3ui32)spatialPose_in->rotate_euler.x % 360));
+		a3real4x4SetRotateY(rotMat.m, (a3real)((a3ui32)spatialPose_in->rotate_euler.y % 360));
+		a3real4x4SetRotateZ(rotMat.m, (a3real)((a3ui32)spatialPose_in->rotate_euler.z % 360));
 
 		//combine
 		a3real4x4Concat(rotMat.m, out.m);
@@ -149,7 +150,10 @@ inline a3i32 a3spatialPoseCopy(a3_SpatialPose* spatialPose_out, const a3_Spatial
 {
 	if (spatialPose_out && spatialPose_in)
 	{
-
+		spatialPose_out->rotate_euler = spatialPose_in->rotate_euler;
+		spatialPose_out->scale = spatialPose_in->scale;
+		spatialPose_out->translation = spatialPose_in->translation;
+		spatialPose_out->transform = spatialPose_in->transform;
 	}
 	return -1;
 }
