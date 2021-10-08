@@ -90,61 +90,53 @@ inline a3i32 a3spatialPoseConvert(a3mat4* mat_out, const a3_SpatialPose* spatial
 {
 	if (mat_out && spatialPose_in)
 	{
-		// RST -> mat4
-
-		// M = T * ((R * R * R) * S) -> a3_SpatialPoseEulerOrder for rotation order
-
-		//	  |      tx |
-		//	M |	 RS  ty |
-		//	  |		 tz |
-		//	  | 0 0 0 1 |
-
-		//    | x		|
-		//	S |	   y 	|
-		//	  |		  z	|
-
-		// Rx | 1  0  0  0 |
-		//	  | 0  c -s  0 |
-		//	  | 0 +s  c  0 |
-		//	  | 0  0  0  1 |
-
-		// Ry | c  0 +s  0 |
-		//	  | 0  1  0  0 |
-		//	  |-s  0  c  0 |
-		//	  | 0  0  0  1 |
-
-		// Rz | c -s  0  0 |
-		//	  | +s c  0  0 |
-		//	  | 0  0  1  0 |
-		//	  | 0  0  0  1 |
-
-		//	  |	1	  x |
-		//	T |	  1   y |
-		//	  |	    1 z |
-		//	  | 0 0 0 1 |
-
-		// set scale and translation -> technically out of order but I don't think that matters?
-		a3mat4 out = {spatialPose_in->scale.x, 0, 0, 0,
-						0, spatialPose_in->scale.y, 0, 0,
-						0, 0, spatialPose_in->scale.z, 0,
-						spatialPose_in->translation.x, spatialPose_in->translation.y, spatialPose_in->translation.z, 0};
-
-		// Need to use euler order?
 		a3mat4 rotMat = a3mat4_identity;
-		
-		//a3real4x4SetRotateX(rotMat.m, (a3real)((a3ui32)spatialPose_in->rotate_euler.x % 360));
-		//a3real4x4SetRotateY(rotMat.m, (a3real)((a3ui32)spatialPose_in->rotate_euler.y % 360));
-		//a3real4x4SetRotateZ(rotMat.m, (a3real)((a3ui32)spatialPose_in->rotate_euler.z % 360));
-		a3real4x4SetRotateXYZ(rotMat.m, (a3real)((a3ui32)spatialPose_in->rotate_euler.x % 360),
-										(a3real)((a3ui32)spatialPose_in->rotate_euler.y % 360),
-										(a3real)((a3ui32)spatialPose_in->rotate_euler.z % 360));
+		a3mat4 xRotMat;
+		a3mat4 yRotMat;
+		a3mat4 zRotMat;
+		a3real4x4SetRotateX(xRotMat.m, spatialPose_in->rotate_euler.x);
+		a3real4x4SetRotateY(yRotMat.m, spatialPose_in->rotate_euler.y);
+		a3real4x4SetRotateZ(zRotMat.m, spatialPose_in->rotate_euler.z);
+		switch (order)
+		{
+		case a3poseEulerOrder_xyz:
+			a3real4x4Product(rotMat.m, xRotMat.m, yRotMat.m);
+			a3real4x4Product(rotMat.m, rotMat.m, zRotMat.m);
+			break;
+		case a3poseEulerOrder_yzx:
+			a3real4x4Product(rotMat.m, yRotMat.m, zRotMat.m);
+			a3real4x4Product(rotMat.m, rotMat.m, xRotMat.m);
+			break;
+		case a3poseEulerOrder_zxy:
+			a3real4x4Product(rotMat.m, zRotMat.m, xRotMat.m);
+			a3real4x4Product(rotMat.m, rotMat.m, yRotMat.m);
+			break;
+		case a3poseEulerOrder_yxz:
+			a3real4x4Product(rotMat.m, yRotMat.m, xRotMat.m);
+			a3real4x4Product(rotMat.m, rotMat.m, zRotMat.m);
+			break;
+		case a3poseEulerOrder_xzy:
+			a3real4x4Product(rotMat.m, xRotMat.m, zRotMat.m);
+			a3real4x4Product(rotMat.m, rotMat.m, yRotMat.m);
+			break;
+		case a3poseEulerOrder_zyx:
+			a3real4x4Product(rotMat.m, zRotMat.m, yRotMat.m);
+			a3real4x4Product(rotMat.m, rotMat.m, xRotMat.m);
+			break;
+		}
+		// set scale and translation -> technically out of order but I don't think that matters?
+		a3mat4 out = {spatialPose_in->scale.x, 0.0f, 0.0f, 0.0f,
+						0.0f, spatialPose_in->scale.y, 0.0f, 0.0f,
+						0.0f, 0.0f, spatialPose_in->scale.z, 0.0f,
+						spatialPose_in->translation.x, spatialPose_in->translation.y, spatialPose_in->translation.z, 1.0f};
 
 		//combine
-		a3real4x4Concat(rotMat.m, out.m);
+		//a3real4x4Concat(rotMat.m, out.m);
 
 		*mat_out = out;
 
 	}
+
 	return -1;
 }
 
