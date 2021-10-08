@@ -190,6 +190,7 @@ a3i32 a3hierarchyPoseGroupLoadHTR(a3_HierarchyPoseGroup* poseGroup_out, a3_Hiera
 		char lineDelim[] = " \n\t";
 		char* ptr = strtok(buffer, lineDelim);
 		a3ui32 poseCount = 0;
+		a3f32 worldScale = 1;
 
 		enum Tag
 		{
@@ -313,6 +314,19 @@ a3i32 a3hierarchyPoseGroupLoadHTR(a3_HierarchyPoseGroup* poseGroup_out, a3_Hiera
 				if (strcmp(ptr, "CalibrationUnits") == 0)
 				{
 					ptr = strtok(NULL, lineDelim);
+					if (strcmp(ptr, "mm") == 0)
+					{
+						worldScale *= 1.0f/3.15f;
+					}
+					if (strcmp(ptr, "cm") == 0)
+					{
+						worldScale *= 1.0f/ 10.0f;
+					}
+					if (strcmp(ptr, "m") == 0)
+					{
+						worldScale *= 1;
+					}
+					
 				}
 				if (strcmp(ptr, "RotationUnits") == 0)
 				{
@@ -370,6 +384,9 @@ a3i32 a3hierarchyPoseGroupLoadHTR(a3_HierarchyPoseGroup* poseGroup_out, a3_Hiera
 						sscanf(ptr, "%f", &poseGroup_out->HPoses[0].spatialPose[a3hierarchyGetNodeIndex(hierarchy_out, nodeName)].translation.y);
 						ptr = strtok(NULL, lineDelim);
 						sscanf(ptr, "%f", &poseGroup_out->HPoses[0].spatialPose[a3hierarchyGetNodeIndex(hierarchy_out, nodeName)].translation.z);
+						poseGroup_out->HPoses[0].spatialPose[a3hierarchyGetNodeIndex(hierarchy_out, nodeName)].translation.v0 *= worldScale;
+						poseGroup_out->HPoses[0].spatialPose[a3hierarchyGetNodeIndex(hierarchy_out, nodeName)].translation.v1 *= worldScale;
+						poseGroup_out->HPoses[0].spatialPose[a3hierarchyGetNodeIndex(hierarchy_out, nodeName)].translation.v2 *= worldScale;
 						poseGroup_out->HPoses[0].spatialPose[a3hierarchyGetNodeIndex(hierarchy_out, nodeName)].translation.w = 1;
 
 						ptr = strtok(NULL, lineDelim);
@@ -405,18 +422,27 @@ a3i32 a3hierarchyPoseGroupLoadHTR(a3_HierarchyPoseGroup* poseGroup_out, a3_Hiera
 					index++;
 					ptr = strtok(NULL, lineDelim);
 					sscanf(ptr, "%f", &poseGroup_out->HPoses[index].spatialPose[i].translation.x);
+					poseGroup_out->channels[j] |= (a3isNotNearZero(poseGroup_out->HPoses[index].spatialPose[i].translation.x) * a3poseChannel_translate_x);
 					ptr = strtok(NULL, lineDelim);
 					sscanf(ptr, "%f", &poseGroup_out->HPoses[index].spatialPose[i].translation.y);
+					poseGroup_out->channels[j] |= (a3isNotNearZero(poseGroup_out->HPoses[index].spatialPose[i].translation.x) * a3poseChannel_translate_y);
 					ptr = strtok(NULL, lineDelim);
 					sscanf(ptr, "%f", &poseGroup_out->HPoses[index].spatialPose[i].translation.z);
+					poseGroup_out->channels[j] |= (a3isNotNearZero(poseGroup_out->HPoses[index].spatialPose[i].translation.x) * a3poseChannel_translate_z);
+					poseGroup_out->HPoses[j].spatialPose[i].translation.v0 *= worldScale;
+					poseGroup_out->HPoses[j].spatialPose[i].translation.v1 *= worldScale;
+					poseGroup_out->HPoses[j].spatialPose[i].translation.v2 *= worldScale;
 					poseGroup_out->HPoses[j].spatialPose[i].translation.w = 1;
 
 					ptr = strtok(NULL, lineDelim);
 					sscanf(ptr, "%f", &poseGroup_out->HPoses[index].spatialPose[i].rotate_euler.x);
+					poseGroup_out->channels[j] |= (a3isNotNearZero(poseGroup_out->HPoses[index].spatialPose[i].rotate_euler.x) * a3poseChannel_orient_x);
 					ptr = strtok(NULL, lineDelim);
 					sscanf(ptr, "%f", &poseGroup_out->HPoses[index].spatialPose[i].rotate_euler.y);
+					poseGroup_out->channels[j] |= (a3isNotNearZero(poseGroup_out->HPoses[index].spatialPose[i].rotate_euler.x) * a3poseChannel_orient_x);
 					ptr = strtok(NULL, lineDelim);
 					sscanf(ptr, "%f", &poseGroup_out->HPoses[index].spatialPose[i].rotate_euler.z);
+					poseGroup_out->channels[j] |= (a3isNotNearZero(poseGroup_out->HPoses[index].spatialPose[i].rotate_euler.x) * a3poseChannel_orient_x);
 					poseGroup_out->HPoses[j].spatialPose[i].rotate_euler.w = 0;
 
 					// bone length

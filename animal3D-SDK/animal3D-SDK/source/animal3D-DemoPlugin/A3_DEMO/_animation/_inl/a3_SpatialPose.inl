@@ -100,42 +100,41 @@ inline a3i32 a3spatialPoseConvert(a3mat4* mat_out, const a3_SpatialPose* spatial
 		switch (order)
 		{
 		case a3poseEulerOrder_xyz:
-			a3real4x4Product(rotMat.m, xRotMat.m, yRotMat.m);
-			a3real4x4Product(rotMat.m, rotMat.m, zRotMat.m);
+			a3real4x4SetRotateXYZ(mat_out->m, spatialPose_in->rotate_euler.x, spatialPose_in->rotate_euler.y, spatialPose_in->rotate_euler.z);
 			break;
 		case a3poseEulerOrder_yzx:
-			a3real4x4Product(rotMat.m, yRotMat.m, zRotMat.m);
-			a3real4x4Product(rotMat.m, rotMat.m, xRotMat.m);
+			a3real4x4Product(mat_out->m, yRotMat.m, zRotMat.m);
+			a3real4x4Product(mat_out->m, rotMat.m, xRotMat.m);
 			break;
 		case a3poseEulerOrder_zxy:
-			a3real4x4Product(rotMat.m, zRotMat.m, xRotMat.m);
-			a3real4x4Product(rotMat.m, rotMat.m, yRotMat.m);
+			a3real4x4Product(mat_out->m, zRotMat.m, xRotMat.m);
+			a3real4x4Product(mat_out->m, rotMat.m, yRotMat.m);
 			break;
 		case a3poseEulerOrder_yxz:
-			a3real4x4Product(rotMat.m, yRotMat.m, xRotMat.m);
-			a3real4x4Product(rotMat.m, rotMat.m, zRotMat.m);
+			a3real4x4Product(mat_out->m, yRotMat.m, xRotMat.m);
+			a3real4x4Product(mat_out->m, rotMat.m, zRotMat.m);
 			break;
 		case a3poseEulerOrder_xzy:
-			a3real4x4Product(rotMat.m, xRotMat.m, zRotMat.m);
-			a3real4x4Product(rotMat.m, rotMat.m, yRotMat.m);
+			a3real4x4Product(mat_out->m, xRotMat.m, zRotMat.m);
+			a3real4x4Product(mat_out->m, rotMat.m, yRotMat.m);
 			break;
 		case a3poseEulerOrder_zyx:
-			a3real4x4Product(rotMat.m, zRotMat.m, yRotMat.m);
-			a3real4x4Product(rotMat.m, rotMat.m, xRotMat.m);
+			a3real4x4SetRotateZYX(mat_out->m, spatialPose_in->rotate_euler.x, spatialPose_in->rotate_euler.y, spatialPose_in->rotate_euler.z);
 			break;
 		}
-		// set scale and translation -> technically out of order but I don't think that matters?
-		a3mat4 out = {spatialPose_in->scale.x, 0.0f, 0.0f, 0.0f,
-						0.0f, spatialPose_in->scale.y, 0.0f, 0.0f,
-						0.0f, 0.0f, spatialPose_in->scale.z, 0.0f,
-						spatialPose_in->translation.x, spatialPose_in->translation.y, spatialPose_in->translation.z, 1.0f};
 
-		//combine
-		//a3real4x4Concat(rotMat.m, out.m);
+		// Translate
+		mat_out->v3.xyz = spatialPose_in->translation.xyz;
+		mat_out->m33 = 1; // <- bottom right
 
-		*mat_out = out;
-
+		// Scale
+		a3real3MulS(mat_out->m[0], spatialPose_in->scale.x);
+		a3real3MulS(mat_out->m[1], spatialPose_in->scale.y);
+		a3real3MulS(mat_out->m[2], spatialPose_in->scale.z);
 	}
+	
+
+	
 
 	return -1;
 }
@@ -199,13 +198,20 @@ inline a3i32 a3spatialPoseLerp(a3_SpatialPose* spatialPose_out,
 		{
 			spatialPose_out->rotate_euler; // Euler: lerp(p0,p1,u) -> (p1-p0)u + p0;
 		}
-			
+		
+		
 		spatialPose_out->scale; // lerp is ok... but really... exponent_lerp() -> (p1(p0^(-1)))^u * p0
-		spatialPose_out->translation; // lerp(p0,p1,u)
+		a3real3Lerp(spatialPose_out->scale.xyz.v, spatialPose0->scale.xyz.v, spatialPose1->scale.xyz.v, u);
 
-		spatialPose_out->rotate_euler = spatialPose0->rotate_euler;
-		spatialPose_out->scale = spatialPose0->scale;
-		spatialPose_out->translation = spatialPose0->translation;
+		spatialPose_out->translation; // lerp(p0,p1,u)
+		a3real3Lerp(spatialPose_out->translation.xyz.v, spatialPose0->translation.xyz.v, spatialPose1->translation.xyz.v, u);
+
+		spatialPose_out->rotate_euler;
+		a3real3Lerp(spatialPose_out->rotate_euler.xyz.v, spatialPose0->rotate_euler.xyz.v, spatialPose1->rotate_euler.xyz.v, u);
+
+		//spatialPose_out->rotate_euler = spatialPose0->rotate_euler;
+		//spatialPose_out->scale = spatialPose0->scale;
+		//spatialPose_out->translation = spatialPose0->translation;
 
 		return 0;
 	}
