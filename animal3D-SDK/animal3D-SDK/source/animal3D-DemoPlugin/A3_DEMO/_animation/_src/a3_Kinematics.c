@@ -53,15 +53,28 @@ a3i32 a3kinematicsSolveForwardPartial(const a3_HierarchyState *hierarchyState, c
 			p = hierarchyState->hierarchy->nodes[i].parentIndex;
 
 			// not root
-			if (p < i)
+			//if (p < i)
+			//{
+			//	// object matrix = parent object matrix * local matrix
+			//	a3real4x4Product(hierarchyState->objectSpacePose->spatialPose[i].transform.m, hierarchyState->objectSpacePose->spatialPose[p].transform.m, hierarchyState->localSpacePose->spatialPose[i].transform.m);
+			//}
+			//// root
+			//else
+			//{	// copy local matrix to object matrix
+			//	hierarchyState->objectSpacePose->spatialPose[i].transform = hierarchyState->localSpacePose->spatialPose[i].transform;
+			//}
+
+			// not root
+			if (p == -1)
 			{
-				// object matrix = parent object matrix * local matrix
-				a3real4x4Product(hierarchyState->objectSpacePose->spatialPose[i].transform.m, hierarchyState->objectSpacePose->spatialPose[p].transform.m, hierarchyState->localSpacePose->spatialPose[i].transform.m);
+				// copy local matrix to object matrix
+				hierarchyState->objectSpacePose->spatialPose[i].transform = hierarchyState->localSpacePose->spatialPose[i].transform;
 			}
 			// root
 			else
-			{	// copy local matrix to object matrix
-				hierarchyState->objectSpacePose->spatialPose[i].transform = hierarchyState->localSpacePose->spatialPose[i].transform;
+			{	
+				// object matrix = parent object matrix * local matrix
+				a3real4x4Product(hierarchyState->objectSpacePose->spatialPose[i].transform.m, hierarchyState->objectSpacePose->spatialPose[p].transform.m, hierarchyState->localSpacePose->spatialPose[i].transform.m);
 			}
 		}
 		return 1;

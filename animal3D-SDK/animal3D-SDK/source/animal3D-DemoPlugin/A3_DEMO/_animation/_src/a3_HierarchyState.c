@@ -62,7 +62,6 @@ a3i32 a3hierarchyPoseGroupCreate(a3_HierarchyPoseGroup* poseGroup_out, const a3_
 		a3hierarchyPoseReset(poseGroup_out->HPoses, sposeCount);
 		memset(poseGroup_out->channels, a3poseChannel_none, channelSpace);
 		poseGroup_out->poseCount = hposeCount;
-		poseGroup_out->poseCount = sposeCount;
 
 		// done
 		return 1;
@@ -190,6 +189,7 @@ a3i32 a3hierarchyPoseGroupLoadHTR(a3_HierarchyPoseGroup* poseGroup_out, a3_Hiera
 		// break up text using delimiters
 		char lineDelim[] = " \n\t";
 		char* ptr = strtok(buffer, lineDelim);
+		a3ui32 poseCount = 0;
 
 		enum Tag
 		{
@@ -274,8 +274,8 @@ a3i32 a3hierarchyPoseGroupLoadHTR(a3_HierarchyPoseGroup* poseGroup_out, a3_Hiera
 				if (strcmp(ptr, "NumFrames") == 0)
 				{
 					ptr = strtok(NULL, lineDelim);
-					sscanf(ptr, "%d", &poseGroup_out->poseCount);
-					poseGroup_out->poseCount += 1;
+					sscanf(ptr, "%d", &poseCount);
+					poseCount += 1;
 				}
 				if (strcmp(ptr, "DataFrameRate") == 0)
 				{
@@ -283,8 +283,32 @@ a3i32 a3hierarchyPoseGroupLoadHTR(a3_HierarchyPoseGroup* poseGroup_out, a3_Hiera
 				}
 				if (strcmp(ptr, "EulerRotationOrder") == 0)
 				{
+					//a3hierarchyPoseGroupCreate(poseGroup_out, hierarchy_out, poseGroup_out->poseCount);
 					ptr = strtok(NULL, lineDelim);
-					sscanf(ptr, "%d", &poseGroup_out->eulerOrder);
+					if (strcmp(ptr, "XYZ") == 0)
+					{
+							poseGroup_out->eulerOrder = a3poseEulerOrder_xyz;
+					}
+					if (strcmp(ptr, "YZX") == 0)
+					{
+							poseGroup_out->eulerOrder = a3poseEulerOrder_yzx;
+					}
+					if (strcmp(ptr, "ZXY") == 0)
+					{
+							poseGroup_out->eulerOrder = a3poseEulerOrder_zxy;
+					}
+					if (strcmp(ptr, "YXZ") == 0)
+					{
+							poseGroup_out->eulerOrder = a3poseEulerOrder_yxz;
+					}
+					if (strcmp(ptr, "XZY") == 0)
+					{
+							poseGroup_out->eulerOrder = a3poseEulerOrder_xzy;
+					}
+					if (strcmp(ptr, "ZYX") == 0)
+					{
+							poseGroup_out->eulerOrder = a3poseEulerOrder_zyx;
+					}
 				}
 				if (strcmp(ptr, "CalibrationUnits") == 0)
 				{
@@ -331,7 +355,7 @@ a3i32 a3hierarchyPoseGroupLoadHTR(a3_HierarchyPoseGroup* poseGroup_out, a3_Hiera
 					}
 				}
 				//currentTag = NONE;
-				a3hierarchyPoseGroupCreate(poseGroup_out, hierarchy_out, poseGroup_out->poseCount);
+				a3hierarchyPoseGroupCreate(poseGroup_out, hierarchy_out, poseCount);
 				break;
 			case BASEPOSE:
 
@@ -385,7 +409,7 @@ a3i32 a3hierarchyPoseGroupLoadHTR(a3_HierarchyPoseGroup* poseGroup_out, a3_Hiera
 					sscanf(ptr, "%f", &poseGroup_out->HPoses[index].spatialPose[i].translation.y);
 					ptr = strtok(NULL, lineDelim);
 					sscanf(ptr, "%f", &poseGroup_out->HPoses[index].spatialPose[i].translation.z);
-					poseGroup_out->HPoses[0].spatialPose[a3hierarchyGetNodeIndex(hierarchy_out, nodeName)].translation.w = 1;
+					poseGroup_out->HPoses[j].spatialPose[i].translation.w = 1;
 
 					ptr = strtok(NULL, lineDelim);
 					sscanf(ptr, "%f", &poseGroup_out->HPoses[index].spatialPose[i].rotate_euler.x);
@@ -393,12 +417,14 @@ a3i32 a3hierarchyPoseGroupLoadHTR(a3_HierarchyPoseGroup* poseGroup_out, a3_Hiera
 					sscanf(ptr, "%f", &poseGroup_out->HPoses[index].spatialPose[i].rotate_euler.y);
 					ptr = strtok(NULL, lineDelim);
 					sscanf(ptr, "%f", &poseGroup_out->HPoses[index].spatialPose[i].rotate_euler.z);
-					poseGroup_out->HPoses[0].spatialPose[a3hierarchyGetNodeIndex(hierarchy_out, nodeName)].rotate_euler.w = 1;
+					poseGroup_out->HPoses[j].spatialPose[i].rotate_euler.w = 0;
 
 					// bone length
 					ptr = strtok(NULL, lineDelim);
 
 					ptr = strtok(NULL, lineDelim);
+
+					
 				}
 				//currentTag = NONE;
 				break;
