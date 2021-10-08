@@ -87,6 +87,23 @@ inline a3i32 a3hierarchyPoseCopy(const a3_HierarchyPose* pose_out, const a3_Hier
 	return -1;
 }
 
+inline a3i32 a3hierarchyPoseConcat(a3_HierarchyPose* pose_out,
+	const a3_HierarchyPose* hierarchyPose_lh, const a3_HierarchyPose* hierarchyPose_rh, a3ui32 nodeCount,
+	const a3boolean usingQuaternions)
+{
+	if (pose_out && hierarchyPose_lh && hierarchyPose_rh)
+	{
+		for (a3ui32 i = 0; i < nodeCount; i++)
+		{
+			a3spatialPoseConcat(pose_out->spatialPose + i, hierarchyPose_lh->spatialPose + i, hierarchyPose_rh->spatialPose + i, usingQuaternions);
+		}
+
+		return 0;
+	}
+
+	return 1;
+}
+
 inline a3i32 a3hierarchyPoseLerp(a3_HierarchyPose* pose_out,
 	const a3_HierarchyPose* hierarchyPose0, const a3_HierarchyPose* hierarchyPose1, const a3real u, const a3ui32 nodeCount,
 	const a3boolean usingQuaternions)
