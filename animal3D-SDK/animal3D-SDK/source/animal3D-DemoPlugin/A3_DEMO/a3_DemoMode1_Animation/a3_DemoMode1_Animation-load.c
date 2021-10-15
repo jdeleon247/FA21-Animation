@@ -352,6 +352,18 @@ void a3animation_init_animation(a3_DemoState const* demoState, a3_DemoMode1_Anim
 	hierarchyState = demoMode->hierarchyState_skel + 1;
 	hierarchyState->hierarchy = 0;
 	a3hierarchyStateCreate(hierarchyState, hierarchy);
+
+
+
+
+	// example blend operation: lerp
+	a3_SpatialPoseBlendOpLerp testLerp;
+	testLerp.opOrientation = a3vec4Nerp;
+	testLerp.opAngles = a3vec4Lerp;
+	testLerp.opScale = a3vec4LogLerp;
+	testLerp.opTranslation = a3vec4Lerp;
+	// ...
+	//resultAngles = testlerp.opAngles(args);
 }
 
 

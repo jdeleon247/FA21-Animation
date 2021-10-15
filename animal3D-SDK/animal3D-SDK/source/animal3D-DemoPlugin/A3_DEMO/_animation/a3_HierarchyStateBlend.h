@@ -37,6 +37,43 @@ extern "C"
 #else	// !__cplusplus
 
 #endif	// __cplusplus
+
+
+
+// blend operation function pointer
+typedef a3vec4(*a3_BlendOpLerp)(a3vec4 const v0, a3vec4 const v1, a3real const u);
+typedef struct a3_SpatialPoseBlendOpLerp
+{
+	a3_BlendOpLerp opOrientation, opAngles, opScale, opTranslation;
+}a3_SpatialPoseBlendOpLerp;
+
+
+	// Lerps should be moved somewhere else
+inline a3vec4 a3vec4Lerp(a3vec4 const v0, a3vec4 const v1, a3real const u)
+{
+	a3lerp(v0.x, v1.x, u);
+	a3lerp(v0.y, v1.y, u);
+	a3lerp(v0.z, v1.z, u);
+	a3lerp(v0.w, v1.w, u);
+	return v0;
+}
+inline a3vec4 a3vec4LogLerp(a3vec4 const v0, a3vec4 const v1, a3real const u)
+{
+	a3lerp(v0.x, v1.x, u);
+	return v0;
+}
+inline a3vec4 a3vec4Slerp(a3vec4 const v0, a3vec4 const v1, a3real const u)
+{
+	a3lerp(v0.x, v1.x, u);
+	return v0;
+}
+inline a3vec4 a3vec4Nerp(a3vec4 const v0, a3vec4 const v1, a3real const u)
+{
+	a3lerp(v0.x, v1.x, u);
+	return v0;
+}
+
+
 	
 
 //-----------------------------------------------------------------------------
