@@ -125,7 +125,7 @@ a3_SpatialPose* a3spatialPoseOpTriangular(a3_SpatialPose* pose_out, a3_SpatialPo
 a3_SpatialPose* a3spatialPoseOpBiNearest(a3_SpatialPose* pose_out, a3_SpatialPose const* pose10, a3_SpatialPose const* pose11,
 																   a3_SpatialPose const* pose00, a3_SpatialPose const* pose01, a3real const u0, a3real const u1, a3real const u);
 // bilinear interpolation function for poses.
-a3_SpatialPose* a3spatialPoseOpBiLinear(a3_SpatialPose* pose_out, a3_SpatialPose const* pose10, a3_SpatialPose const* pose11,
+a3_SpatialPose* a3spatialPoseOpBiLerp(a3_SpatialPose* pose_out, a3_SpatialPose const* pose10, a3_SpatialPose const* pose11,
 																  a3_SpatialPose const* pose00, a3_SpatialPose const* pose01, a3real const u0, a3real const u1, a3real const u);
 // bicubic interpolation algorithm for poses.
 a3_SpatialPose* a3spatialPoseOpBiCubic(a3_SpatialPose* pose_out, a3_SpatialPose const* posePrev0, a3_SpatialPose const* pose00, a3_SpatialPose const* pose01, a3_SpatialPose const* poseNext0,

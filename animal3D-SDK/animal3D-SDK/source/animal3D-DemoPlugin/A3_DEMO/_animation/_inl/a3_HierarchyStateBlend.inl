@@ -83,7 +83,7 @@ inline a3_SpatialPose* a3spatialPoseOpInvert(a3_SpatialPose* pose_out, a3_Spatia
 inline a3_SpatialPose* a3spatialPoseOpConcat(a3_SpatialPose* pose_out, a3_SpatialPose* pose_lh, a3_SpatialPose* pose_rh)
 {
 	a3spatialPoseConcat(pose_out, pose_lh, pose_rh);
-	return 0;
+	return pose_out;
 }
 
 // selects one of the two control poses using nearest interpolation.
@@ -91,11 +91,11 @@ inline a3_SpatialPose* a3spatialPoseOpNearest(a3_SpatialPose* pose_out, a3_Spati
 {
 	if (u >= 0.5)
 	{
-		pose_out = pose0;
+		a3spatialPoseCopy(pose_out, pose0);
 	}
 	else
 	{
-		pose_out = pose1;
+		a3spatialPoseCopy(pose_out, pose1);
 	}
 	return pose_out;
 }
@@ -119,7 +119,7 @@ inline a3_SpatialPose* a3spatialPoseOpCubic(a3_SpatialPose* pose_out, a3_Spatial
 	a3real4CatmullRom(pose_out->angles.v, posePrev->angles.v, pose0->angles.v, pose1->angles.v, poseNext->angles.v, u);
 	a3real4CatmullRom(pose_out->scale.v, posePrev->scale.v, pose0->scale.v, pose1->scale.v, poseNext->scale.v, u);
 	a3real4CatmullRom(pose_out->translation.v, posePrev->translation.v, pose0->translation.v, pose1->translation.v, poseNext->translation.v, u);
-	return 0;
+	return pose_out;
 }
 
 
@@ -131,38 +131,60 @@ inline a3_SpatialPose* a3spatialPoseOpCubic(a3_SpatialPose* pose_out, a3_Spatial
 // calculates the "difference" or "split" between the two control poses.
 inline a3_SpatialPose* a3spatialPoseOpSplit(a3_SpatialPose* pose_out, a3_SpatialPose* pose_lh, a3_SpatialPose* pose_rh)
 {
+	pose_out->angles.x = a3trigValid_sind(pose_lh->angles.x - pose_rh->angles.x);
+	pose_out->angles.y = a3trigValid_sind(pose_lh->angles.y - pose_rh->angles.y);
+	pose_out->angles.z = a3trigValid_sind(pose_lh->angles.z - pose_rh->angles.z);
 
-	return 0;
+	pose_out->scale.x = pose_lh->scale.x / pose_rh->scale.x;
+	pose_out->scale.y = pose_lh->scale.y / pose_rh->scale.y;
+	pose_out->scale.z = pose_lh->scale.z / pose_rh->scale.z;
+
+	pose_out->translation.x = pose_lh->translation.x - pose_rh->translation.x;
+	pose_out->translation.y = pose_lh->translation.y - pose_rh->translation.y;
+	pose_out->translation.z = pose_lh->translation.z - pose_rh->translation.z;
+
+	return pose_out;
 }
 
 // calculates the "scaled" pose, which is some blend between the identity pose and the control pose.
 inline a3_SpatialPose* a3spatialPoseOpScale(a3_SpatialPose* pose_out, a3_SpatialPose const* pose, a3real const u)
 {
-
-	return 0;
+	a3spatialPoseOpLERP(pose_out, a3spatialPoseOpIdentity(pose_out), pose, u);
+	return pose_out;
 }
 
 // triangular interpolation for poses.
 inline a3_SpatialPose* a3spatialPoseOpTriangular(a3_SpatialPose* pose_out, a3_SpatialPose const* pose0, a3_SpatialPose const* pose1, a3_SpatialPose const* pose2, a3real const u0, a3real const u1)
 {
-
-	return 0;
+	a3real u = 1 - u0 - u1;
+	pose_out = a3spatialPoseOpConcat(pose_out, a3spatialPoseOpConcat(pose_out, a3spatialPoseOpScale(pose_out, pose0, u), a3spatialPoseOpScale(pose_out, pose1, u0)), a3spatialPoseOpScale(pose_out, pose2, u1));
+	return pose_out;
 }
 
 // bilinear nearest function for poses.
-inline a3_SpatialPose* a3spatialPoseOpBiNearest(a3_SpatialPose* pose_out, a3_SpatialPose const* pose10, a3_SpatialPose const* pose11,
-	a3_SpatialPose const* pose00, a3_SpatialPose const* pose01, a3real const u0, a3real const u1, a3real const u)
+inline a3_SpatialPose* a3spatialPoseOpBiNearest(a3_SpatialPose* pose_out, a3_SpatialPose const* pose00, a3_SpatialPose const* pose01,
+	a3_SpatialPose const* pose10, a3_SpatialPose const* pose11, a3real const u0, a3real const u1, a3real const u)
 {
+	a3_SpatialPose* tmpPose0;
+	a3_SpatialPose* tmpPose1;
+	a3spatialPoseOpNearest(tmpPose0, pose00, pose01, u0);
+	a3spatialPoseOpNearest(tmpPose1, pose10, pose11, u1);
 
-	return 0;
+	a3spatialPoseOpNearest(pose_out, tmpPose0, tmpPose1, u);
+	return pose_out;
 }
 
 // bilinear interpolation function for poses.
-inline a3_SpatialPose* a3spatialPoseOpBiLinear(a3_SpatialPose* pose_out, a3_SpatialPose const* pose10, a3_SpatialPose const* pose11,
-	a3_SpatialPose const* pose00, a3_SpatialPose const* pose01, a3real const u0, a3real const u1, a3real const u)
+inline a3_SpatialPose* a3spatialPoseOpBiLerp(a3_SpatialPose* pose_out, a3_SpatialPose const* pose00, a3_SpatialPose const* pose01,
+	a3_SpatialPose const* pose10, a3_SpatialPose const* pose11, a3real const u0, a3real const u1, a3real const u)
 {
+	a3_SpatialPose* tmpPose0;
+	a3_SpatialPose* tmpPose1;
+	a3spatialPoseLerp(tmpPose0, pose00, pose01, u0);
+	a3spatialPoseLerp(tmpPose1, pose10, pose11, u0);
 
-	return 0;
+	a3spatialPoseLerp(pose_out, tmpPose0, tmpPose1, u);
+	return pose_out;
 }
 
 // bicubic interpolation algorithm for poses.
@@ -172,8 +194,26 @@ inline a3_SpatialPose* a3spatialPoseOpBiCubic(a3_SpatialPose* pose_out, a3_Spati
 	a3_SpatialPose const* posePrev3, a3_SpatialPose const* pose30, a3_SpatialPose const* pose31, a3_SpatialPose const* poseNext3,
 	a3real const u0, a3real const u1, a3real const u2, a3real const u3, a3real const u)
 {
+	a3_SpatialPose* tmpPose0;
+	a3_SpatialPose* tmpPose1;
+	a3_SpatialPose* tmpPose2;
+	a3_SpatialPose* tmpPose3;
 
-	return 0;
+	a3spatialPoseOpCubic(tmpPose0, posePrev0, pose00, pose01, poseNext0, u0);
+	a3spatialPoseOpCubic(tmpPose1, posePrev1, pose10, pose11, poseNext1, u1);
+	a3spatialPoseOpCubic(tmpPose2, posePrev2, pose20, pose21, poseNext2, u2);
+	a3spatialPoseOpCubic(tmpPose3, posePrev3, pose30, pose31, poseNext3, u3);
+
+	/*
+	a3spatialPoseOpCubic(tmpPose0, posePrev0, posePrev1, posePrev2, posePrev3, u0);
+	a3spatialPoseOpCubic(tmpPose1, pose00, pose10, pose20, pose30, u1);
+	a3spatialPoseOpCubic(tmpPose2, pose01, pose11, pose21, pose31, u2);
+	a3spatialPoseOpCubic(tmpPose3, poseNext0, poseNext1, poseNext2, poseNext3, u3);
+	*/
+
+	a3spatialPoseOpCubic(pose_out, tmpPose0, tmpPose1, tmpPose2, tmpPose3, u3);
+
+	return pose_out;
 }
 
 //-----------------------------------------------------------------------------
