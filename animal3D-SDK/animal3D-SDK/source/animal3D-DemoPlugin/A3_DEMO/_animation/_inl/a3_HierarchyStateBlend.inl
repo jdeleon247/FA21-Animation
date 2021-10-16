@@ -49,36 +49,55 @@ inline a3_SpatialPose* a3spatialPoseOpIdentity(a3_SpatialPose* pose_out)
 // Equivalent to a constructor, this operation returns/sets a pose constructed using the components provided.
 inline a3_SpatialPose* a3spatialPoseOpConstruct(a3_SpatialPose* pose_out, a3vec4 rotation, a3vec4 scale, a3vec4 translation)
 {
+	pose_out->angles = rotation;
+	pose_out->scale = scale;
+	pose_out->translation = translation;
 
-	return 0;
+	return pose_out;
 }
 
 // returns/sets the unchanged control pose
 inline a3_SpatialPose* a3spatialPoseOpCopy(a3_SpatialPose* pose_out, a3_SpatialPose* pose_in)
 {
+	pose_out->transform = pose_in->transform;
+	pose_out->angles = pose_in->angles;
+	pose_out->orientation = pose_in->orientation;
+	pose_out->scale = pose_in->scale;
+	pose_out->translation = pose_in->translation;
 
-	return 0;
+	return pose_out;
 }
 
 // calculates the opposite/inverse pose description that "undoes" the control pose.
 inline a3_SpatialPose* a3spatialPoseOpInvert(a3_SpatialPose* pose_out, a3_SpatialPose* pose_in)
 {
-
-	return 0;
+	a3quatGetInverse(pose_out->orientation.v, pose_in->orientation.v);
+	a3real4GetNegative(pose_out->angles.v, pose_in->angles.v); // Additive -> make negative
+	a3real4DivComp(pose_out->scale.v, pose_in->scale.v); // Multiplicatve -> (?) divide (?)
+	a3real4GetNegative(pose_out->translation.v, pose_in->translation.v);  // Additive -> make negative
+	
+	return pose_out;
 }
 
 // piecewise concatenation of each part of a spatialPose
-inline a3_SpatialPose* a3spatialPoseOpConcat(a3_SpatialPose* pose_lh, a3_SpatialPose* pose_rh)
+inline a3_SpatialPose* a3spatialPoseOpConcat(a3_SpatialPose* pose_out, a3_SpatialPose* pose_lh, a3_SpatialPose* pose_rh)
 {
-
+	a3spatialPoseConcat(pose_out, pose_lh, pose_rh);
 	return 0;
 }
 
 // selects one of the two control poses using nearest interpolation.
 inline a3_SpatialPose* a3spatialPoseOpNearest(a3_SpatialPose* pose_out, a3_SpatialPose const* pose0, a3_SpatialPose const* pose1, a3real const u)
 {
-
-	return 0;
+	if (u >= 0.5)
+	{
+		pose_out = pose0;
+	}
+	else
+	{
+		pose_out = pose1;
+	}
+	return pose_out;
 }
 
 // LERP operation for single spatial pose
@@ -88,7 +107,7 @@ inline a3_SpatialPose* a3spatialPoseOpLERP(a3_SpatialPose* pose_out, a3_SpatialP
 	a3real4Lerp(pose_out->angles.v, pose0->angles.v, pose1->angles.v, u);
 	a3real4Lerp(pose_out->scale.v, pose0->scale.v, pose1->scale.v, u);
 	a3real4Lerp(pose_out->translation.v, pose0->translation.v, pose1->translation.v, u);
-	// done
+	
 	return pose_out;
 }
 
@@ -96,7 +115,10 @@ inline a3_SpatialPose* a3spatialPoseOpLERP(a3_SpatialPose* pose_out, a3_SpatialP
 inline a3_SpatialPose* a3spatialPoseOpCubic(a3_SpatialPose* pose_out, a3_SpatialPose const* posePrev, a3_SpatialPose const* pose0,
 	a3_SpatialPose const* pose1, a3_SpatialPose const* poseNext, a3real const u)
 {
-
+	a3real4CatmullRom(pose_out->orientation.v, posePrev->orientation.v, pose0->orientation.v, pose1->orientation.v, poseNext->orientation.v, u); // Maybe not right
+	a3real4CatmullRom(pose_out->angles.v, posePrev->angles.v, pose0->angles.v, pose1->angles.v, poseNext->angles.v, u);
+	a3real4CatmullRom(pose_out->scale.v, posePrev->scale.v, pose0->scale.v, pose1->scale.v, poseNext->scale.v, u);
+	a3real4CatmullRom(pose_out->translation.v, posePrev->translation.v, pose0->translation.v, pose1->translation.v, poseNext->translation.v, u);
 	return 0;
 }
 
