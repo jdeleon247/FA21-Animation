@@ -353,6 +353,16 @@ void a3animation_init_animation(a3_DemoState const* demoState, a3_DemoMode1_Anim
 	hierarchyState->hierarchy = 0;
 	a3hierarchyStateCreate(hierarchyState, hierarchy);
 
+	// control state 1
+	hierarchyState = demoMode->hierarchyState_skel + 2;
+	hierarchyState->hierarchy = 0;
+	a3hierarchyStateCreate(hierarchyState, hierarchy);
+
+	// control state 2
+	hierarchyState = demoMode->hierarchyState_skel + 3;
+	hierarchyState->hierarchy = 0;
+	a3hierarchyStateCreate(hierarchyState, hierarchy);
+
 
 
 

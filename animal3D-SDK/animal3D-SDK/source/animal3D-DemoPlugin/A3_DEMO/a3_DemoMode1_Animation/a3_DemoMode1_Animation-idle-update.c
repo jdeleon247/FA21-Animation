@@ -67,7 +67,7 @@ void a3animation_update(a3_DemoState* demoState, a3_DemoMode1_Animation* demoMod
 	a3ui32 i;
 	a3_DemoModelMatrixStack matrixStack[animationMaxCount_sceneObject];
 
-	a3_HierarchyState* activeHS = demoMode->hierarchyState_skel + 1, * baseHS = demoMode->hierarchyState_skel;
+	a3_HierarchyState* controlHS1 = demoMode->hierarchyState_skel + 3, * controlHS0 = demoMode->hierarchyState_skel + 2, * activeHS = demoMode->hierarchyState_skel + 1, * baseHS = demoMode->hierarchyState_skel;
 
 	// active camera
 	a3_DemoProjector const* activeCamera = demoMode->projector + demoMode->activeCamera;
@@ -111,12 +111,22 @@ void a3animation_update(a3_DemoState* demoState, a3_DemoMode1_Animation* demoMod
 	//a3hierarchyPoseCopy(activeHS->objectSpace,
 	//	demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[0] + 1,
 	//	demoMode->hierarchy_skel->numNodes);
-	a3hierarchyPoseLerp(activeHS->objectSpace,	// use as temp storage
+	//a3hierarchyPoseLerp(activeHS->objectSpace,	// use as temp storage
+	//	demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[0] + 1,
+	//	demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[1] + 1,
+	//	demoMode->hierarchyKeyPose_param,
+	//	demoMode->hierarchy_skel->numNodes);
+	//a3hierarchyPoseConcat(activeHS->localSpace,	// goal to calculate
+	//	baseHS->localSpace, // holds base pose
+	//	activeHS->objectSpace, // temp storage
+	//	demoMode->hierarchy_skel->numNodes);
+	
+	a3hierarchyPoseOpLERP(activeHS->objectSpace,	// use as temp storage
 		demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[0] + 1,
 		demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[1] + 1,
 		demoMode->hierarchyKeyPose_param,
 		demoMode->hierarchy_skel->numNodes);
-	a3hierarchyPoseConcat(activeHS->localSpace,	// goal to calculate
+	a3hierarchyPoseOpConcat(activeHS->localSpace,	// goal to calculate
 		baseHS->localSpace, // holds base pose
 		activeHS->objectSpace, // temp storage
 		demoMode->hierarchy_skel->numNodes);
