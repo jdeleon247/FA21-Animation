@@ -122,11 +122,11 @@ a3_SpatialPose* a3spatialPoseOpScale(a3_SpatialPose* pose_out, a3_SpatialPose co
 a3_SpatialPose* a3spatialPoseOpTriangular(a3_SpatialPose* pose_out, a3_SpatialPose const* pose0, a3_SpatialPose const* pose1, a3_SpatialPose const* pose2, a3real const u0, a3real const u1);
 
 // bilinear nearest function for poses.
-a3_SpatialPose* a3spatialPoseOpBiNearest(a3_SpatialPose* pose_out, a3_SpatialPose const* pose10, a3_SpatialPose const* pose11,
-																   a3_SpatialPose const* pose00, a3_SpatialPose const* pose01, a3real const u0, a3real const u1, a3real const u);
+a3_SpatialPose* a3spatialPoseOpBiNearest(a3_SpatialPose* pose_out, a3_SpatialPose const* pose00, a3_SpatialPose const* pose01,
+																   a3_SpatialPose const* pose10, a3_SpatialPose const* pose11, a3real const u0, a3real const u1, a3real const u);
 // bilinear interpolation function for poses.
-a3_SpatialPose* a3spatialPoseOpBiLerp(a3_SpatialPose* pose_out, a3_SpatialPose const* pose10, a3_SpatialPose const* pose11,
-																  a3_SpatialPose const* pose00, a3_SpatialPose const* pose01, a3real const u0, a3real const u1, a3real const u);
+a3_SpatialPose* a3spatialPoseOpBiLerp(a3_SpatialPose* pose_out, a3_SpatialPose const* pose00, a3_SpatialPose const* pose01,
+																  a3_SpatialPose const* pose10, a3_SpatialPose const* pose11, a3real const u0, a3real const u1, a3real const u);
 // bicubic interpolation algorithm for poses.
 a3_SpatialPose* a3spatialPoseOpBiCubic(a3_SpatialPose* pose_out, a3_SpatialPose const* posePrev0, a3_SpatialPose const* pose00, a3_SpatialPose const* pose01, a3_SpatialPose const* poseNext0,
 																 a3_SpatialPose const* posePrev1, a3_SpatialPose const* pose10, a3_SpatialPose const* pose11, a3_SpatialPose const* poseNext1, 
@@ -146,11 +146,61 @@ a3_SpatialPose a3spatialPoseDOpLERP(a3_SpatialPose const pose0, a3_SpatialPose c
 
 //-----------------------------------------------------------------------------
 
-// pointer-based reset/identity operation for hierarchical pose
-a3_HierarchyPose* a3hierarchyPoseOpIdentity(a3_HierarchyPose* pose_out);
+// Fundamental Blend Operations
+// (Pointer-based)
 
-// pointer-based LERP operation for hierarchical pose
-a3_HierarchyPose* a3hierarchyPoseOpLERP(a3_HierarchyPose* pose_out, a3_HierarchyPose const* pose0, a3_HierarchyPose const* pose1, a3real const u);
+// reset/identity operation for single spatial pose
+a3_HierarchyPose* a3hierarchyPoseOpIdentity(a3_HierarchyPose* pose_out, a3ui32 numNodes);
+
+// Equivalent to a constructor, this operation returns/sets a pose constructed using the components provided.
+a3_HierarchyPose* a3hierarchyPoseOpConstruct(a3_HierarchyPose* pose_out, a3vec4 rotation, a3vec4 scale, a3vec4 translation, a3ui32 numNodes);
+
+// returns/sets the unchanged control pose
+a3_HierarchyPose* a3hierarchyPoseOpCopy(a3_HierarchyPose* pose_out, a3_HierarchyPose* pose_in, a3ui32 numNodes);
+
+// calculates the opposite/inverse pose description that "undoes" the control pose.
+a3_HierarchyPose* a3hierarchyPoseOpInvert(a3_HierarchyPose* pose_out, a3_HierarchyPose* pose_in, a3ui32 numNodes);
+
+// piecewise concatenation of each part of a spatialPose
+a3_HierarchyPose* a3hierarchyPoseOpConcat(a3_HierarchyPose* pose_out, a3_HierarchyPose* pose_lh, a3_HierarchyPose* pose_rh, a3ui32 numNodes);
+
+// selects one of the two control poses using nearest interpolation.
+a3_HierarchyPose* a3hierarchyPoseOpNearest(a3_HierarchyPose* pose_out, a3_HierarchyPose const* pose0, a3_HierarchyPose const* pose1, a3real const u, a3ui32 numNodes);
+
+// LERP operation for single spatial pose
+a3_HierarchyPose* a3hierarchyPoseOpLERP(a3_HierarchyPose* pose_out, a3_HierarchyPose const* pose0, a3_HierarchyPose const* pose1, a3real const u, a3ui32 numNodes);
+
+// Cubic interpolation for poses
+a3_HierarchyPose* a3hierarchyPoseOpCubic(a3_HierarchyPose* pose_out, a3_HierarchyPose const* posePrev, a3_HierarchyPose const* pose0,
+	a3_HierarchyPose const* pose1, a3_HierarchyPose const* poseNext, a3real const u, a3ui32 numNodes);
+
+
+//-----------------------------------------------------------------------------
+
+// Derivative Blend Operations
+// (Pointer-based)
+
+// calculates the "difference" or "split" between the two control poses.
+a3_HierarchyPose* a3hierarchyPoseOpSplit(a3_HierarchyPose* pose_out, a3_HierarchyPose* pose_lh, a3_HierarchyPose* pose_rh, a3ui32 numNodes);
+
+// calculates the "scaled" pose, which is some blend between the identity pose and the control pose.
+a3_HierarchyPose* a3hierarchyPoseOpScale(a3_HierarchyPose* pose_out, a3_HierarchyPose const* pose, a3real const u, a3ui32 numNodes);
+
+// triangular interpolation for poses.
+a3_HierarchyPose* a3hierarchyPoseOpTriangular(a3_HierarchyPose* pose_out, a3_HierarchyPose const* pose0, a3_HierarchyPose const* pose1, a3_HierarchyPose const* pose2, a3real const u0, a3real const u1, a3ui32 numNodes);
+
+// bilinear nearest function for poses.
+a3_HierarchyPose* a3hierarchyPoseOpBiNearest(a3_HierarchyPose* pose_out, a3_HierarchyPose const* pose00, a3_HierarchyPose const* pose01,
+	a3_HierarchyPose const* pose10, a3_HierarchyPose const* pose11, a3real const u0, a3real const u1, a3real const u, a3ui32 numNodes);
+// bilinear interpolation function for poses.
+a3_HierarchyPose* a3hierarchyPoseOpBiLerp(a3_HierarchyPose* pose_out, a3_HierarchyPose const* pose00, a3_HierarchyPose const* pose01,
+	a3_HierarchyPose const* pose10, a3_HierarchyPose const* pose11, a3real const u0, a3real const u1, a3real const u, a3ui32 numNodes);
+// bicubic interpolation algorithm for poses.
+a3_HierarchyPose* a3hierarchyPoseOpBiCubic(a3_HierarchyPose* pose_out, a3_HierarchyPose const* posePrev0, a3_HierarchyPose const* pose00, a3_HierarchyPose const* pose01, a3_HierarchyPose const* poseNext0,
+	a3_HierarchyPose const* posePrev1, a3_HierarchyPose const* pose10, a3_HierarchyPose const* pose11, a3_HierarchyPose const* poseNext1,
+	a3_HierarchyPose const* posePrev2, a3_HierarchyPose const* pose20, a3_HierarchyPose const* pose21, a3_HierarchyPose const* poseNext2,
+	a3_HierarchyPose const* posePrev3, a3_HierarchyPose const* pose30, a3_HierarchyPose const* pose31, a3_HierarchyPose const* poseNext3,
+	a3real const u0, a3real const u1, a3real const u2, a3real const u3, a3real const u, a3ui32 numNodes);
 
 
 //-----------------------------------------------------------------------------
