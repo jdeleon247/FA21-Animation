@@ -89,7 +89,7 @@ inline a3_SpatialPose* a3spatialPoseOpConcat(a3_SpatialPose* pose_out, a3_Spatia
 // selects one of the two control poses using nearest interpolation.
 inline a3_SpatialPose* a3spatialPoseOpNearest(a3_SpatialPose* pose_out, a3_SpatialPose const* pose0, a3_SpatialPose const* pose1, a3real const u)
 {
-	if (u >= 0.5)
+	if (u <= 0.5)
 	{
 		a3spatialPoseCopy(pose_out, pose0);
 	}

@@ -125,14 +125,7 @@ void a3animation_update(a3_DemoState* demoState, a3_DemoMode1_Animation* demoMod
 		demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[1] + 1,
 		demoMode->hierarchyKeyPose_param,
 		demoMode->hierarchy_skel->numNodes);
-	a3hierarchyPoseOpConcat(activeHS->localSpace,	// goal to calculate
-		baseHS->localSpace, // holds base pose
-		activeHS->objectSpace, // temp storage
-		demoMode->hierarchy_skel->numNodes);
-	a3hierarchyPoseConvert(activeHS->localSpace,
-		demoMode->hierarchy_skel->numNodes,
-		demoMode->hierarchyPoseGroup_skel->channel,
-		demoMode->hierarchyPoseGroup_skel->order);
+	
 
 	switch (demoMode->blendOpIndex)
 	{
@@ -146,19 +139,19 @@ void a3animation_update(a3_DemoState* demoState, a3_DemoMode1_Animation* demoMod
 		demoMode->hierarchy_skel->numNodes);
 		break;
 	case 2: a3hierarchyPoseOpCopy(activeHS->objectSpace,
-		activeHS->localSpace,
+		demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[0] + 1,
 		demoMode->hierarchy_skel->numNodes);
 		break;
 	case 3: a3hierarchyPoseOpInvert(activeHS->objectSpace,
-		activeHS->localSpace,
+		demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[0] + 1,
 		demoMode->hierarchy_skel->numNodes);
 		break;
-	case 4: a3hierarchyPoseOpConcat(activeHS->localSpace,	// goal to calculate
+	case 4: a3hierarchyPoseOpConcat(activeHS->objectSpace,	// goal to calculate
 		baseHS->localSpace, // holds base pose
 		activeHS->objectSpace, // temp storage
 		demoMode->hierarchy_skel->numNodes);
 		break;
-	case 5: a3hierarchyPoseOpNearest(activeHS->localSpace,
+	case 5: a3hierarchyPoseOpNearest(activeHS->objectSpace,
 		demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[0] + 1,
 		demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[1] + 1,
 		demoMode->hierarchyKeyPose_param,
@@ -243,6 +236,15 @@ void a3animation_update(a3_DemoState* demoState, a3_DemoMode1_Animation* demoMod
 	default:											  
 		break;
 	}
+
+	a3hierarchyPoseOpConcat(activeHS->localSpace,	// goal to calculate
+		baseHS->localSpace, // holds base pose
+		activeHS->objectSpace, // temp storage
+		demoMode->hierarchy_skel->numNodes);
+	a3hierarchyPoseConvert(activeHS->localSpace,
+		demoMode->hierarchy_skel->numNodes,
+		demoMode->hierarchyPoseGroup_skel->channel,
+		demoMode->hierarchyPoseGroup_skel->order);
 
 	a3kinematicsSolveForward(activeHS);
 	a3hierarchyStateUpdateObjectInverse(activeHS);
