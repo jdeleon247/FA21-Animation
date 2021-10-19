@@ -52,6 +52,24 @@ void a3animation_render_controls(a3_DemoState const* demoState, a3_DemoMode1_Ani
 	a3_TextRenderer const* text, a3vec4 const col,
 	a3f32 const textAlign, a3f32 const textDepth, a3f32 const textOffsetDelta, a3f32 textOffset)
 {
+	a3byte const* blendOpNames[14] =
+	{
+		"identity",
+		"construct",
+		"copy",
+		"invert",
+		"concat",
+		"nearest",
+		"lerp",
+		"cubic",
+		"split",
+		"scale",
+		"triangular",
+		"bi-nearest",
+		"bi-linear",
+		"bi-cubic",
+	};
+
 	// display mode info
 	a3byte const* pipelineText[animation_pipeline_max] = {
 		"Forward rendering",
@@ -119,8 +137,9 @@ void a3animation_render_controls(a3_DemoState const* demoState, a3_DemoMode1_Ani
 		"    Rendering mode (%u / %u) ('j' | 'k'): %s", render + 1, animation_render_max, renderProgramName[render]);
 	a3textDraw(text, textAlign, textOffset += textOffsetDelta, textDepth, col.r, col.g, col.b, col.a,
 		"    Display mode (%u / %u) ('J' | 'K'): %s", display + 1, animation_display_max, displayProgramName[display]);
+	const char* blend_mode_name = blendOpNames[demoMode->blendOpIndex];
 	a3textDraw(text, textAlign, textOffset += textOffsetDelta, textDepth, col.r, col.g, col.b, col.a,
-		"    Active camera (%u / %u) ('c' prev | next 'v'): %s", activeCamera + 1, animation_camera_max, cameraText[activeCamera]);
+		"    Selected blend operation (%u / %u) ('9' prev | next '0'): %s", demoMode->blendOpIndex, 14, blend_mode_name);
 }
 
 

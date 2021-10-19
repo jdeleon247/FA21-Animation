@@ -165,8 +165,8 @@ inline a3_SpatialPose* a3spatialPoseOpTriangular(a3_SpatialPose* pose_out, a3_Sp
 inline a3_SpatialPose* a3spatialPoseOpBiNearest(a3_SpatialPose* pose_out, a3_SpatialPose const* pose00, a3_SpatialPose const* pose01,
 	a3_SpatialPose const* pose10, a3_SpatialPose const* pose11, a3real const u0, a3real const u1, a3real const u)
 {
-	a3_SpatialPose* tmpPose0;
-	a3_SpatialPose* tmpPose1;
+	a3_SpatialPose tmpPose0[1];
+	a3_SpatialPose tmpPose1[1];
 	a3spatialPoseOpNearest(tmpPose0, pose00, pose01, u0);
 	a3spatialPoseOpNearest(tmpPose1, pose10, pose11, u1);
 
@@ -178,8 +178,8 @@ inline a3_SpatialPose* a3spatialPoseOpBiNearest(a3_SpatialPose* pose_out, a3_Spa
 inline a3_SpatialPose* a3spatialPoseOpBiLerp(a3_SpatialPose* pose_out, a3_SpatialPose const* pose00, a3_SpatialPose const* pose01,
 	a3_SpatialPose const* pose10, a3_SpatialPose const* pose11, a3real const u0, a3real const u1, a3real const u)
 {
-	a3_SpatialPose* tmpPose0;
-	a3_SpatialPose* tmpPose1;
+	a3_SpatialPose tmpPose0[1];
+	a3_SpatialPose tmpPose1[1];
 	a3spatialPoseLerp(tmpPose0, pose00, pose01, u0);
 	a3spatialPoseLerp(tmpPose1, pose10, pose11, u0);
 
@@ -194,10 +194,10 @@ inline a3_SpatialPose* a3spatialPoseOpBiCubic(a3_SpatialPose* pose_out, a3_Spati
 	a3_SpatialPose const* posePrev3, a3_SpatialPose const* pose30, a3_SpatialPose const* pose31, a3_SpatialPose const* poseNext3,
 	a3real const u0, a3real const u1, a3real const u2, a3real const u3, a3real const u)
 {
-	a3_SpatialPose* tmpPose0;
-	a3_SpatialPose* tmpPose1;
-	a3_SpatialPose* tmpPose2;
-	a3_SpatialPose* tmpPose3;
+	a3_SpatialPose tmpPose0[1];
+	a3_SpatialPose tmpPose1[1];
+	a3_SpatialPose tmpPose2[1];
+	a3_SpatialPose tmpPose3[1];
 
 	a3spatialPoseOpCubic(tmpPose0, posePrev0, pose00, pose01, poseNext0, u0);
 	a3spatialPoseOpCubic(tmpPose1, posePrev1, pose10, pose11, poseNext1, u1);

@@ -120,7 +120,7 @@ void a3animation_update(a3_DemoState* demoState, a3_DemoMode1_Animation* demoMod
 	//	baseHS->localSpace, // holds base pose
 	//	activeHS->objectSpace, // temp storage
 	//	demoMode->hierarchy_skel->numNodes);
-	
+
 	a3hierarchyPoseOpLERP(activeHS->objectSpace,	// use as temp storage
 		demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[0] + 1,
 		demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[1] + 1,
@@ -134,6 +134,117 @@ void a3animation_update(a3_DemoState* demoState, a3_DemoMode1_Animation* demoMod
 		demoMode->hierarchy_skel->numNodes,
 		demoMode->hierarchyPoseGroup_skel->channel,
 		demoMode->hierarchyPoseGroup_skel->order);
+
+	switch (demoMode->blendOpIndex)
+	{
+	case 0: a3hierarchyPoseOpIdentity(activeHS->objectSpace,
+		demoMode->hierarchy_skel->numNodes);
+		break;
+	case 1: a3hierarchyPoseOpConstruct(activeHS->objectSpace, 
+		demoMode->hierarchyPoseGroup_skel->hpose->pose->angles, 
+		demoMode->hierarchyPoseGroup_skel->hpose->pose->scale,
+		demoMode->hierarchyPoseGroup_skel->hpose->pose->translation,
+		demoMode->hierarchy_skel->numNodes);
+		break;
+	case 2: a3hierarchyPoseOpCopy(activeHS->objectSpace,
+		activeHS->localSpace,
+		demoMode->hierarchy_skel->numNodes);
+		break;
+	case 3: a3hierarchyPoseOpInvert(activeHS->objectSpace,
+		activeHS->localSpace,
+		demoMode->hierarchy_skel->numNodes);
+		break;
+	case 4: a3hierarchyPoseOpConcat(activeHS->localSpace,	// goal to calculate
+		baseHS->localSpace, // holds base pose
+		activeHS->objectSpace, // temp storage
+		demoMode->hierarchy_skel->numNodes);
+		break;
+	case 5: a3hierarchyPoseOpNearest(activeHS->localSpace,
+		demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[0] + 1,
+		demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[1] + 1,
+		demoMode->hierarchyKeyPose_param,
+		demoMode->hierarchy_skel->numNodes);
+		break;
+	case 6: a3hierarchyPoseOpLERP(activeHS->objectSpace,	// use as temp storage
+		demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[0] + 1,
+		demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[1] + 1,
+		demoMode->hierarchyKeyPose_param,
+		demoMode->hierarchy_skel->numNodes);
+		break;
+	case 7: a3hierarchyPoseOpCubic(activeHS->objectSpace,
+		demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[0] + 1,
+		demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[0] + 2,
+		demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[0] + 3,
+		demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[0] + 4,
+		demoMode->hierarchyKeyPose_param,
+		demoMode->hierarchy_skel->numNodes);
+		break;
+	case 8: a3hierarchyPoseOpSplit(activeHS->objectSpace,
+		baseHS->localSpace,
+		activeHS->objectSpace,
+		demoMode->hierarchy_skel->numNodes);
+		break;
+	case 9: a3hierarchyPoseOpScale(activeHS->objectSpace,
+		demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[0] + 1,
+		demoMode->hierarchyKeyPose_param,
+		demoMode->hierarchy_skel->numNodes);
+		break;
+	case 10: a3hierarchyPoseOpTriangular(activeHS->objectSpace,
+		demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[0] + 1,
+		demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[0] + 2,
+		demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[0] + 3,
+		demoMode->hierarchyKeyPose_param,
+		demoMode->hierarchyKeyPose_param,
+		demoMode->hierarchy_skel->numNodes);
+		break;
+	case 11: a3hierarchyPoseOpBiNearest(activeHS->objectSpace, 
+		demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[0] + 1,
+		demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[0] + 2,
+		demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[1] + 1,
+		demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[1] + 2,
+		demoMode->hierarchyKeyPose_param,
+		demoMode->hierarchyKeyPose_param,
+		demoMode->hierarchyKeyPose_param,
+		demoMode->hierarchy_skel->numNodes);
+		break;
+	case 12: a3hierarchyPoseOpBiLerp(activeHS->objectSpace,
+		demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[0] + 1,
+		demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[0] + 2,
+		demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[1] + 1,
+		demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[1] + 2,
+		demoMode->hierarchyKeyPose_param,
+		demoMode->hierarchyKeyPose_param,
+		demoMode->hierarchyKeyPose_param,
+		demoMode->hierarchy_skel->numNodes);
+		break;
+	case 13: a3hierarchyPoseOpBiCubic(activeHS->objectSpace,
+		demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[0] + 1,
+		demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[0] + 2,
+		demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[1] + 1,
+		demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[1] + 2,
+		demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[0] + 1,
+		demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[0] + 2,
+		demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[1] + 1,
+		demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[1] + 2,
+		demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[0] + 1,
+		demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[0] + 2,
+		demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[1] + 1,
+		demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[1] + 2,
+		demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[0] + 1,
+		demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[0] + 2,
+		demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[1] + 1,
+		demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[1] + 2,
+		demoMode->hierarchyKeyPose_param,
+		demoMode->hierarchyKeyPose_param,
+		demoMode->hierarchyKeyPose_param,
+		demoMode->hierarchyKeyPose_param,
+		demoMode->hierarchyKeyPose_param,
+		demoMode->hierarchy_skel->numNodes);
+		break;
+	default:											  
+		break;
+	}
+
 	a3kinematicsSolveForward(activeHS);
 	a3hierarchyStateUpdateObjectInverse(activeHS);
 	a3hierarchyStateUpdateObjectBindToCurrent(activeHS, baseHS);

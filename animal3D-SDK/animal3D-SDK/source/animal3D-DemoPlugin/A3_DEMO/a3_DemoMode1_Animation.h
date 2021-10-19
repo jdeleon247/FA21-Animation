@@ -162,7 +162,9 @@ typedef enum a3_DemoMode1_Animation_TargetName				a3_DemoMode1_Animation_TargetN
 				a3_DemoProjector
 					proj_camera_main[1];
 			};
+
 		};
+		a3i32 blendOpIndex;
 	};
 
 
