@@ -165,6 +165,7 @@ typedef enum a3_DemoMode1_Animation_TargetName				a3_DemoMode1_Animation_TargetN
 
 		};
 		a3i32 blendOpIndex;
+		a3boolean playingAnim;
 	};
 
 

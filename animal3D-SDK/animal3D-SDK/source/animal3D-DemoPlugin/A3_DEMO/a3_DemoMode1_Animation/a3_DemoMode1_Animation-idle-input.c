@@ -64,6 +64,10 @@ void a3animation_input_keyCharPress(a3_DemoState const* demoState, a3_DemoMode1_
 
 		// toggle chosen blend op
 		a3demoCtrlCasesLoop(demoMode->blendOpIndex, 14, '9' , '0');
+
+		// toggle play/pause animation
+		a3demoCtrlCaseToggle(demoMode->playingAnim, 'p');
+
 	}
 }
 

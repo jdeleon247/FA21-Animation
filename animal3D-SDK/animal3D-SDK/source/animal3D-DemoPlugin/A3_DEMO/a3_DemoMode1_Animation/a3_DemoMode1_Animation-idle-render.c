@@ -140,6 +140,9 @@ void a3animation_render_controls(a3_DemoState const* demoState, a3_DemoMode1_Ani
 	const char* blend_mode_name = blendOpNames[demoMode->blendOpIndex];
 	a3textDraw(text, textAlign, textOffset += textOffsetDelta, textDepth, col.r, col.g, col.b, col.a,
 		"    Selected blend operation (%u / %u) ('9' prev | next '0'): %s", demoMode->blendOpIndex, 14, blend_mode_name);
+	a3textDraw(text, textAlign, textOffset += textOffsetDelta, textDepth, col.r, col.g, col.b, col.a,
+		"    Animation Controller (play/pause 'p'): t: %f", demoMode->hierarchyKeyPose_param);
+
 }
 
 
