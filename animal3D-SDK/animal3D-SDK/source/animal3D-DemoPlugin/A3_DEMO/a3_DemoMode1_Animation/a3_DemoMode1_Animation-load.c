@@ -367,6 +367,7 @@ void a3animation_init_animation(a3_DemoState const* demoState, a3_DemoMode1_Anim
 
 
 	// example blend operation: lerp
+	/*
 	a3_SpatialPoseBlendOpLerp testLerp;
 	testLerp.opOrientation = a3vec4NLerp;
 	testLerp.opAngles = a3vec4Lerp;
@@ -374,6 +375,7 @@ void a3animation_init_animation(a3_DemoState const* demoState, a3_DemoMode1_Anim
 	testLerp.opTranslation = a3vec4Lerp;
 	// ...
 	//resultAngles = testlerp.opAngles(args);
+	*/
 }
 
 

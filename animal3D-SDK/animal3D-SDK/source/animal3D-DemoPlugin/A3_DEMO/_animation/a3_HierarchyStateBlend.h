@@ -39,6 +39,58 @@ extern "C"
 #endif	// __cplusplus
 
 
+// ROBUST BLEND NODE for any op
+typedef a3_SpatialPose* (*a3_SpatialPoseBlendOp)(
+	a3_SpatialPose* pose_out,
+	a3_SpatialPose const* pose_ctrl[],
+	a3real const param[]
+	);
+
+typedef struct a3_SpatialPoseBlendNode
+{
+	a3_SpatialPoseBlendOp op;
+	a3_SpatialPose* pose_out;
+	a3_SpatialPose const* pose_ctrl[32];
+	a3real const* param[8];
+} a3_SpatialPoseBlendNode;
+
+inline a3_SpatialPoseBlendNode* a3spatialPoseBlendNodeCall(
+	a3_SpatialPoseBlendNode* b)
+{
+	b->op(b->pose_out, b->pose_ctrl, b->param);
+	return b;
+}
+
+// e.g. lerp
+inline a3_SpatialPose* a3_SpatialPoseBlendOpLerp(
+	a3_SpatialPose* pose_out,
+	a3_SpatialPose const* pose_ctrl[2], // <- [2] doesn't matter, but it's more readable
+	a3real const* param[1])
+{
+	// p0 + (p1 - p0)*u
+	a3_SpatialPose const* p0 = pose_ctrl[0];
+	a3_SpatialPose const* p1 = pose_ctrl[1];
+	a3real const* u = param[0];
+	a3spatialPoseLerp(pose_out, p0, p1, *u);
+
+	return pose_out;
+}
+
+
+// Do same for clipController ?
+
+
+
+/*
+// object based
+typedef a3_SpatialPose(*a3_SpatialPoseBlendOpLerp)( // Asterisk makes this a function pointer 
+	a3_SpatialPose const p0, a3_SpatialPose const p1, a3real const u);
+
+
+// pointer based
+typedef a3_SpatialPose* (*a3_SpatialPoseBlendOpLerp)(
+	a3_SpatialPose* pose_out, a3_SpatialPose const* p0, a3_SpatialPose const* p1, a3real const u);
+
 
 // blend operation function pointer
 typedef a3vec4(*a3_BlendOpLerp)(a3vec4 const v0, a3vec4 const v1, a3real const u);
@@ -57,6 +109,7 @@ inline a3vec4 a3vec4Lerp(a3vec4 const v0, a3vec4 const v1, a3real const u)
 	a3lerp(v0.w, v1.w, u);
 	return v0;
 }
+
 inline a3vec4 a3vec4LogLerp(a3vec4 const v0, a3vec4 const v1, a3real const u)
 {
 	a3lerp(v0.x, v1.x, u);
@@ -73,7 +126,7 @@ inline a3vec4 a3vec4NLerp(a3vec4 const v0, a3vec4 const v1, a3real const u)
 	return v0;
 }
 
-
+*/
 	
 
 //-----------------------------------------------------------------------------
