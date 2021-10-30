@@ -17,6 +17,8 @@
 /*
 	animal3D SDK: Minimal 3D Animation Framework
 	By Daniel S. Buckstein
+
+	modified by Rory Beebout
 	
 	a3_DemoMode0_Starter-idle-update.c
 	Demo mode implementations: starter scene.
@@ -34,6 +36,8 @@
 #include "../a3_DemoState.h"
 
 #include "../_a3_demo_utilities/a3_DemoMacros.h"
+
+#include "../_animation/a3_KeyframeAnimationController.h"
 
 
 //-----------------------------------------------------------------------------
@@ -73,6 +77,7 @@ void a3starter_update(a3_DemoState* demoState, a3_DemoMode0_Starter* demoMode, a
 	for (i = 0; i < starterMaxCount_sceneObject; ++i)
 		a3demo_applyScale_internal(demoMode->object_scene + i, scaleMat.m);
 
+
 	// update skybox
 	a3demo_update_bindSkybox(demoMode->obj_camera_main, demoMode->obj_skybox);
 
@@ -83,6 +88,25 @@ void a3starter_update(a3_DemoState* demoState, a3_DemoMode0_Starter* demoMode, a
 			activeCamera->projectionMat.m, activeCameraObject->modelMat.m, activeCameraObject->modelMatInv.m,
 			demoMode->object_scene[i].modelMat.m, a3mat4_identity.m);
 	}
+	for (i = 0; i < 3; i++)
+	{
+		a3clipControllerUpdate(demoMode->clipController + i, (a3real)dt);
+	}
+
+	// change object position using animation data
+	//a3_Sample evaluatedSample;
+	//a3clipControllerEvaluate(demoMode->clipController, &evaluatedSample);
+	//(a * (1.0 - t)) + (b * t)
+	// (1-t) * a + b * t
+	if (demoMode->clipController->playbackDirection > 0)
+	{
+		demoMode->obj_teapot->position.x = ((a3real)1.0 - demoMode->clipController->keyframeParam) * demoMode->clipController->keyframePtr0->data + (a3real)(demoMode->clipController->keyframePtr1->data * demoMode->clipController->keyframeParam);
+	}
+	else
+	{
+		demoMode->obj_teapot->position.x = ((a3real)1.0 - demoMode->clipController->keyframeParam) * demoMode->clipController->keyframePtr1->data + (a3real)(demoMode->clipController->keyframePtr0->data * demoMode->clipController->keyframeParam);
+	}
+	
 }
 
 

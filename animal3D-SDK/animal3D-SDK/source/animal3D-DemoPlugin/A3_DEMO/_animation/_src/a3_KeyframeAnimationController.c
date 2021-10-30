@@ -30,10 +30,40 @@
 //-----------------------------------------------------------------------------
 
 // initialize clip controller
-a3i32 a3clipControllerInit(a3_ClipController* clipCtrl_out, const a3byte ctrlName[a3keyframeAnimation_nameLenMax], const a3_ClipPool* clipPool, const a3ui32 clipIndex_pool)
+a3i32 a3clipControllerInit(a3_ClipController* clipCtrl_out, const a3byte ctrlName[a3keyframeAnimation_nameLenMax], const a3_ClipPool* clipPool, const a3ui32 clipIndex_pool, a3f32 clipTime, a3f32 playbackDirection)
 {
-	return -1;
-}
+	for (a3ui32 i = 0; i < a3keyframeAnimation_nameLenMax; i++)
+	{
+		clipCtrl_out->name[i] = ctrlName[i];
+	}
+	clipCtrl_out->clipIndex = clipIndex_pool;
+	clipCtrl_out->clipPool = clipPool;
+	clipCtrl_out->playbackDirection = playbackDirection;
+	clipCtrl_out->currentClip = &clipPool->clip[clipIndex_pool];
 
+	// Forward/normal init
+	if (playbackDirection >= 0)
+	{
+		clipCtrl_out->keyframeIndex0 = clipPool->clip[clipIndex_pool].first_keyframe;
+		clipCtrl_out->keyframePtr0 = &clipPool->clip[clipIndex_pool].framePool->keyframe[clipPool->clip[clipIndex_pool].first_keyframe];
+		clipCtrl_out->keyframeTime = 0;
+		clipCtrl_out->clipTime = clipTime;
+	}
+	// Reverse init
+	else
+	{
+		clipCtrl_out->keyframeIndex0 = clipPool->clip[clipIndex_pool].last_keyframe;
+		clipCtrl_out->keyframePtr0 = &clipPool->clip[clipIndex_pool].framePool->keyframe[clipPool->clip[clipIndex_pool].last_keyframe];
+		clipCtrl_out->keyframeTime = clipCtrl_out->keyframePtr0->duration;
+
+		// interpret clipTime 0 as requesting the "end" of the clip
+		if (clipTime == 0)
+		{
+			clipCtrl_out->clipTime = clipPool->clip[clipIndex_pool].duration;
+		}
+	}
+
+	return 1;
+}
 
 //-----------------------------------------------------------------------------

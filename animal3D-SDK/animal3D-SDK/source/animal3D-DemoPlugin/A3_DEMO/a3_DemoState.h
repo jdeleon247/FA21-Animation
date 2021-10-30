@@ -36,7 +36,6 @@
 #include "animal3D/animal3D.h"
 #include "animal3D-A3DG/animal3D-A3DG.h"
 
-
 //-----------------------------------------------------------------------------
 // other demo includes
 
@@ -46,6 +45,7 @@
 #include "a3_DemoMode0_Starter.h"
 #include "a3_DemoMode1_Animation.h"
 
+#include "_animation/a3_KeyframeAnimationController.h"
 
 //-----------------------------------------------------------------------------
 
@@ -79,6 +79,7 @@ enum a3_DemoState_TextDisplayName
 	demoState_textControls,			// display controls
 	demoState_textControls_gen,		// display general controls
 	demoState_textData,				// display data
+	demoState_animationCtrlData,	// display animation controller data
 
 	demoState_text_max
 };
@@ -162,7 +163,6 @@ struct a3_DemoState
 	// more accurate time tracking
 	a3f64 t_timer, dt_timer, dt_timer_tot;
 	a3i64 n_timer;
-
 
 	//-------------------------------------------------------------------------
 	// scene variables and objects
