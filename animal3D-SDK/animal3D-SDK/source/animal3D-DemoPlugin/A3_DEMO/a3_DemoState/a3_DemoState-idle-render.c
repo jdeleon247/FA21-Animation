@@ -196,11 +196,11 @@ void a3demo_render_animation_controller_data(const a3_DemoState* demoState, a3_D
 				"Clip Name = %s |  Playback Direction = %f", demoMode->clipController[i].currentClip->name,
 				demoMode->clipController[i].playbackDirection);
 			a3textDraw(text, textAlign, textOffset += textOffsetDelta, textDepth, col.r, col.g, col.b, col.a,
-				"Clip Index     = %u | Clip Param     = %f | Clip Time     = %f", demoMode->clipController[i].clipIndex,
+				"Clip Param     = %f | Clip Time     = %f",
 				demoMode->clipController[i].clipParam, demoMode->clipController[i].clipTime);
 			a3textDraw(text, textAlign, textOffset += textOffsetDelta, textDepth, col.r, col.g, col.b, col.a,
-				"Keyframe Index = %u | Keyframe Param = %f | Keyframe Time = %f", demoMode->clipController[i].keyframeIndex0,
-				demoMode->clipController[i].keyframeParam, demoMode->clipController[i].keyframeTime);
+				"Keyframe Param = %f | Keyframe Time = %f | Keyframe Index = %u",
+				demoMode->clipController[i].keyframeParam, demoMode->clipController[i].keyframeTime, demoMode->clipController[i].keyframeIndex0);
 		}
 	}
 	
@@ -294,7 +294,7 @@ void a3demo_render(a3_DemoState const* demoState, a3f64 const dt)
 				
 				// animation controller data
 			case demoState_animationCtrlData:
-				a3demo_render_animation_controller_data(demoState, demoState->demoMode1_animation, text, col, textAlign + x, textDepth, textOffsetDelta, textOffset + y);
+				a3demo_render_animation_controller_data(demoState, demoState->demoMode1_animation, text + 1, col, textAlign + x, textDepth, textOffsetDelta, textOffset + y);
 				break;
 			}
 		}

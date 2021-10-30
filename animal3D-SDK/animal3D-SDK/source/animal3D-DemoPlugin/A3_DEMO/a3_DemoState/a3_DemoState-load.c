@@ -793,6 +793,10 @@ void a3demo_loadShaders(a3_DemoState *demoState)
 	a3bufferCreate(demoState->ubo_transformBlend, "ubo:transformBlend", a3buffer_uniform, a3index_countMaxShort, 0);
 	a3bufferCreate(demoState->ubo_transformMVP, "ubo:transformMVP", a3buffer_uniform, a3index_countMaxShort, 0);
 	a3bufferCreate(demoState->ubo_transformMVPB, "ubo:transformMVPB", a3buffer_uniform, a3index_countMaxShort, 0);
+	a3bufferCreate(demoState->ubo_transformMVP + 1, "ubo:transformMVP1", a3buffer_uniform, a3index_countMaxShort, 0);
+	a3bufferCreate(demoState->ubo_transformMVPB + 1, "ubo:transformMVPB1", a3buffer_uniform, a3index_countMaxShort, 0);
+	a3bufferCreate(demoState->ubo_transformMVP + 2, "ubo:transformMVP2", a3buffer_uniform, a3index_countMaxShort, 0);
+	a3bufferCreate(demoState->ubo_transformMVPB + 2, "ubo:transformMVPB2", a3buffer_uniform, a3index_countMaxShort, 0);
 
 
 	printf("\n\n---------------- LOAD SHADERS FINISHED ---------------- \n");

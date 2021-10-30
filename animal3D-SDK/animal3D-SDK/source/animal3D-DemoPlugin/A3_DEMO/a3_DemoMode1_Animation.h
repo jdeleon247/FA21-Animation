@@ -173,7 +173,7 @@ typedef enum a3_DemoMode1_Animation_TargetName				a3_DemoMode1_Animation_TargetN
 		a3_ClipController clipController[animationMaxCount_clipController];
 		a3_KeyframePool keyframePool[1];
 		a3_ClipPool clipPool[1];
-		a3_ClipTransition clipTransition[2];
+		a3_ClipTransition clipTransition[4];
 
 		a3index currentClipController;
 	};

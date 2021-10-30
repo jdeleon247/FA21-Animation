@@ -90,7 +90,7 @@ inline a3i32 a3clipControllerUpdate(a3_ClipController* clipCtrl, const a3real dt
 			clipCtrl->keyframeTime = clipCtrl->keyframeTime - clipCtrl->keyframePtr0->duration;
 
 			//move to next keyframe
-			if (clipCtrl->currentClip->keyframeCount > clipCtrl->keyframeIndex0)
+			if (clipCtrl->currentClip->keyframeCount + clipCtrl->currentClip->first_keyframe > clipCtrl->keyframeIndex0)
 			{
 				clipCtrl->keyframeIndex0++;
 				clipCtrl->keyframePtr0 = &clipCtrl->currentClip->framePool->keyframe[clipCtrl->keyframeIndex0];

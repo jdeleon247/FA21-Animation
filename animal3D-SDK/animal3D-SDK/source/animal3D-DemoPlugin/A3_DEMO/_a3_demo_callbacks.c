@@ -202,7 +202,7 @@ inline a3ui32 a3demo_getPersistentStateSize()
 inline void a3demo_initializeText(a3_DemoState* demoState)
 {
 	a3textInitialize(demoState->text + 0, 18, 1, 0, 0, 0);
-	a3textInitialize(demoState->text + 1, 16, 0, 0, 0, 0);
+	a3textInitialize(demoState->text + 1, 14, 1, 0, 0, 0);
 }
 
 inline void a3demo_releaseText(a3_DemoState* demoState)

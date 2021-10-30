@@ -129,6 +129,19 @@ void a3animation_update(a3_DemoState* demoState, a3_DemoMode1_Animation* demoMod
 		demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[1] + 1,
 		demoMode->hierarchyKeyPose_param,
 		demoMode->hierarchy_skel->numNodes);
+
+	a3hierarchyPoseOpLERP(controlHS0->objectSpace,	// use as temp storage
+		demoMode->clipController[0].keyframePtr0->sample.pose,
+		demoMode->clipController[0].keyframePtr1->sample.pose,
+		demoMode->clipController[0].keyframeParam,
+		demoMode->hierarchy_skel->numNodes);
+
+	a3hierarchyPoseOpLERP(controlHS1->objectSpace,	// use as temp storage
+		demoMode->clipController[1].keyframePtr0->sample.pose,
+		demoMode->clipController[1].keyframePtr1->sample.pose,
+		demoMode->clipController[1].keyframeParam,
+		demoMode->hierarchy_skel->numNodes);
+	
 	
 
 	switch (demoMode->blendOpIndex)
@@ -260,9 +273,37 @@ void a3animation_update(a3_DemoState* demoState, a3_DemoMode1_Animation* demoMod
 	a3hierarchyStateUpdateObjectInverse(activeHS);
 	a3hierarchyStateUpdateObjectBindToCurrent(activeHS, baseHS);
 
+	a3hierarchyPoseOpConcat(controlHS0->localSpace,	// goal to calculate
+		baseHS->localSpace, // holds base pose
+		controlHS0->objectSpace, // temp storage
+		demoMode->hierarchy_skel->numNodes);
+	a3hierarchyPoseConvert(controlHS0->localSpace,
+		demoMode->hierarchy_skel->numNodes,
+		demoMode->hierarchyPoseGroup_skel->channel,
+		demoMode->hierarchyPoseGroup_skel->order);
+
+	a3kinematicsSolveForward(controlHS0);
+	a3hierarchyStateUpdateObjectInverse(controlHS0);
+	a3hierarchyStateUpdateObjectBindToCurrent(controlHS0, baseHS);
+
+	a3hierarchyPoseOpConcat(controlHS1->localSpace,	// goal to calculate
+		baseHS->localSpace, // holds base pose
+		controlHS1->objectSpace, // temp storage
+		demoMode->hierarchy_skel->numNodes);
+	a3hierarchyPoseConvert(controlHS1->localSpace,
+		demoMode->hierarchy_skel->numNodes,
+		demoMode->hierarchyPoseGroup_skel->channel,
+		demoMode->hierarchyPoseGroup_skel->order);
+
+	a3kinematicsSolveForward(controlHS1);
+	a3hierarchyStateUpdateObjectInverse(controlHS1);
+	a3hierarchyStateUpdateObjectBindToCurrent(controlHS1, baseHS);
+
 
 	// prepare and upload graphics data
+	for (a3i32 loop = 1; loop < 4; loop++)
 	{
+		activeHS = demoMode->hierarchyState_skel + loop;
 		a3addressdiff const skeletonIndex = demoMode->obj_skeleton - demoMode->object_scene;
 		a3ui32 const mvp_size = demoMode->hierarchy_skel->numNodes * sizeof(a3mat4);
 		a3ui32 const t_skin_size = sizeof(demoMode->t_skin);
@@ -324,13 +365,24 @@ void a3animation_update(a3_DemoState* demoState, a3_DemoMode1_Animation* demoMod
 				a3real3ProductS(d, t_skin->v3.v, a3real_half);
 				a3quatProduct(dq_skin->d.q, d, dq_skin->r.q);
 			}
+
+
+			a3bufferRefill(demoState->ubo_transformMVP + loop - 1, 0, mvp_size, demoMode->mvp_joint);
+			a3bufferRefill(demoState->ubo_transformMVPB + loop - 1, 0, mvp_size, demoMode->mvp_bone);
 		}
 		
 		// upload
-		a3bufferRefill(demoState->ubo_transformMVP, 0, mvp_size, demoMode->mvp_joint);
-		a3bufferRefill(demoState->ubo_transformMVPB, 0, mvp_size, demoMode->mvp_bone);
+		//a3bufferRefill(demoState->ubo_transformMVP, 0, mvp_size, demoMode->mvp_joint);
+		//a3bufferRefill(demoState->ubo_transformMVPB, 0, mvp_size, demoMode->mvp_bone);
 		a3bufferRefill(demoState->ubo_transformBlend, 0, t_skin_size, demoMode->t_skin);
 		a3bufferRefillOffset(demoState->ubo_transformBlend, 0, t_skin_size, dq_skin_size, demoMode->dq_skin);
+
+
+		//a3bufferRefillOffset(demoState->ubo_transformMVP, 0, mvp_size, mvp_size, demoMode->mvp_joint);
+		//a3bufferRefillOffset(demoState->ubo_transformMVPB, 0, mvp_size, mvp_size, demoMode->mvp_bone);
+
+		//a3bufferRefillOffset(demoState->ubo_transformMVP, 0, mvp_size*2, mvp_size, demoMode->mvp_joint);
+		//a3bufferRefillOffset(demoState->ubo_transformMVPB, 0, mvp_size*2, mvp_size, demoMode->mvp_bone);
 	}
 }
 

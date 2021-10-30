@@ -595,36 +595,50 @@ void a3animation_render(a3_DemoState const* demoState, a3_DemoMode1_Animation co
 		// hidden volumes
 		if (demoState->displayHiddenVolumes)
 		{
-			const a3_HierarchyState* currentHierarchyState;
-			const a3_Hierarchy* currentHierarchy;
-
-			// set up to draw skeleton
-			currentDemoProgram = demoState->prog_drawColorUnif_instanced;
-			a3shaderProgramActivate(currentDemoProgram->program);
-			currentHierarchyState = demoMode->hierarchyState_skel;
-			currentHierarchy = currentHierarchyState->hierarchy;
-
-			// draw skeletal joints
-			a3shaderUniformBufferActivate(demoState->ubo_transformMVP, 0);
-			a3shaderUniformSendFloat(a3unif_vec4, currentDemoProgram->uColor, 1, rose);
-			currentDrawable = demoState->draw_node;
-			a3vertexDrawableActivateAndRenderInstanced(currentDrawable, currentHierarchy->numNodes);
-
-			// draw bones
-			a3shaderProgramActivate(currentDemoProgram->program);
-			a3shaderUniformBufferActivate(demoState->ubo_transformMVPB, 0);
-			a3shaderUniformSendFloat(a3unif_vec4, currentDemoProgram->uColor, 1, sky);
-			currentDrawable = demoState->draw_link;
-			a3vertexDrawableActivateAndRenderInstanced(currentDrawable, currentHierarchy->numNodes);
-
-			// draw skeletal joint orientations
-			if (demoState->displayTangentBases)
+			for (a3ui32 loop = 0; loop < 3; loop++)
 			{
-				currentDemoProgram = demoState->prog_drawColorAttrib_instanced;
+				const a3_HierarchyState* currentHierarchyState;
+				const a3_Hierarchy* currentHierarchy;
+
+				// set up to draw skeleton
+				currentDemoProgram = demoState->prog_drawColorUnif_instanced;
 				a3shaderProgramActivate(currentDemoProgram->program);
+				currentHierarchyState = demoMode->hierarchyState_skel;
+				currentHierarchy = currentHierarchyState->hierarchy;
+
+				// draw skeletal joints
 				a3shaderUniformBufferActivate(demoState->ubo_transformMVP, 0);
-				currentDrawable = demoState->draw_axes;
+				a3shaderUniformSendFloat(a3unif_vec4, currentDemoProgram->uColor, 1, rose);
+				currentDrawable = demoState->draw_node;
 				a3vertexDrawableActivateAndRenderInstanced(currentDrawable, currentHierarchy->numNodes);
+
+				// draw bones
+				a3shaderProgramActivate(currentDemoProgram->program);
+				a3shaderUniformBufferActivate(demoState->ubo_transformMVPB + loop , 0);
+				if (loop == 0)
+				{
+					a3shaderUniformSendFloat(a3unif_vec4, currentDemoProgram->uColor, 1, rose);
+				}
+				if (loop == 1)
+				{
+					a3shaderUniformSendFloat(a3unif_vec4, currentDemoProgram->uColor, 1, sky);
+				}
+				if (loop == 2)
+				{
+					a3shaderUniformSendFloat(a3unif_vec4, currentDemoProgram->uColor, 1, green);
+				}
+				currentDrawable = demoState->draw_link;
+				a3vertexDrawableActivateAndRenderInstanced(currentDrawable, currentHierarchy->numNodes);
+
+				// draw skeletal joint orientations
+				if (demoState->displayTangentBases)
+				{
+					currentDemoProgram = demoState->prog_drawColorAttrib_instanced;
+					a3shaderProgramActivate(currentDemoProgram->program);
+					a3shaderUniformBufferActivate(demoState->ubo_transformMVP, 0);
+					currentDrawable = demoState->draw_axes;
+					a3vertexDrawableActivateAndRenderInstanced(currentDrawable, currentHierarchy->numNodes);
+				}
 			}
 		}
 
