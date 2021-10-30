@@ -172,13 +172,7 @@ inline a3i32 a3clipControllerEvaluate(a3_ClipController const* clipCtrl, a3_Samp
 		// if (u <0.5) then k0, else k1
 
 		// 2: lerp
-		sample_out->time = clipCtrl->keyframeTime;
-		sample_out->value = a3lerp(
-			clipCtrl->keyframePtr0->sample.value,
-			clipCtrl->keyframePtr1->sample.value,
-			clipCtrl->keyframeParam
-		);
-
+		
 		// 3: Catmull-Rom/cubic Hermite
 
 

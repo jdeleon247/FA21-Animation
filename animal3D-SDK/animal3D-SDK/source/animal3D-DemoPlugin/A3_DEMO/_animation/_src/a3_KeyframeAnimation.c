@@ -23,6 +23,7 @@
 */
 
 #include "../a3_KeyframeAnimation.h"
+#include "../a3_HierarchyState.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -62,6 +63,19 @@ a3i32 a3keyframeInit(a3_Keyframe* keyframe_out, const a3real duration, const a3u
 
 	// setting keyframe data
 	keyframe_out->data = value_x;
+
+	return -1;
+}
+
+// initialize keyframe
+a3i32 a3keyframeInitHpose(a3_Keyframe* keyframe_out, const a3real duration, a3_HierarchyPose* hPose)
+{
+	// setting duration and its inverse
+	keyframe_out->duration = duration;
+	keyframe_out->durationInv = 1.0f / duration;
+
+	// setting keyframe data
+	keyframe_out->sample.pose = hPose;
 
 	return -1;
 }

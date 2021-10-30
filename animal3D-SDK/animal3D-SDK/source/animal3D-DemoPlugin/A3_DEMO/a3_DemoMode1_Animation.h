@@ -36,6 +36,8 @@
 
 #include "_animation/a3_HierarchyStateBlend.h"
 
+#include "_animation/a3_KeyframeAnimationController.h"
+
 
 //-----------------------------------------------------------------------------
 
@@ -61,6 +63,7 @@ typedef enum a3_DemoMode1_Animation_TargetName				a3_DemoMode1_Animation_TargetN
 		animationMaxCount_sceneObject = 8,
 		animationMaxCount_cameraObject = 1,
 		animationMaxCount_projector = 1,
+		animationMaxCount_clipController = 3,
 	};
 
 	// scene object rendering program names
@@ -166,6 +169,13 @@ typedef enum a3_DemoMode1_Animation_TargetName				a3_DemoMode1_Animation_TargetN
 		};
 		a3i32 blendOpIndex;
 		a3boolean playingAnim;
+
+		a3_ClipController clipController[animationMaxCount_clipController];
+		a3_KeyframePool keyframePool[1];
+		a3_ClipPool clipPool[1];
+		a3_ClipTransition clipTransition[2];
+
+		a3index currentClipController;
 	};
 
 

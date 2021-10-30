@@ -30,6 +30,7 @@
 
 #include "animal3D-A3DM/a3math/a3vector.h"
 #include "animal3D-A3DM/a3math/a3interpolation.h"
+#include "a3_HierarchyState.h"
 
 
 //-----------------------------------------------------------------------------
@@ -59,9 +60,7 @@ enum
 // single generic value at time
 struct a3_Sample
 {
-	a3real time; // (the x axis)
-	a3real value; // (the y axis)
-	a3vec3 pos;
+	a3_HierarchyPose* pose;
 };
 
 // description of single keyframe
@@ -72,7 +71,6 @@ struct a3_Keyframe
 	a3index index;
 
 	// active time interval and its reciprocal
-	
 	a3real duration, durationInv;
 	//a3f32 duration, durationInv;
 
@@ -103,6 +101,8 @@ a3i32 a3keyframePoolRelease(a3_KeyframePool* keyframePool);
 
 // initialize keyframe
 a3i32 a3keyframeInit(a3_Keyframe* keyframe_out, const a3real duration, const a3ui32 value_x);
+
+a3i32 a3keyframeInitHpose(a3_Keyframe* keyframe_out, const a3real duration, a3_HierarchyPose* hPose);
 
 
 //-----------------------------------------------------------------------------

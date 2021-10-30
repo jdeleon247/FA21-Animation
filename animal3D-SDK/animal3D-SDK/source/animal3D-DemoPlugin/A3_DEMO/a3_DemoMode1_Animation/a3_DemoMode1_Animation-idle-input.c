@@ -63,10 +63,24 @@ void a3animation_input_keyCharPress(a3_DemoState const* demoState, a3_DemoMode1_
 		a3demoCtrlCasesLoop(demoMode->pass, animation_pass_max, ')', '(');
 
 		// toggle chosen blend op
-		a3demoCtrlCasesLoop(demoMode->blendOpIndex, 14, '9' , '0');
+		a3demoCtrlCasesLoop(demoMode->blendOpIndex, 14, 'o' , 'p');
 
-		// toggle play/pause animation
-		a3demoCtrlCaseToggle(demoMode->playingAnim, 'p');
+		a3demoCtrlCasesLoop(demoMode->currentClipController, starterMaxCount_clipController, '2', '1');
+
+		a3demoCtrlCasesLoop(demoMode->clipController[demoMode->currentClipController].clipIndex,
+			demoMode->clipController[demoMode->currentClipController].clipPool->count, '=', '-');
+
+		a3demoCtrlCasesCap(demoMode->clipController[demoMode->currentClipController].keyframeIndex0,
+			demoMode->clipController[demoMode->currentClipController].clipPool->clip[demoMode->clipController[demoMode->currentClipController].clipIndex].last_keyframe - 1,
+			demoMode->clipController[demoMode->currentClipController].clipPool->clip[demoMode->clipController[demoMode->currentClipController].clipIndex].first_keyframe - 1,
+			'0', '9');
+
+	case '3': demoMode->clipController[demoMode->currentClipController].playbackDirection = -1;
+		break;
+	case '4': demoMode->clipController[demoMode->currentClipController].playbackDirection = 0;
+		break;
+	case '5': demoMode->clipController[demoMode->currentClipController].playbackDirection = 1;
+		break;
 
 	}
 }
