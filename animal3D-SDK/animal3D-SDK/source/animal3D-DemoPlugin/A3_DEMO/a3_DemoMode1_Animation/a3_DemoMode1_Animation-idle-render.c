@@ -617,15 +617,15 @@ void a3animation_render(a3_DemoState const* demoState, a3_DemoMode1_Animation co
 				a3shaderUniformBufferActivate(demoState->ubo_transformMVPB + loop , 0);
 				if (loop == 0)
 				{
-					a3shaderUniformSendFloat(a3unif_vec4, currentDemoProgram->uColor, 1, rose);
+					a3shaderUniformSendFloat(a3unif_vec4, currentDemoProgram->uColor, 1, purple);
 				}
 				if (loop == 1)
 				{
-					a3shaderUniformSendFloat(a3unif_vec4, currentDemoProgram->uColor, 1, sky);
+					a3shaderUniformSendFloat(a3unif_vec4, currentDemoProgram->uColor, 1, blue);
 				}
 				if (loop == 2)
 				{
-					a3shaderUniformSendFloat(a3unif_vec4, currentDemoProgram->uColor, 1, green);
+					a3shaderUniformSendFloat(a3unif_vec4, currentDemoProgram->uColor, 1, red);
 				}
 				currentDrawable = demoState->draw_link;
 				a3vertexDrawableActivateAndRenderInstanced(currentDrawable, currentHierarchy->numNodes);

@@ -164,8 +164,8 @@ void a3animation_update(a3_DemoState* demoState, a3_DemoMode1_Animation* demoMod
 		demoMode->hierarchy_skel->numNodes);
 		break;
 	case 4: a3hierarchyPoseOpConcat(activeHS->objectSpace,	// goal to calculate
-		baseHS->localSpace, // holds base pose
-		activeHS->objectSpace, // temp storage
+		controlHS0->objectSpace, // holds base pose
+		controlHS1->objectSpace, // temp storage
 		demoMode->hierarchy_skel->numNodes);
 		break;
 	case 5: a3hierarchyPoseOpNearest(activeHS->objectSpace,
@@ -174,15 +174,9 @@ void a3animation_update(a3_DemoState* demoState, a3_DemoMode1_Animation* demoMod
 		demoMode->hierarchyKeyPose_param,
 		demoMode->hierarchy_skel->numNodes);
 		break;
-	//case 6: a3hierarchyPoseOpLERP(activeHS->objectSpace,	// use as temp storage
-	//	demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[0] + 1,
-	//	demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[1] + 1,
-	//	demoMode->hierarchyKeyPose_param,
-	//	demoMode->hierarchy_skel->numNodes);
-	//	break;
 	case 6: a3hierarchyPoseOpLERP(activeHS->objectSpace,	// use as temp storage
-		demoMode->clipController[0].keyframePtr0->sample.pose,
-		demoMode->clipController[0].keyframePtr1->sample.pose,
+		controlHS0->objectSpace,
+		controlHS1->objectSpace,
 		demoMode->clipController[0].keyframeParam,
 		demoMode->hierarchy_skel->numNodes);
 		break;
