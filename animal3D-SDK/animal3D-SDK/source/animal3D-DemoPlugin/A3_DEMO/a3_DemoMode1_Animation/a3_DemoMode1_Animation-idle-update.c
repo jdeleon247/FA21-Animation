@@ -165,6 +165,20 @@ void a3animation_update(a3_DemoState* demoState, a3_DemoMode1_Animation* demoMod
 	blendControls[0] = controlHS0->objectSpace;
 	blendControls[1] = controlHS1->objectSpace;
 
+
+
+	a3_HierarchyPoseBlendNode lerp;
+	lerp.op = a3hierarchyPoseOpLERP;
+	for (a3ui32 i = 0; i < 8; ++i) {
+		lerp.param[i] = inputParams[i];
+		lerp.pose_ctrl[i] = blendControls[i];}
+	lerp.pose_out = activeHS->localSpace;
+	lerp.numNodes = demoMode->hierarchy_skel->numNodes;
+	
+	a3hierarchyPoseBlendNodeCall(&lerp);
+
+	
+
 	switch (demoMode->blendOpIndex)
 	{
 	case 0: a3hierarchyPoseOpIdentity(activeHS->localSpace, blendControls, inputParams, demoMode->hierarchy_skel->numNodes);
