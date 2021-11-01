@@ -166,7 +166,8 @@ void a3animation_update(a3_DemoState* demoState, a3_DemoMode1_Animation* demoMod
 	blendControls[1] = controlHS1->objectSpace;
 
 
-
+	//Blend Node example: 
+	/*
 	a3_HierarchyPoseBlendNode lerp;
 	lerp.op = a3hierarchyPoseOpLERP;
 	for (a3ui32 i = 0; i < 8; ++i) {
@@ -176,7 +177,7 @@ void a3animation_update(a3_DemoState* demoState, a3_DemoMode1_Animation* demoMod
 	lerp.numNodes = demoMode->hierarchy_skel->numNodes;
 	
 	a3hierarchyPoseBlendNodeCall(&lerp);
-
+	*/
 	
 
 	switch (demoMode->blendOpIndex)
