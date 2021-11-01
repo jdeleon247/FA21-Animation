@@ -166,12 +166,13 @@ inline a3i32 a3clipControllerEvaluate(a3_ClipController const* clipCtrl, a3_Samp
 	if (clipCtrl && clipCtrl->currentClip && sample_out)
 	{
 		// 0: no interpolation
-		*sample_out = clipCtrl->keyframePtr0->sample;
+		//*sample_out = clipCtrl->keyframePtr0->sample;
 
 		// 1:
 		// if (u <0.5) then k0, else k1
 
 		// 2: lerp
+		a3sampleLerp(sample_out, &clipCtrl->keyframePtr0->sample, &clipCtrl->keyframePtr1->sample, clipCtrl->keyframeParam);
 		
 		// 3: Catmull-Rom/cubic Hermite
 

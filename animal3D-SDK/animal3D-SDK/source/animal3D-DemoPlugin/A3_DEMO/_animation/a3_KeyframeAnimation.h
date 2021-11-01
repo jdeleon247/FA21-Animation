@@ -61,7 +61,12 @@ enum
 struct a3_Sample
 {
 	a3_HierarchyPose* pose;
+	a3ui32 numNodes;
 };
+
+a3_Sample* a3sampleLerp(a3_Sample* sample_out, a3_Sample const* sample0, a3_Sample const* sample1, a3real u);
+
+a3ui32 a3sampleInit(a3_Sample* sample_out, a3ui32 numNodes);
 
 // description of single keyframe
 // metaphor: moment

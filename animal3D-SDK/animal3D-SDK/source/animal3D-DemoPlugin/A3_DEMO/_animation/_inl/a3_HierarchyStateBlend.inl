@@ -27,7 +27,6 @@
 #ifndef __ANIMAL3D_HIERARCHYSTATEBLEND_INL
 #define __ANIMAL3D_HIERARCHYSTATEBLEND_INL
 
-
 //-----------------------------------------------------------------------------
 
 // Fundamental Blend Operations
@@ -243,10 +242,10 @@ inline a3_SpatialPose a3spatialPoseDOpLERP(a3_SpatialPose const pose0, a3_Spatia
 // reset/identity operation for hierarchical pose
 inline a3_HierarchyPose* a3hierarchyPoseOpIdentity(a3_HierarchyPose* pose_out, a3_HierarchyPose const* pose_ctrl[1], a3real const* param[1], a3ui32 numNodes)
 {
+	a3_SpatialPose* dummy[1];
 	for (a3index i = 0; i < numNodes; ++i)
 	{
-		a3_SpatialPose* pose0 = pose_ctrl[0]->pose + i;
-		a3spatialPoseOpIdentity(pose_out->pose + i, &pose0, param);
+		a3spatialPoseOpIdentity(pose_out->pose + i, dummy, param);
 	}
 	return pose_out;
 }
@@ -439,10 +438,78 @@ inline a3_HierarchyPose* a3hierarchyPoseOpBiCubic(a3_HierarchyPose* pose_out, a3
 }
 
 
-//inline a3_HierarchyPose* a3hierarchyPoseClipOpLerp(a3_HierarchyPose* pose_out, a3_Clip clip0, a3_Clip clip1, a3real param)
-//{
+inline a3_HierarchyPose* a3hierarchyPoseClipOpLerp(a3_HierarchyPose* pose_out, a3_Clip* clip0, a3_Clip* clip1, a3real const* param[3])
+{
+	a3ui32 currentKeyframe = clip0->first_keyframe;
+	a3f32 clipTime = clip0->duration * *param[0];
+	while (clipTime > 0)
+	{
+		clipTime -= clip0->framePool->keyframe[currentKeyframe].duration;
+		currentKeyframe++;
+	}
+	return pose_out;
+}
 
-//}
+inline a3_HierarchyPose* a3hierarchyPoseClipOpAdd(a3_HierarchyPose* pose_out, a3_Clip* clip0, a3_Clip* clip1, a3real const* param[3])
+{
+	return pose_out;
+}
+
+inline a3_HierarchyPose* a3hierarchyPoseClipOpScale(a3_HierarchyPose* pose_out, a3_Clip* clip0, a3real const* param[3])
+{
+	return pose_out;
+}
+
+inline a3_HierarchyPose* a3hierarchyPoseClipCtrlOpLerp(a3_HierarchyPose* pose_out, a3_ClipController* clipCtrl0, a3_ClipController* clipCtrl1, a3real const* param[1], a3ui32 numNodes)
+{
+	a3_Sample pose0;
+	a3_Sample pose1;
+	a3sampleInit(&pose0, numNodes);
+	a3sampleInit(&pose1, numNodes);
+
+	a3clipControllerEvaluate(clipCtrl0, &pose0);
+	a3clipControllerEvaluate(clipCtrl1, &pose1);
+
+	a3_HierarchyPose const* controlPoses[2];
+	controlPoses[0] = pose0.pose;
+	controlPoses[1] = pose1.pose;
+	a3hierarchyPoseOpLERP(pose_out, controlPoses, param, numNodes);
+
+	return pose_out;
+}
+
+inline a3_HierarchyPose* a3hierarchyPoseClipCtrlOpAdd(a3_HierarchyPose* pose_out, a3_ClipController* clipCtrl0, a3_ClipController* clipCtrl1, a3real const* param[1], a3ui32 numNodes)
+{
+	a3_Sample pose0;
+	a3_Sample pose1;
+	a3sampleInit(&pose0, numNodes);
+	a3sampleInit(&pose1, numNodes);
+
+	a3clipControllerEvaluate(clipCtrl0, &pose0);
+	a3clipControllerEvaluate(clipCtrl1, &pose1);
+
+	a3_HierarchyPose const* controlPoses[2];
+	controlPoses[0] = pose0.pose;
+	controlPoses[1] = pose1.pose;
+	a3hierarchyPoseOpConcat(pose_out, controlPoses, param, numNodes);
+
+	return pose_out;
+}
+
+inline a3_HierarchyPose* a3hierarchyPoseClipCtrlOpScale(a3_HierarchyPose* pose_out, a3_ClipController* clipCtrl0, a3_ClipController* clipCtrl1, a3real const* param[1], a3ui32 numNodes)
+{
+	a3_Sample pose0;
+	a3sampleInit(&pose0, numNodes);
+
+	a3clipControllerEvaluate(clipCtrl0, &pose0);
+
+	a3_HierarchyPose const* controlPoses[1];
+	controlPoses[0] = pose0.pose;
+
+	a3hierarchyPoseOpScale(pose_out, controlPoses, param, numNodes);
+
+	return pose_out;
+}
 
 //-----------------------------------------------------------------------------
 

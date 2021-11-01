@@ -67,7 +67,7 @@ struct a3_ClipController
 	a3f32 keyframeTime;
 
 	//normalized keyframe time [0-1]
-	a3f32 keyframeParam;
+	a3real keyframeParam;
 
 	//playback behavior: +1 for forward | 0 for pause | -1 for reverse
 	a3f32 playbackDirection;

@@ -28,6 +28,8 @@
 
 #include "a3_HierarchyState.h"
 
+#include "a3_KeyframeAnimationController.h"
+
 #include "a3_Kinematics.h"
 
 
@@ -234,6 +236,21 @@ a3_HierarchyPose* a3hierarchyPoseOpIdentity(a3_HierarchyPose* pose_out, a3_Hiera
 
 //-----------------------------------------------------------------------------
 
+// Clip Ops
+
+a3_HierarchyPose* a3hierarchyPoseClipOpLerp(a3_HierarchyPose* pose_out, a3_Clip* clip0, a3_Clip* clip1, a3real const* param[3]);
+
+a3_HierarchyPose* a3hierarchyPoseClipOpAdd(a3_HierarchyPose* pose_out, a3_Clip* clip0, a3_Clip* clip1, a3real const* param[3]);
+
+a3_HierarchyPose* a3hierarchyPoseClipOpScale(a3_HierarchyPose* pose_out, a3_Clip* clip0, a3real const* param[3]);
+
+a3_HierarchyPose* a3hierarchyPoseClipCtrlOpLerp(a3_HierarchyPose* pose_out, a3_ClipController* clipCtrl0, a3_ClipController* clipCtrl1, a3real const* param[1], a3ui32 numNodes);
+
+a3_HierarchyPose* a3hierarchyPoseClipCtrlOpAdd(a3_HierarchyPose* pose_out, a3_ClipController* clipCtrl0, a3_ClipController* clipCtrl1, a3real const* param[1], a3ui32 numNodes);
+
+a3_HierarchyPose* a3hierarchyPoseClipCtrlOpScale(a3_HierarchyPose* pose_out, a3_ClipController* clipCtrl0, a3_ClipController* clipCtrl1, a3real const* param[1], a3ui32 numNodes);
+
+//-----------------------------------------------------------------------------
 
 #ifdef __cplusplus
 }

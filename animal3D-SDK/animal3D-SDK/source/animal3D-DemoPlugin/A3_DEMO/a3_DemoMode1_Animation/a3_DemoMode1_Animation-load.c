@@ -508,6 +508,11 @@ void a3animation_load(a3_DemoState const* demoState, a3_DemoMode1_Animation* dem
 	a3clipInit(demoMode->clipPool->clip + 2, "idle", demoMode->keyframePool, 28, 52, demoMode->clipTransition + 2, demoMode->clipTransition + 2);
 	a3clipInit(demoMode->clipPool->clip + 3, "dance", demoMode->keyframePool, 54, 78, demoMode->clipTransition + 3, demoMode->clipTransition + 3);
 
+	//a3clipDistributeDuration(demoMode->clipPool->clip + 0, 0);
+	//a3clipDistributeDuration(demoMode->clipPool->clip + 1, 1);
+	//a3clipDistributeDuration(demoMode->clipPool->clip + 2, 4);
+	//a3clipDistributeDuration(demoMode->clipPool->clip + 3, 1.5);
+
 	// initialize clip controllers
 	a3clipControllerInit(demoMode->clipController + 0, "Controller 1", demoMode->clipPool, 0, 0, 0);
 	a3clipControllerInit(demoMode->clipController + 1, "Controller 2", demoMode->clipPool, 3, 0, 0);

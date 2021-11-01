@@ -36,6 +36,37 @@
 
 //-----------------------------------------------------------------------------
 
+a3_Sample* a3sampleLerp(a3_Sample* sample_out, a3_Sample const* sample0, a3_Sample const* sample1, a3real u)
+{
+	a3hierarchyPoseLerp(sample_out->pose, sample0->pose, sample1->pose, u, sample_out->numNodes);
+	return sample_out;
+}
+
+a3ui32 a3sampleInit(a3_Sample* sample_out, a3ui32 numNodes)
+{
+	// determine memory requirements
+	a3ui32 const nodeCount = numNodes;
+	a3ui32 const hposeCount = 4;
+	a3ui32 const sposeCount = hposeCount * nodeCount;
+	a3ui32 const memreq = sizeof(a3_SpatialPose) * sposeCount;
+
+	// allocate everything (one malloc)
+	sample_out->pose = (a3_HierarchyPose*)malloc(sizeof(a3_HierarchyPose));
+	sample_out->pose->pose = (a3_SpatialPose*)malloc(memreq);
+
+	// set pointers
+	sample_out->numNodes = numNodes;
+
+	// reset all data
+	a3hierarchyPoseReset(sample_out->pose, sposeCount);
+
+	// done
+	return 1;
+	return -1;
+}
+
+//-----------------------------------------------------------------------------
+
 // allocate keyframe pool
 a3i32 a3keyframePoolCreate(a3_KeyframePool* keyframePool_out, const a3ui32 count)
 {
