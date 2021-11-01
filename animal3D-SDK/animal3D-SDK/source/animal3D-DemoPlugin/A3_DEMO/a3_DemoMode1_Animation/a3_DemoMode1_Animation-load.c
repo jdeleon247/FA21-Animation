@@ -503,10 +503,10 @@ void a3animation_load(a3_DemoState const* demoState, a3_DemoMode1_Animation* dem
 	a3clipTransitionInit(demoMode->clipTransition + 2, demoMode->clipPool, 2, 0, 1);
 	a3clipTransitionInit(demoMode->clipTransition + 3, demoMode->clipPool, 3, 0, 1);
 
-	a3clipInit(demoMode->clipPool->clip + 0, "Base Pose", demoMode->keyframePool, 0, 0, demoMode->clipTransition + 0, demoMode->clipTransition + 0);
-	a3clipInit(demoMode->clipPool->clip + 1, "calibration", demoMode->keyframePool, 1, 27, demoMode->clipTransition + 1, demoMode->clipTransition + 1);
-	a3clipInit(demoMode->clipPool->clip + 2, "idle", demoMode->keyframePool, 28, 52, demoMode->clipTransition + 2, demoMode->clipTransition + 2);
-	a3clipInit(demoMode->clipPool->clip + 3, "dance", demoMode->keyframePool, 54, 78, demoMode->clipTransition + 3, demoMode->clipTransition + 3);
+	a3clipInit(demoMode->clipPool->clip + 0, "Base Pose", demoMode->keyframePool, 1, 1, demoMode->clipTransition + 0, demoMode->clipTransition + 0);
+	a3clipInit(demoMode->clipPool->clip + 1, "calibration", demoMode->keyframePool, 2, 28, demoMode->clipTransition + 1, demoMode->clipTransition + 1);
+	a3clipInit(demoMode->clipPool->clip + 2, "idle", demoMode->keyframePool, 29, 53, demoMode->clipTransition + 2, demoMode->clipTransition + 2);
+	a3clipInit(demoMode->clipPool->clip + 3, "dance", demoMode->keyframePool, 55, 79, demoMode->clipTransition + 3, demoMode->clipTransition + 3);
 
 	//a3clipDistributeDuration(demoMode->clipPool->clip + 0, 0);
 	//a3clipDistributeDuration(demoMode->clipPool->clip + 1, 1);

@@ -176,6 +176,23 @@ void a3demo_render_animation_controller_data(const a3_DemoState* demoState, a3_D
 	a3_TextRenderer const* text, a3vec4 const col,
 	a3f32 const textAlign, a3f32 const textDepth, a3f32 const textOffsetDelta, a3f32 textOffset)
 {
+	a3byte const* blendOpNames[14] =
+	{
+		"identity",
+		"construct",
+		"copy",
+		"invert",
+		"concat",
+		"nearest",
+		"lerp",
+		"cubic",
+		"split",
+		"scale",
+		"triangular",
+		"bi-nearest",
+		"bi-linear",
+		"bi-cubic",
+	};
 	// display clip controller data
 	// need to initialize clip controller and keyframes and stuff
 	for (int i = 0; i < 2; i++)
@@ -203,6 +220,9 @@ void a3demo_render_animation_controller_data(const a3_DemoState* demoState, a3_D
 				demoMode->clipController[i].keyframeParam, demoMode->clipController[i].keyframeTime, demoMode->clipController[i].keyframeIndex0);
 		}
 	}
+	const char* blend_mode_name = blendOpNames[demoMode->blendOpIndex];
+	a3textDraw(text, textAlign, textOffset += textOffsetDelta, textDepth, col.r, col.g, col.b, col.a,
+		"Selected blend operation (%u / %u) ('9' prev | next '0'): %s", demoMode->blendOpIndex, 14, blend_mode_name);
 	
 
 	// global controls

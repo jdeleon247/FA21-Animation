@@ -183,7 +183,9 @@ void a3animation_update(a3_DemoState* demoState, a3_DemoMode1_Animation* demoMod
 		break;
 	case 5: a3hierarchyPoseOpNearest(activeHS->objectSpace, blendControls, inputParams, demoMode->hierarchy_skel->numNodes);
 		break;
-	case 6: a3hierarchyPoseClipCtrlOpLerp(activeHS->objectSpace, demoMode->clipController, demoMode->clipController + 1, inputParams, demoMode->hierarchy_skel->numNodes);
+	case 6: 
+		inputParams[0] = &demoMode->clipController[0].clipParam;
+		a3hierarchyPoseClipCtrlOpLerp(activeHS->objectSpace, demoMode->clipController, demoMode->clipController + 1, inputParams, demoMode->hierarchy_skel->numNodes);
 		break;
 	case 7: a3hierarchyPoseOpCubic(activeHS->objectSpace, blendControls, inputParams, demoMode->hierarchy_skel->numNodes);
 		break;
