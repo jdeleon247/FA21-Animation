@@ -216,6 +216,48 @@ inline a3_SpatialPose* a3spatialPoseOpBiCubic(a3_SpatialPose* pose_out, a3_Spati
 
 //-----------------------------------------------------------------------------
 
+// Additional Blend Operations
+// (Pointer-based)
+
+// Hermite interpolation for poses
+inline a3_SpatialPose* a3spatialPoseOpSmoothstep(a3_SpatialPose* pose_out, a3_SpatialPose const* pose_ctrl[2], a3real const* param[1])
+{
+	a3real uParam = 3 * *param[0] * *param[0] - 2 * *param[0] * *param[0] * *param[0];
+	a3real const* u = &uParam;
+	
+
+	a3spatialPoseOpLERP(pose_out, &pose_ctrl[2], &u);
+	
+	return pose_out;
+}
+
+// calculates the "descaled" pose, which is some blend between the identity pose and the inverted control pose.
+inline a3_SpatialPose* a3spatialPoseOpDescale(a3_SpatialPose* pose_out, a3_SpatialPose const* pose_ctrl[1], a3real const* param[1])
+{
+	const a3_SpatialPose* tmpPoses[2];
+	tmpPoses[0] = a3spatialPoseOpIdentity(pose_out, &pose_ctrl[1], &param[1]);
+	tmpPoses[1] = a3spatialPoseOpInvert(pose_out, &pose_ctrl[1], &param[1]);
+	a3spatialPoseOpLERP(pose_out, &tmpPoses[2], &param[1]);
+	return pose_out;
+}
+
+// performs the "convert" step for a spatial/hierarchical pose (convert raw components into transforms)
+inline a3_SpatialPose* a3spatialPoseOpConvert(a3_SpatialPose* pose_out)
+{
+	a3spatialPoseConvert(pose_out, a3poseChannel_none, a3poseEulerOrder_xyz);
+	return pose_out;
+}
+
+// performs the opposite of convert (restore raw components from transforms)
+inline a3_SpatialPose* a3spatialPoseOpRevert(a3_SpatialPose* pose_out)
+{
+	a3spatialPoseRestore(pose_out, a3poseChannel_none, a3poseEulerOrder_xyz);
+	return pose_out;
+}
+
+
+//-----------------------------------------------------------------------------
+
 // data-based reset/identity
 inline a3_SpatialPose a3spatialPoseDOpIdentity()
 {
