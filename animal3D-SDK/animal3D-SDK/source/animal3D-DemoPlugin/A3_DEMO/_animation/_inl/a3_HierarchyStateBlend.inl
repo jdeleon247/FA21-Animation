@@ -216,6 +216,48 @@ inline a3_SpatialPose* a3spatialPoseOpBiCubic(a3_SpatialPose* pose_out, a3_Spati
 
 //-----------------------------------------------------------------------------
 
+// Additional Blend Operations
+// (Pointer-based)
+
+// Hermite interpolation for poses
+inline a3_SpatialPose* a3spatialPoseOpSmoothstep(a3_SpatialPose* pose_out, a3_SpatialPose const* pose_ctrl[2], a3real const* param[1])
+{
+	a3real uParam = 3 * *param[0] * *param[0] - 2 * *param[0] * *param[0] * *param[0];
+	a3real const* u = &uParam;
+	
+
+	a3spatialPoseOpLERP(pose_out, &pose_ctrl[2], &u);
+	
+	return pose_out;
+}
+
+// calculates the "descaled" pose, which is some blend between the identity pose and the inverted control pose.
+inline a3_SpatialPose* a3spatialPoseOpDescale(a3_SpatialPose* pose_out, a3_SpatialPose const* pose_ctrl[1], a3real const* param[1])
+{
+	const a3_SpatialPose* tmpPoses[2];
+	tmpPoses[0] = a3spatialPoseOpIdentity(pose_out, &pose_ctrl[1], &param[1]);
+	tmpPoses[1] = a3spatialPoseOpInvert(pose_out, &pose_ctrl[1], &param[1]);
+	a3spatialPoseOpLERP(pose_out, &tmpPoses[2], &param[1]);
+	return pose_out;
+}
+
+// performs the "convert" step for a spatial/hierarchical pose (convert raw components into transforms)
+inline a3_SpatialPose* a3spatialPoseOpConvert(a3_SpatialPose* pose_out)
+{
+	a3spatialPoseConvert(pose_out, a3poseChannel_none, a3poseEulerOrder_xyz);
+	return pose_out;
+}
+
+// performs the opposite of convert (restore raw components from transforms)
+inline a3_SpatialPose* a3spatialPoseOpRevert(a3_SpatialPose* pose_out)
+{
+	a3spatialPoseRestore(pose_out, a3poseChannel_none, a3poseEulerOrder_xyz);
+	return pose_out;
+}
+
+
+//-----------------------------------------------------------------------------
+
 // data-based reset/identity
 inline a3_SpatialPose a3spatialPoseDOpIdentity()
 {
@@ -434,6 +476,89 @@ inline a3_HierarchyPose* a3hierarchyPoseOpBiCubic(a3_HierarchyPose* pose_out, a3
 		poses[15] = pose_ctrl[15]->pose + i;
 		a3spatialPoseOpBiCubic(pose_out->pose + i, poses, param);
 	}
+	return pose_out;
+}
+
+// Hermite interpolation for poses
+inline a3_HierarchyPose* a3hierarchyPoseOpSmoothstep(a3_HierarchyPose* pose_out, a3_HierarchyPose const* pose_ctrl[2], a3real const* param[1], a3ui32 numNodes)
+{
+	a3_SpatialPose* poses[2];
+	for (a3index i = 0; i < numNodes; ++i)
+	{
+		poses[0] = pose_ctrl[0]->pose + i;
+		poses[1] = pose_ctrl[1]->pose + i;
+		a3spatialPoseOpSmoothstep(pose_out->pose + i, poses, param);
+	}	return pose_out;
+}
+// calculates the "descaled" pose, which is some blend between the identity pose and the inverted control pose.
+inline a3_HierarchyPose* a3hierarchyPoseOpDescale(a3_HierarchyPose* pose_out, a3_HierarchyPose const* pose_ctrl[1], a3real const* param[1], a3ui32 numNodes)
+{
+	for (a3index i = 0; i < numNodes; ++i)
+	{
+		a3_SpatialPose* pose0 = pose_ctrl[0]->pose + i;
+		a3spatialPoseOpDescale(pose_out->pose + i, &pose0, param);
+	}
+	return pose_out;
+}
+
+// performs the "convert" step for a spatial/hierarchical pose (convert raw components into transforms)
+inline a3_HierarchyPose* a3hierarchyPoseOpConvert(a3_HierarchyPose* pose_out, a3_HierarchyPose const* pose_ctrl[1], a3ui32 numNodes)
+{
+	for (a3index i = 0; i < numNodes; ++i)
+	{
+		a3spatialPoseOpConvert(pose_out->pose);
+	}
+	return pose_out;
+}
+
+// performs the opposite of convert (restore raw components from transforms)
+inline a3_HierarchyPose* a3hierarchyPoseOpRevert(a3_HierarchyPose* pose_out, a3_HierarchyPose const* pose_ctrl[1], a3ui32 numNodes)
+{
+	for (a3index i = 0; i < numNodes; ++i)
+	{
+		a3spatialPoseOpRevert(pose_out->pose);
+	}
+	return pose_out;
+}
+
+
+// performs the fundamental forward kinematics operation, converting the provided local-space transform into the target object-space transform
+inline a3_HierarchyPose* a3hierarchyPoseOpFK(a3_HierarchyPose* pose_out, a3_Hierarchy const* hierarchy, a3_HierarchyPose const* poseCtrl[2])
+{
+	const a3_HierarchyNode* itr = hierarchy->nodes;
+	const a3_HierarchyNode* const end = itr + hierarchy->numNodes;
+	for (; itr < end; ++itr)
+	{
+		if (itr->parentIndex >= 0)
+			a3real4x4Product(poseCtrl[0]->pose[itr->index].transform.m,
+				poseCtrl[0]->pose[itr->parentIndex].transform.m,
+				poseCtrl[1]->pose[itr->index].transform.m);
+		else
+			poseCtrl[0]->pose[itr->index] = poseCtrl[1]->pose[itr->index];
+	}
+	pose_out->pose = poseCtrl[0]->pose;
+	return pose_out;
+}
+
+//performs the fundamental inverse kinematics operation, converting the provided object - space transform into the target local - space transform
+inline a3_HierarchyPose* a3hierarchyPoseOpIK(a3_HierarchyPose* pose_out, a3_Hierarchy const* hierarchy, a3_HierarchyPose const* poseCtrl[2])
+{
+	const a3_HierarchyNode* itr = hierarchy->nodes;
+	const a3_HierarchyNode* const end = itr + hierarchy->numNodes;
+	const a3real* param0 = 0;
+	a3hierarchyPoseOpInvert(pose_out, poseCtrl, &param0, hierarchy->numNodes);
+
+	for (; itr < end; ++itr)
+	{
+		if (itr->parentIndex >= 0)
+			a3real4x4Product(poseCtrl[1]->pose[itr->index].transform.m,
+				pose_out->pose[itr->parentIndex].transform.m,
+				poseCtrl[0]->pose[itr->index].transform.m);
+		else
+			poseCtrl[1]->pose[itr->index] = poseCtrl[0]->pose[itr->index];
+	}
+	pose_out->pose = poseCtrl[1]->pose;
+
 	return pose_out;
 }
 
