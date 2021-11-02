@@ -63,7 +63,7 @@ void a3animation_input_keyCharPress(a3_DemoState const* demoState, a3_DemoMode1_
 		a3demoCtrlCasesLoop(demoMode->pass, animation_pass_max, ')', '(');
 
 		// toggle chosen blend op
-		a3demoCtrlCasesLoop(demoMode->blendOpIndex, 14, 'o' , 'p');
+		a3demoCtrlCasesLoop(demoMode->blendOpIndex, 13, 'o' , 'p');
 
 		a3demoCtrlCasesLoop(demoMode->currentClipController, starterMaxCount_clipController, '2', '1');
 
@@ -80,6 +80,15 @@ void a3animation_input_keyCharPress(a3_DemoState const* demoState, a3_DemoMode1_
 	case '4': demoMode->clipController[demoMode->currentClipController].playbackDirection = 0;
 		break;
 	case '5': demoMode->clipController[demoMode->currentClipController].playbackDirection = 1;
+		break;
+	case '6': demoMode->customParam -= 0.05f;
+		if (demoMode->customParam < 0.0f)
+			demoMode->customParam = 1.00f;
+		break;
+	case '7': 
+		demoMode->customParam += 0.05f;
+		if (demoMode->customParam > 1.04f)
+			demoMode->customParam = 0.00f;
 		break;
 
 	}

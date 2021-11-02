@@ -176,7 +176,7 @@ void a3demo_render_animation_controller_data(const a3_DemoState* demoState, a3_D
 	a3_TextRenderer const* text, a3vec4 const col,
 	a3f32 const textAlign, a3f32 const textDepth, a3f32 const textOffsetDelta, a3f32 textOffset)
 {
-	a3byte const* blendOpNames[14] =
+	a3byte const* blendOpNames[13] =
 	{
 		"identity",
 		"construct",
@@ -189,9 +189,8 @@ void a3demo_render_animation_controller_data(const a3_DemoState* demoState, a3_D
 		"split",
 		"scale",
 		"triangular",
-		"bi-nearest",
-		"bi-linear",
-		"bi-cubic",
+		"bi-lerp",
+		"smooth/easing"
 	};
 	// display clip controller data
 	// need to initialize clip controller and keyframes and stuff
@@ -222,7 +221,9 @@ void a3demo_render_animation_controller_data(const a3_DemoState* demoState, a3_D
 	}
 	const char* blend_mode_name = blendOpNames[demoMode->blendOpIndex];
 	a3textDraw(text, textAlign, textOffset += textOffsetDelta, textDepth, col.r, col.g, col.b, col.a,
-		"Selected blend operation (%u / %u) ('9' prev | next '0'): %s", demoMode->blendOpIndex, 14, blend_mode_name);
+		"Selected blend operation (%u / %u) ('9' prev | next '0'): %s", demoMode->blendOpIndex + 1, 13, blend_mode_name);
+	a3textDraw(text, textAlign, textOffset += textOffsetDelta, textDepth, col.r, col.g, col.b, col.a,
+		"Custom Param (%f)  ('6'|'7')", demoMode->customParam);
 	
 
 	// global controls

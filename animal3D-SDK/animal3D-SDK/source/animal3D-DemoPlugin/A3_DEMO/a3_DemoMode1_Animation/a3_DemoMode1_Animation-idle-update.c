@@ -107,6 +107,7 @@ void a3animation_update(a3_DemoState* demoState, a3_DemoMode1_Animation* demoMod
 		demoMode->hierarchyKeyPose_param = (a3real)(demoState->timer_display->totalTime - (a3f64)i);
 	}
 
+	// Update clip controllers
 	for (i = 0; i < 2; i++)
 	{
 		a3clipControllerUpdate(demoMode->clipController + i, (a3real)dt);
@@ -125,24 +126,21 @@ void a3animation_update(a3_DemoState* demoState, a3_DemoMode1_Animation* demoMod
 	//	activeHS->objectSpace, // temp storage
 	//	demoMode->hierarchy_skel->numNodes);
 
+	// declare blendControls with arbitrary values
 	a3_HierarchyPose const* blendControls[16];
 	a3real const* inputParams[8];
-
-	inputParams[0] = &demoMode->clipController[0].keyframeParam;
-	inputParams[1] = &demoMode->clipController[1].keyframeParam;
+	inputParams[0] = &demoMode->clipController[0].keyframeParam; // clipController 0 keyframe param 0 for lerp
+	inputParams[1] = &demoMode->clipController[1].keyframeParam; // clipController 1 keyframe param 0 for lerp
 	inputParams[2] = &demoMode->clipController[0].keyframeParam;
 	inputParams[3] = &demoMode->clipController[1].keyframeParam;
 	inputParams[4] = &demoMode->clipController[0].keyframeParam;
 	inputParams[5] = &demoMode->clipController[1].keyframeParam;
 	inputParams[6] = &demoMode->clipController[0].keyframeParam;
 	inputParams[7] = &demoMode->clipController[1].keyframeParam;
-
-
-	//blendControls[0] = demoMode->clipController[0].keyframePtr0->sample.pose
-	blendControls[0] = demoMode->clipController[0].keyframePtr0->sample.pose;
-	blendControls[1] = demoMode->clipController[0].keyframePtr1->sample.pose;
-	blendControls[2] = demoMode->clipController[1].keyframePtr0->sample.pose;
-	blendControls[3] = demoMode->clipController[1].keyframePtr1->sample.pose;
+	blendControls[0] = demoMode->clipController[0].keyframePtr0->sample.pose; // clipController 0 keyframe 0
+	blendControls[1] = demoMode->clipController[0].keyframePtr1->sample.pose; // clipController 0 keyframe 1
+	blendControls[2] = demoMode->clipController[1].keyframePtr0->sample.pose; // clipController 1 keyframe 0
+	blendControls[3] = demoMode->clipController[1].keyframePtr1->sample.pose; // clipController 1 keyframe 1
 	blendControls[4] = demoMode->clipController[1].keyframePtr0->sample.pose;
 	blendControls[5] = demoMode->clipController[1].keyframePtr0->sample.pose;
 	blendControls[6] = demoMode->clipController[1].keyframePtr0->sample.pose;
@@ -156,15 +154,16 @@ void a3animation_update(a3_DemoState* demoState, a3_DemoMode1_Animation* demoMod
 	blendControls[14] = demoMode->clipController[1].keyframePtr0->sample.pose;
 	blendControls[15] = demoMode->clipController[1].keyframePtr0->sample.pose;
 
-	//blendControls[2] = demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[0] + 1;
-	//blendControls[3] = demoMode->hierarchyPoseGroup_skel->hpose + demoMode->hierarchyKeyPose_display[1] + 1;
-
+	// Lerp through the keyframes of the clip for the secondary skeletons.
 	a3hierarchyPoseOpLERP(controlHS0->objectSpace, blendControls, inputParams, demoMode->hierarchy_skel->numNodes);
 	a3hierarchyPoseOpLERP(controlHS1->objectSpace, &blendControls[2], &inputParams[1], demoMode->hierarchy_skel->numNodes);
 
+	// set blendControls 0 and 1 to the lerped animation clip outputs.
 	blendControls[0] = controlHS0->objectSpace;
 	blendControls[1] = controlHS1->objectSpace;
 
+	// Use custom Param
+	inputParams[0] = &demoMode->customParam;
 
 	//Blend Node example: 
 	/*
@@ -173,90 +172,95 @@ void a3animation_update(a3_DemoState* demoState, a3_DemoMode1_Animation* demoMod
 	for (a3ui32 i = 0; i < 8; ++i) {
 		lerp.param[i] = inputParams[i];
 		lerp.pose_ctrl[i] = blendControls[i];}
-	lerp.pose_out = activeHS->localSpace;
+	lerp.pose_out = activeHS->objectSpace;
 	lerp.numNodes = demoMode->hierarchy_skel->numNodes;
 	
 	a3hierarchyPoseBlendNodeCall(&lerp);
 	*/
 	
-
 	switch (demoMode->blendOpIndex)
 	{
-	case 0: a3hierarchyPoseOpIdentity(activeHS->localSpace, blendControls, inputParams, demoMode->hierarchy_skel->numNodes);
+	case 0:
+		a3hierarchyPoseOpIdentity(activeHS->localSpace, blendControls, inputParams, demoMode->hierarchy_skel->numNodes);
 		break;
-	case 1: a3hierarchyPoseOpConstruct(activeHS->objectSpace, 
-		demoMode->hierarchyPoseGroup_skel->hpose->pose->angles, 
-		demoMode->hierarchyPoseGroup_skel->hpose->pose->scale,
-		demoMode->hierarchyPoseGroup_skel->hpose->pose->translation,
-		demoMode->hierarchy_skel->numNodes);
+	case 1:
+		a3hierarchyPoseOpConstruct(activeHS->objectSpace, demoMode->hierarchyPoseGroup_skel->hpose->pose->angles, demoMode->hierarchyPoseGroup_skel->hpose->pose->scale,demoMode->hierarchyPoseGroup_skel->hpose->pose->translation,demoMode->hierarchy_skel->numNodes);
 		break;
-	case 2: a3hierarchyPoseOpCopy(activeHS->objectSpace, blendControls, inputParams, demoMode->hierarchy_skel->numNodes);
+	case 2:
+		a3hierarchyPoseOpCopy(activeHS->objectSpace, blendControls, inputParams, demoMode->hierarchy_skel->numNodes);
 		break;
-	case 3: a3hierarchyPoseOpInvert(activeHS->objectSpace, blendControls, inputParams, demoMode->hierarchy_skel->numNodes);
+	case 3:
+		a3hierarchyPoseOpInvert(activeHS->objectSpace, blendControls, inputParams, demoMode->hierarchy_skel->numNodes);
 		break;
-	case 4: a3hierarchyPoseOpConcat(activeHS->objectSpace, blendControls, inputParams, demoMode->hierarchy_skel->numNodes);
+	case 4:
+		a3hierarchyPoseOpConcat(activeHS->objectSpace, blendControls, inputParams, demoMode->hierarchy_skel->numNodes);
 		break;
-	case 5: a3hierarchyPoseOpNearest(activeHS->objectSpace, blendControls, inputParams, demoMode->hierarchy_skel->numNodes);
+	case 5:
+		a3hierarchyPoseOpNearest(activeHS->objectSpace, blendControls, inputParams, demoMode->hierarchy_skel->numNodes);
 		break;
 	case 6: 
-		inputParams[0] = &demoMode->clipController[0].clipParam;
 		a3hierarchyPoseClipCtrlOpLerp(activeHS->objectSpace, demoMode->clipController, demoMode->clipController + 1, inputParams, demoMode->hierarchy_skel->numNodes);
 		break;
-	case 7: a3hierarchyPoseOpCubic(activeHS->objectSpace, blendControls, inputParams, demoMode->hierarchy_skel->numNodes);
+	case 7:
+		a3hierarchyPoseOpCubic(activeHS->objectSpace, blendControls, inputParams, demoMode->hierarchy_skel->numNodes);
 		break;
-	case 8: a3hierarchyPoseOpSplit(activeHS->objectSpace, blendControls, inputParams, demoMode->hierarchy_skel->numNodes);
+	case 8:
+		a3hierarchyPoseOpSplit(activeHS->objectSpace, blendControls, inputParams, demoMode->hierarchy_skel->numNodes);
 		break;
-	case 9: a3hierarchyPoseOpScale(activeHS->objectSpace, blendControls, inputParams, demoMode->hierarchy_skel->numNodes);
+	case 9:
+		a3hierarchyPoseOpScale(activeHS->objectSpace, blendControls, inputParams, demoMode->hierarchy_skel->numNodes);
 		break;
-	case 10: a3hierarchyPoseOpTriangular(activeHS->objectSpace, blendControls, inputParams, demoMode->hierarchy_skel->numNodes);
+	case 10:
+		a3hierarchyPoseOpTriangular(activeHS->objectSpace, blendControls, inputParams, demoMode->hierarchy_skel->numNodes);
 		break;
-	case 11: a3hierarchyPoseOpBiNearest(activeHS->objectSpace, blendControls, inputParams, demoMode->hierarchy_skel->numNodes);
+	case 11:
+		a3hierarchyPoseOpBiLerp(activeHS->objectSpace, blendControls, inputParams, demoMode->hierarchy_skel->numNodes);
 		break;
-	case 12: a3hierarchyPoseOpBiLerp(activeHS->objectSpace, blendControls, inputParams, demoMode->hierarchy_skel->numNodes);
+	case 12: 
+		a3hierarchyPoseOpSmoothstep(activeHS->objectSpace, blendControls, inputParams, demoMode->hierarchy_skel->numNodes);
 		break;
-	case 13: a3hierarchyPoseOpBiCubic(activeHS->objectSpace, blendControls, inputParams, demoMode->hierarchy_skel->numNodes);
+	case 13:
+		//a3hierarchyPoseOpBiCubic(activeHS->objectSpace, blendControls, inputParams, demoMode->hierarchy_skel->numNodes);
 		break;
-	case 14: a3hierarchyPoseOpSmoothstep(activeHS->objectSpace, blendControls, inputParams, demoMode->hierarchy_skel->numNodes);
+	case 14:
+		//a3hierarchyPoseOpBiNearest(activeHS->objectSpace, blendControls, inputParams, demoMode->hierarchy_skel->numNodes);
 		break;
-	case 15: a3hierarchyPoseOpDescale(activeHS->objectSpace, blendControls, inputParams, demoMode->hierarchy_skel->numNodes);
+	case 15:
+		a3hierarchyPoseOpDescale(activeHS->objectSpace, blendControls, inputParams, demoMode->hierarchy_skel->numNodes);
 		break;
-	case 16: a3hierarchyPoseOpConvert(activeHS->objectSpace, blendControls, demoMode->hierarchy_skel->numNodes);
+	case 16:
+		a3hierarchyPoseOpConvert(activeHS->objectSpace, blendControls, demoMode->hierarchy_skel->numNodes);
 		break;
-	case 17: a3hierarchyPoseOpRevert(activeHS->objectSpace, blendControls, demoMode->hierarchy_skel->numNodes);
+	case 17:
+		a3hierarchyPoseOpRevert(activeHS->objectSpace, blendControls, demoMode->hierarchy_skel->numNodes);
 		break;
 	default:											  
 		break;
 	}
+
+	//set blend0 to base pose, and blend1 to just calculated pose to prep for concat -> convert -> fk
 	blendControls[0] = baseHS->localSpace;
 	blendControls[1] = activeHS->objectSpace;
 	a3hierarchyPoseOpConcat(activeHS->localSpace, blendControls, inputParams, demoMode->hierarchy_skel->numNodes);
-	a3hierarchyPoseConvert(activeHS->localSpace,
-		demoMode->hierarchy_skel->numNodes,
-		demoMode->hierarchyPoseGroup_skel->channel,
-		demoMode->hierarchyPoseGroup_skel->order);
-
+	a3hierarchyPoseConvert(activeHS->localSpace, demoMode->hierarchy_skel->numNodes, demoMode->hierarchyPoseGroup_skel->channel, demoMode->hierarchyPoseGroup_skel->order);
 	a3kinematicsSolveForward(activeHS);
+	//a3hierarchyPoseOpConvert(activeHS->localSpace, blendControls, demoMode->hierarchy_skel->numNodes);
+	//a3hierarchyPoseOpFK(activeHS->objectSpace, activeHS->hierarchy, blendControls);
 	a3hierarchyStateUpdateObjectInverse(activeHS);
 	a3hierarchyStateUpdateObjectBindToCurrent(activeHS, baseHS);
 
+	//same for each skeleton
 	blendControls[1] = controlHS0->objectSpace;
 	a3hierarchyPoseOpConcat(controlHS0->localSpace, blendControls, inputParams, demoMode->hierarchy_skel->numNodes);
-	a3hierarchyPoseConvert(controlHS0->localSpace,
-		demoMode->hierarchy_skel->numNodes,
-		demoMode->hierarchyPoseGroup_skel->channel,
-		demoMode->hierarchyPoseGroup_skel->order);
-
+	a3hierarchyPoseConvert(controlHS0->localSpace,demoMode->hierarchy_skel->numNodes,demoMode->hierarchyPoseGroup_skel->channel,demoMode->hierarchyPoseGroup_skel->order);
 	a3kinematicsSolveForward(controlHS0);
 	a3hierarchyStateUpdateObjectInverse(controlHS0);
 	a3hierarchyStateUpdateObjectBindToCurrent(controlHS0, baseHS);
 
+	//same for each skeleton
 	blendControls[1] = controlHS1->objectSpace;
 	a3hierarchyPoseOpConcat(controlHS1->localSpace, blendControls, inputParams, demoMode->hierarchy_skel->numNodes);
-	a3hierarchyPoseConvert(controlHS1->localSpace,
-		demoMode->hierarchy_skel->numNodes,
-		demoMode->hierarchyPoseGroup_skel->channel,
-		demoMode->hierarchyPoseGroup_skel->order);
-
+	a3hierarchyPoseConvert(controlHS1->localSpace,demoMode->hierarchy_skel->numNodes,demoMode->hierarchyPoseGroup_skel->channel,demoMode->hierarchyPoseGroup_skel->order);
 	a3kinematicsSolveForward(controlHS1);
 	a3hierarchyStateUpdateObjectInverse(controlHS1);
 	a3hierarchyStateUpdateObjectBindToCurrent(controlHS1, baseHS);

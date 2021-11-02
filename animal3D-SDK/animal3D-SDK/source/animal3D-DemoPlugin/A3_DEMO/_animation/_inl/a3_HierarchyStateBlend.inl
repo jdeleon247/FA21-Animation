@@ -27,6 +27,9 @@
 #ifndef __ANIMAL3D_HIERARCHYSTATEBLEND_INL
 #define __ANIMAL3D_HIERARCHYSTATEBLEND_INL
 
+#include <stdio.h>   
+#include <stdlib.h> 
+
 //-----------------------------------------------------------------------------
 
 // Fundamental Blend Operations
@@ -181,7 +184,7 @@ inline a3_SpatialPose* a3spatialPoseOpBiNearest(a3_SpatialPose* pose_out, a3_Spa
 {
 	a3_SpatialPose* tmpPoses[2];
 	a3spatialPoseOpNearest(tmpPoses[0], &pose_ctrl[0], &param[0]);
-	a3spatialPoseOpNearest(tmpPoses[0], &pose_ctrl[2], &param[1]);
+	a3spatialPoseOpNearest(tmpPoses[1], &pose_ctrl[2], &param[1]);
 
 	a3spatialPoseOpNearest(pose_out, tmpPoses, &param[2]);
 	return pose_out;
@@ -202,14 +205,15 @@ inline a3_SpatialPose* a3spatialPoseOpBiLerp(a3_SpatialPose* pose_out, a3_Spatia
 // bicubic interpolation algorithm for poses.
 inline a3_SpatialPose* a3spatialPoseOpBiCubic(a3_SpatialPose* pose_out, a3_SpatialPose const* pose_ctrl[16], a3real const* param[5])
 {
-	a3_SpatialPose* tmpPoses[4];
+	a3_SpatialPose* tmpPoses;
+	tmpPoses = (a3_SpatialPose*)malloc(sizeof(a3_SpatialPose) * 4);
 
-	a3spatialPoseOpCubic(tmpPoses[0], &pose_ctrl[0], &param[0]);
-	a3spatialPoseOpCubic(tmpPoses[1], &pose_ctrl[4], &param[1]);
-	a3spatialPoseOpCubic(tmpPoses[2], &pose_ctrl[8], &param[2]);
-	a3spatialPoseOpCubic(tmpPoses[3], &pose_ctrl[12], &param[3]);
+	a3spatialPoseOpCubic(tmpPoses + 0, &pose_ctrl[0], &param[0]);
+	a3spatialPoseOpCubic(tmpPoses + 1, &pose_ctrl[4], &param[1]);
+	a3spatialPoseOpCubic(tmpPoses + 2, &pose_ctrl[8], &param[2]);
+	a3spatialPoseOpCubic(tmpPoses + 3, &pose_ctrl[12], &param[3]);
 
-	a3spatialPoseOpCubic(pose_out, tmpPoses, &param[4]);
+	a3spatialPoseOpCubic(pose_out, &tmpPoses, &param[4]);
 
 	return pose_out;
 }
@@ -226,7 +230,7 @@ inline a3_SpatialPose* a3spatialPoseOpSmoothstep(a3_SpatialPose* pose_out, a3_Sp
 	a3real const* u = &uParam;
 	
 
-	a3spatialPoseOpLERP(pose_out, &pose_ctrl[2], &u);
+	a3spatialPoseOpLERP(pose_out, pose_ctrl, &u);
 	
 	return pose_out;
 }
@@ -235,9 +239,9 @@ inline a3_SpatialPose* a3spatialPoseOpSmoothstep(a3_SpatialPose* pose_out, a3_Sp
 inline a3_SpatialPose* a3spatialPoseOpDescale(a3_SpatialPose* pose_out, a3_SpatialPose const* pose_ctrl[1], a3real const* param[1])
 {
 	const a3_SpatialPose* tmpPoses[2];
-	tmpPoses[0] = a3spatialPoseOpIdentity(pose_out, &pose_ctrl[1], &param[1]);
-	tmpPoses[1] = a3spatialPoseOpInvert(pose_out, &pose_ctrl[1], &param[1]);
-	a3spatialPoseOpLERP(pose_out, &tmpPoses[2], &param[1]);
+	tmpPoses[0] = a3spatialPoseOpIdentity(pose_out, pose_ctrl, param);
+	tmpPoses[1] = a3spatialPoseOpInvert(pose_out, pose_ctrl, param);
+	a3spatialPoseOpLERP(pose_out, &tmpPoses[2], param);
 	return pose_out;
 }
 
@@ -456,6 +460,7 @@ inline a3_HierarchyPose* a3hierarchyPoseOpBiLerp(a3_HierarchyPose* pose_out, a3_
 inline a3_HierarchyPose* a3hierarchyPoseOpBiCubic(a3_HierarchyPose* pose_out, a3_HierarchyPose const* pose_ctrl[16], a3real const* param[5], a3ui32 numNodes)
 {
 	a3_SpatialPose* poses[16];
+	//poses[0] = (a3_SpatialPose*)malloc(sizeof(a3_SpatialPose) * 16);
 	for (a3index i = 0; i < numNodes; ++i)
 	{
 		poses[0] = pose_ctrl[0]->pose + i;

@@ -176,6 +176,7 @@ typedef enum a3_DemoMode1_Animation_TargetName				a3_DemoMode1_Animation_TargetN
 		a3_ClipTransition clipTransition[4];
 
 		a3index currentClipController;
+		a3real customParam;
 	};
 
 
