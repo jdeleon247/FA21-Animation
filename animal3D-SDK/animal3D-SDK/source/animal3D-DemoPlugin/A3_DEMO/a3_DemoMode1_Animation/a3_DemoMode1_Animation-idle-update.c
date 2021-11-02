@@ -215,6 +215,14 @@ void a3animation_update(a3_DemoState* demoState, a3_DemoMode1_Animation* demoMod
 		break;
 	case 13: a3hierarchyPoseOpBiCubic(activeHS->objectSpace, blendControls, inputParams, demoMode->hierarchy_skel->numNodes);
 		break;
+	case 14: a3hierarchyPoseOpSmoothstep(activeHS->objectSpace, blendControls, inputParams, demoMode->hierarchy_skel->numNodes);
+		break;
+	case 15: a3hierarchyPoseOpDescale(activeHS->objectSpace, blendControls, inputParams, demoMode->hierarchy_skel->numNodes);
+		break;
+	case 16: a3hierarchyPoseOpConvert(activeHS->objectSpace, blendControls, demoMode->hierarchy_skel->numNodes);
+		break;
+	case 17: a3hierarchyPoseOpRevert(activeHS->objectSpace, blendControls, demoMode->hierarchy_skel->numNodes);
+		break;
 	default:											  
 		break;
 	}

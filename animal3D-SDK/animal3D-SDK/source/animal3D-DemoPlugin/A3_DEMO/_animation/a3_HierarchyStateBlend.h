@@ -241,11 +241,29 @@ a3_HierarchyPose* a3hierarchyPoseOpCubic(a3_HierarchyPose* pose_out, a3_Hierarch
 //a3_HierarchyPose* a3hierarchyPoseOpCubic(a3_HierarchyPose* pose_out, a3_HierarchyPose const* posePrev, a3_HierarchyPose const* pose0,
 //	a3_HierarchyPose const* pose1, a3_HierarchyPose const* poseNext, a3real const u, a3ui32 numNodes);
 
+
+//-----------------------------------------------------------------------------
+
+// Additional Blend Operations
+// (Pointer-based)
+
+// Hermite interpolation for poses
+a3_HierarchyPose* a3hierarchyPoseOpSmoothstep(a3_HierarchyPose* pose_out, a3_HierarchyPose const* pose_ctrl[2], a3real const* param[1], a3ui32 numNodes);
+
+// calculates the "descaled" pose, which is some blend between the identity pose and the inverted control pose.
+a3_HierarchyPose* a3hierarchyPoseOpDescale(a3_HierarchyPose* pose_out, a3_HierarchyPose const* pose_ctrl[1], a3real const* param[1], a3ui32 numNodes);
+
+// performs the "convert" step for a spatial/hierarchical pose (convert raw components into transforms)
+a3_HierarchyPose* a3hierarchyPoseOpConvert(a3_HierarchyPose* pose_out, a3_HierarchyPose const* pose_ctrl[1], a3ui32 numNodes);
+
+// performs the opposite of convert (restore raw components from transforms)
+a3_HierarchyPose* a3hierarchyPoseOpRevert(a3_HierarchyPose* pose_out, a3_HierarchyPose const* pose_ctrl[1], a3ui32 numNodes);
+
 // performs the fundamental forward kinematics operation, converting the provided local-space transform into the target object-space transform
-a3_HierarchyPose* a3hierarchyPoseOpFK(a3_HierarchyPose* pose_out, a3_Hierarchy const* hierarchy, a3_HierarchyPose const* poseObj, a3_HierarchyPose const* poseLoc);
+a3_HierarchyPose* a3hierarchyPoseOpFK(a3_HierarchyPose* pose_out, a3_Hierarchy const* hierarchy, a3_HierarchyPose const* poseCtrl[2]);
 
 //performs the fundamental inverse kinematics operation, converting the provided object - space transform into the target local - space transform
-a3_HierarchyPose* a3hierarchyPoseOpIK(a3_HierarchyPose* pose_out, a3_Hierarchy const* hierarchy, a3_HierarchyPose const* poseObj, a3_HierarchyPose const* poseLoc);
+a3_HierarchyPose* a3hierarchyPoseOpIK(a3_HierarchyPose* pose_out, a3_Hierarchy const* hierarchy, a3_HierarchyPose const* poseCtrl[2]);
 
 
 //-----------------------------------------------------------------------------
