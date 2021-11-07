@@ -470,8 +470,18 @@ void a3animation_init_animation(a3_DemoState const* demoState, a3_DemoMode1_Anim
 		a3clipControllerInit(demoMode->clipCtrl, "xbot_ctrl", demoMode->clipPool, j, rate, fps);
 		j = a3clipGetIndexInPool(demoMode->clipPool, "xbot_idle_pistol");
 		a3clipControllerInit(demoMode->clipCtrlA, "xbot_ctrlA", demoMode->clipPool, j, rate, fps);
+		a3clipTransitionInit(demoMode->clipPool->clip[j].transitionForward, a3clip_branchFlag, 0, demoMode->clipPool->clip + j);
+		demoMode->clipPool->clip[j].transitionForward->onTransition = TransitionTestSpeed;
 		j = a3clipGetIndexInPool(demoMode->clipPool, "xbot_skintest");
 		a3clipControllerInit(demoMode->clipCtrlB, "xbot_ctrlB", demoMode->clipPool, j, rate, fps);
+	}
+}
+
+a3boolean TransitionTestSpeed(a3f64 x, a3f64 y, a3_Clip targetClip)
+{
+	if (x > (a3f64)0.05f || y > (a3f64)0.05f)
+	{
+
 	}
 }
 
