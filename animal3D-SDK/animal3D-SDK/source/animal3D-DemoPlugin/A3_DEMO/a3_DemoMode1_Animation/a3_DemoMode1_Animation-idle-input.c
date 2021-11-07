@@ -146,8 +146,8 @@ void a3animation_input(a3_DemoState* demoState, a3_DemoMode1_Animation* demoMode
 			}
 
 			// rotation
-			demoMode->axis_r[0] = (a3f64)a3keyboardGetDifference(demoState->keyboard, a3key_L, a3key_D);
-			demoMode->axis_r[1] = (a3f64)a3keyboardGetDifference(demoState->keyboard, a3key_I, a3key_J);
+			demoMode->axis_r[0] = (a3f64)a3keyboardGetDifference(demoState->keyboard, a3key_L, a3key_J);
+			demoMode->axis_r[1] = (a3f64)a3keyboardGetDifference(demoState->keyboard, a3key_I, a3key_K);
 			a3vec2 r = { (a3real)demoMode->axis_r[0], (a3real)demoMode->axis_r[1] };
 			if (a3real2Length(r.v) > 1)
 			{
