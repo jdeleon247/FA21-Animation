@@ -178,7 +178,42 @@ void a3animation_update(a3_DemoState* demoState, a3_DemoMode1_Animation* demoMod
 		// ****TO-DO: 
 		// process input
 
+		
 		// apply input
+		a3real distMult = 3;
+		a3real speedMult = 5;
+		switch (demoMode->ctrl_position)
+		{
+		case animation_input_direct:
+			demoMode->pos.x = (a3real)demoMode->axis_l[0] * distMult;
+			demoMode->pos.y = (a3real)demoMode->axis_l[1] * distMult;
+			break;
+		case animation_input_euler:
+			demoMode->vel.x = (a3real)demoMode->axis_l[0] * speedMult;
+			demoMode->vel.y = (a3real)demoMode->axis_l[1] * speedMult;
+			demoMode->pos.x += demoMode->vel.x * (a3real)dt;
+			demoMode->pos.y += demoMode->vel.y * (a3real)dt;
+			break;
+		case animation_input_kinematic:
+			demoMode->acc.x = (a3real)demoMode->axis_l[0] * speedMult;
+			demoMode->acc.y = (a3real)demoMode->axis_l[1] * speedMult;
+			demoMode->vel.x += demoMode->acc.x * (a3real)dt;
+			demoMode->vel.y += demoMode->acc.y * (a3real)dt;
+			demoMode->pos.x += demoMode->vel.x * (a3real)dt;
+			demoMode->pos.y += demoMode->vel.y * (a3real)dt;
+			break;
+		case animation_input_interpolate1:
+			demoMode->pos.x = a3lerp(demoMode->pos.x, (a3real)demoMode->axis_l[0] * distMult, (a3real)(dt * speedMult));
+			demoMode->pos.y = a3lerp(demoMode->pos.y, (a3real)demoMode->axis_l[1] * distMult, (a3real)(dt * speedMult));
+			break;
+		case animation_input_interpolate2:
+			demoMode->vel = a3vec2_zero; // set zero so it doesn't inherit velocity from other movement styles and fly off-screen.
+
+			//Aproximately equivalent to euler
+			demoMode->pos.x += a3lerp(demoMode->vel.x, (a3real)demoMode->axis_l[0] * speedMult, (a3real)dt);
+			demoMode->pos.y += a3lerp(demoMode->vel.y, (a3real)demoMode->axis_l[1] * speedMult, (a3real)dt);
+			break;
+		}
 		demoMode->obj_skeleton_ctrl->position.x = +(demoMode->pos.x);
 		demoMode->obj_skeleton_ctrl->position.y = +(demoMode->pos.y);
 		demoMode->obj_skeleton_ctrl->euler.z = -a3trigValid_sind(demoMode->rot);
