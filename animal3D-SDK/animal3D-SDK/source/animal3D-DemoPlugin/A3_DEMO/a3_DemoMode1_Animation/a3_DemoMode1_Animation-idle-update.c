@@ -177,11 +177,11 @@ void a3animation_update(a3_DemoState* demoState, a3_DemoMode1_Animation* demoMod
 
 		// ****TO-DO: 
 		// process input
-
-		
 		// apply input
+
 		a3real distMult = 3;
 		a3real speedMult = 5;
+		// Integrate position, velocity, acceleration
 		switch (demoMode->ctrl_position)
 		{
 		case animation_input_direct:
@@ -207,15 +207,40 @@ void a3animation_update(a3_DemoState* demoState, a3_DemoMode1_Animation* demoMod
 			demoMode->pos.y = a3lerp(demoMode->pos.y, (a3real)demoMode->axis_l[1] * distMult, (a3real)(dt * speedMult));
 			break;
 		case animation_input_interpolate2:
-			demoMode->vel = a3vec2_zero; // set zero so it doesn't inherit velocity from other movement styles and fly off-screen.
-
-			//Aproximately equivalent to euler
-			demoMode->pos.x += a3lerp(demoMode->vel.x, (a3real)demoMode->axis_l[0] * speedMult, (a3real)dt);
-			demoMode->pos.y += a3lerp(demoMode->vel.y, (a3real)demoMode->axis_l[1] * speedMult, (a3real)dt);
+			demoMode->vel.x = a3lerp(demoMode->vel.x, (a3real)demoMode->axis_l[0] * speedMult, (a3real)dt * speedMult);
+			demoMode->vel.y = a3lerp(demoMode->vel.y, (a3real)demoMode->axis_l[1] * speedMult, (a3real)dt * speedMult);
+			demoMode->pos.x += demoMode->vel.x * (a3real)dt;
+			demoMode->pos.y += demoMode->vel.y * (a3real)dt;
 			break;
 		}
+		// Apply integrated position to skeleton
 		demoMode->obj_skeleton_ctrl->position.x = +(demoMode->pos.x);
 		demoMode->obj_skeleton_ctrl->position.y = +(demoMode->pos.y);
+
+		a3real rotMultDeg = 180;
+		// Integrate rotation
+		switch (demoMode->ctrl_rotation)
+		{
+		case animation_input_direct:
+			demoMode->rot = (a3real)demoMode->axis_r[0] * rotMultDeg;
+			break;
+		case animation_input_euler:
+			demoMode->velr = (a3real)demoMode->axis_r[0] * rotMultDeg;
+			demoMode->rot += demoMode->velr * (a3real)dt;
+			break;
+		case animation_input_kinematic:
+			demoMode->accr = (a3real)demoMode->axis_r[0] * rotMultDeg;
+			demoMode->velr += demoMode->accr * (a3real)dt;
+			demoMode->rot += demoMode->velr * (a3real)dt;
+			break;
+		case animation_input_interpolate1:
+			demoMode->rot = a3lerp(demoMode->rot, (a3real)demoMode->axis_r[0] * rotMultDeg, (a3real)dt);
+			break;
+		case animation_input_interpolate2:
+			demoMode->velr = a3lerp(demoMode->velr, (a3real)demoMode->axis_r[0] * rotMultDeg, (a3real)(dt * speedMult));
+			demoMode->rot += demoMode->velr * (a3real)dt;
+			break;
+		}
 		demoMode->obj_skeleton_ctrl->euler.z = -a3trigValid_sind(demoMode->rot);
 	}
 
