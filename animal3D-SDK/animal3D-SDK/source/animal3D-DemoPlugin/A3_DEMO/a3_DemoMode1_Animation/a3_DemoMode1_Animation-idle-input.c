@@ -155,6 +155,9 @@ void a3animation_input(a3_DemoState* demoState, a3_DemoMode1_Animation* demoMode
 				demoMode->axis_r[0] = r.x;
 				demoMode->axis_r[1] = r.y;
 			}
+			a3_ClipController* clipCtrl = demoMode->clipCtrl;
+			a3boolean buttonPress = a3keyboardGetState(demoState->keyboard, a3key_tilde);
+			a3clipControllerCondition(clipCtrl, buttonPress);
 		}
 		break;
 	}

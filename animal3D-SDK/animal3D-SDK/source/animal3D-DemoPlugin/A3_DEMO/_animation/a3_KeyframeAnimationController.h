@@ -64,6 +64,8 @@ struct a3_ClipController
 	a3_ClipPool const* clipPool;
 	a3_Clip const* clip;
 	a3_Keyframe const* keyframe;
+
+	a3boolean clipShouldTransition;
 };
 
 
@@ -81,6 +83,8 @@ a3i32 a3clipControllerSetPlayback(a3_ClipController* clipCtrl, const a3i32 playb
 // set clip to play
 a3i32 a3clipControllerSetClip(a3_ClipController* clipCtrl, const a3_ClipPool* clipPool, const a3ui32 clipIndex_pool, const a3i32 playback_step, const a3f64 playback_stepPerSec);
 
+// handle conditional clip
+a3boolean a3clipControllerCondition(a3_ClipController* clipCtrl, a3boolean clipCondition);
 
 //-----------------------------------------------------------------------------
 
