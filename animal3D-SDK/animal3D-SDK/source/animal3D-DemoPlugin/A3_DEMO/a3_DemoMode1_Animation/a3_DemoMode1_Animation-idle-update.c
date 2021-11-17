@@ -172,8 +172,6 @@ void a3animation_update_fk(a3_HierarchyState* activeHS,
 			activeHS->hierarchy->numNodes,
 			poseGroup->channel,
 			poseGroup->order);
-		a3hierarchyPoseRestore(activeHS->localSpace, activeHS->hierarchy->numNodes, poseGroup->channel, poseGroup->order);
-		a3hierarchyPoseConvert(activeHS->localSpace,activeHS->hierarchy->numNodes,poseGroup->channel,poseGroup->order);
 		a3kinematicsSolveForward(activeHS);
 	}
 }
@@ -187,6 +185,15 @@ void a3animation_update_ik(a3_HierarchyState* activeHS,
 		// IK pipeline
 		// ****TO-DO: direct opposite of FK
 
+		a3kinematicsSolveInverse(activeHS);
+		a3hierarchyPoseRestore(activeHS->localSpace,
+			activeHS->hierarchy->numNodes,
+			poseGroup->channel,
+			poseGroup->order);
+		a3hierarchyPoseDeconcat(activeHS->animPose,
+			activeHS->localSpace,
+			baseHS->localSpace,
+			activeHS->hierarchy->numNodes);
 	}
 }
 
@@ -234,32 +241,27 @@ void a3animation_update_applyEffectors(a3_DemoMode1_Animation* demoMode,
 			// x = up (cross) z
 			// x = x/|x|
 			// y = z (cross) x
-
-			a3vec4 z;
-			a3real4Diff(z.v, controlLocator_neckLookat.v, jointTransform_neck.v3.v);
-			a3real4Normalize(z.v);
+			a3vec4 x,y,z;
 			a3vec4 up = { 0,1,0,0 };
 
-			a3vec4 x;
-			a3real3Cross(x.v, up.xyz.v, z.xyz.v);
+			a3real4Diff(z.v, controlLocator_neckLookat.v, jointTransform_neck.v3.v);
+			a3real4Normalize(z.v);
+			a3real3CrossUnit(x.v, up.xyz.v, z.xyz.v);
+			a3real3CrossUnit(y.v, z.xyz.v, x.xyz.v);
 
-			a3vec4 y;
-			a3real3Cross(y.v, z.xyz.v, x.xyz.v);
-
-			a3mat3 rotmat = { x.v0, y.v0, z.v0,
-							  x.v1, y.v1, z.v1,
-							  x.v2, y.v2, z.v2 };
-
-			a3real3 rotation = { a3atan2d(rotmat.m21, rotmat.m22),
-					a3atan2d(-rotmat.m20, (a3real)a3sqrtf((rotmat.m21 * rotmat.m21) + (rotmat.m22 * rotmat.m22))),
-					a3atan2d(rotmat.m10, rotmat.m00) };
+			a3mat4 targetTransformMat = { x.v0, x.v1, x.v2, 0,
+							  y.v0, y.v1, y.v2, 0,
+							  z.v0, z.v1, z.v2, 0,
+							  jointTransform_neck.v3.x, jointTransform_neck.v3.y, jointTransform_neck.v3.z, 1 };
 
 			// ****TO-DO: 
 			// reassign resolved transforms to OBJECT-SPACE matrices
 			// resolve local and animation pose for affected joint
 			//	(instead of doing IK for whole skeleton when only one joint has changed)
 
-
+			activeHS->objectSpace->pose[j].transformMat = targetTransformMat;
+			//a3kinematicsSolveInversePartial(activeHS, j, baseHS->hierarchy->numNodes - j);
+			a3animation_update_ik(activeHS, baseHS, poseGroup);
 		}
 
 		// RIGHT ARM REACH
