@@ -1,0 +1,198 @@
+/*
+	Copyright 2011-2020 Daniel S. Buckstein
+
+	Licensed under the Apache License, Version 2.0 (the "License");
+	you may not use this file except in compliance with the License.
+	You may obtain a copy of the License at
+
+		http://www.apache.org/licenses/LICENSE-2.0
+
+	Unless required by applicable law or agreed to in writing, software
+	distributed under the License is distributed on an "AS IS" BASIS,
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	See the License for the specific language governing permissions and
+	limitations under the License.
+*/
+
+/*
+	animal3D SDK: Minimal 3D Animation Framework
+	By Daniel S. Buckstein
+
+	modified by Rory Beebout, Jonathan Deleon
+	
+	a3_SpatialPose.inl
+	Implementation of inline spatial pose operations.
+*/
+
+
+#ifdef __ANIMAL3D_SPATIALPOSE_H
+#ifndef __ANIMAL3D_SPATIALPOSE_INL
+#define __ANIMAL3D_SPATIALPOSE_INL
+
+
+//-----------------------------------------------------------------------------
+
+// set rotation values for a single node pose
+inline a3i32 a3spatialPoseSetRotation(a3_SpatialPose* spatialPose, const a3f32 rx_degrees, const a3f32 ry_degrees, const a3f32 rz_degrees)
+{
+	if (spatialPose)
+	{
+		spatialPose->rotate_euler.x = a3trigValid_sind(rx_degrees);
+		spatialPose->rotate_euler.y = a3trigValid_sind(ry_degrees);
+		spatialPose->rotate_euler.z = a3trigValid_sind(rz_degrees);
+		return 1;
+	}
+	return -1;
+}
+
+// scale
+inline a3i32 a3spatialPoseSetScale(a3_SpatialPose* spatialPose, const a3f32 sx, const a3f32 sy, const a3f32 sz)
+{
+	if (spatialPose)
+	{
+		spatialPose->scale.x = sx;
+		spatialPose->scale.y = sy;
+		spatialPose->scale.z = sz;
+		return 1;
+	}
+	return -1;
+}
+
+// translation
+inline a3i32 a3spatialPoseSetTranslation(a3_SpatialPose* spatialPose, const a3f32 tx, const a3f32 ty, const a3f32 tz)
+{
+	if (spatialPose)
+	{
+		a3vec4 out = {tx,ty,tz, 1};
+		spatialPose->translation = out;
+	}
+	return -1;
+}
+
+
+//-----------------------------------------------------------------------------
+
+// reset single node pose
+inline a3i32 a3spatialPoseReset(a3_SpatialPose* spatialPose)
+{
+	if (spatialPose)
+	{
+		spatialPose->transform = a3mat4_identity;	// mul | diagonal 1s,
+		spatialPose->rotate_quaternion = a3vec4_w;  // mul | multiply rotation times 1
+		spatialPose->rotate_euler = a3vec4_zero;	// add | add 0 degres to each axis
+		spatialPose->translation = a3vec4_zero;		// mul | move 0 units in each direction
+		spatialPose->scale = a3vec4_one;			// add | multiply size times 1;
+
+		// done
+		return 0;
+	}
+	return -1;
+}
+
+// convert single node pose to matrix
+inline a3i32 a3spatialPoseConvert(a3_SpatialPose* spatialPose_in, const a3_SpatialPoseChannel channel, const a3_SpatialPoseEulerOrder order)
+{
+
+	if (spatialPose_in)
+	{
+		a3mat4 rx, ry, rz, r;
+		a3real4x4SetRotateX(rx.m, spatialPose_in->rotate_euler.x);
+		a3real4x4SetRotateY(ry.m, spatialPose_in->rotate_euler.y);
+		a3real4x4SetRotateZ(rz.m, spatialPose_in->rotate_euler.z);
+		switch (order)
+		{
+		case a3poseEulerOrder_xyz:
+			a3real4x4Product(r.m, rx.m, ry.m);
+			a3real4x4Product(spatialPose_in->transform.m, r.m, rz.m);
+			break;
+		case a3poseEulerOrder_yzx:
+			a3real4x4Product(r.m, ry.m, rz.m);
+			a3real4x4Product(spatialPose_in->transform.m, r.m, rx.m);
+			break;
+		case a3poseEulerOrder_zxy:
+			a3real4x4Product(r.m, rz.m, rx.m);
+			a3real4x4Product(spatialPose_in->transform.m, r.m, ry.m);
+			break;
+		case a3poseEulerOrder_yxz:
+			a3real4x4Product(r.m, ry.m, rx.m);
+			a3real4x4Product(spatialPose_in->transform.m, r.m, rz.m);
+			break;
+		case a3poseEulerOrder_xzy:
+			a3real4x4Product(r.m, rx.m, rz.m);
+			a3real4x4Product(spatialPose_in->transform.m, r.m, ry.m);
+			break;
+		case a3poseEulerOrder_zyx:
+			a3real4x4Product(r.m, rz.m, ry.m);
+			a3real4x4Product(spatialPose_in->transform.m, r.m, rx.m);
+			break;
+		}
+		a3real3MulS(spatialPose_in->transform.v0.v, spatialPose_in->scale.x);
+		a3real3MulS(spatialPose_in->transform.v1.v, spatialPose_in->scale.y);
+		a3real3MulS(spatialPose_in->transform.v2.v, spatialPose_in->scale.z);
+		spatialPose_in->transform.v3 = spatialPose_in->translation;
+		return 1;
+	}
+	return -1;
+}
+
+// copy operation for single node pose
+inline a3i32 a3spatialPoseCopy(a3_SpatialPose* spatialPose_out, const a3_SpatialPose* spatialPose_in)
+{
+	if (spatialPose_out && spatialPose_in)
+	{
+		spatialPose_out->rotate_euler = spatialPose_in->rotate_euler;
+		spatialPose_out->scale = spatialPose_in->scale;
+		spatialPose_out->translation = spatialPose_in->translation;
+		spatialPose_out->transform = spatialPose_in->transform;
+	}
+	return -1;
+}
+
+// concatenate/combine two node poses.
+inline a3i32 a3spatialPoseConcat(a3_SpatialPose* spatialPose_out, const a3_SpatialPose* spatialPose_lh, const a3_SpatialPose* spatialPose_rh,
+	const a3boolean usingQuaternions)
+{
+	if (spatialPose_out && spatialPose_lh && spatialPose_rh)
+	{
+		spatialPose_out->rotate_euler.x = a3trigValid_sind(spatialPose_lh->rotate_euler.x + spatialPose_rh->rotate_euler.x);
+		spatialPose_out->rotate_euler.y = a3trigValid_sind(spatialPose_lh->rotate_euler.y + spatialPose_rh->rotate_euler.y);
+		spatialPose_out->rotate_euler.z = a3trigValid_sind(spatialPose_lh->rotate_euler.z + spatialPose_rh->rotate_euler.z);
+
+		spatialPose_out->scale.x = spatialPose_lh->scale.x * spatialPose_rh->scale.x;
+		spatialPose_out->scale.y = spatialPose_lh->scale.y * spatialPose_rh->scale.y;
+		spatialPose_out->scale.z = spatialPose_lh->scale.z * spatialPose_rh->scale.z;
+
+		spatialPose_out->translation.x = spatialPose_lh->translation.x + spatialPose_rh->translation.x;
+		spatialPose_out->translation.y = spatialPose_lh->translation.y + spatialPose_rh->translation.y;
+		spatialPose_out->translation.z = spatialPose_lh->translation.z + spatialPose_rh->translation.z;
+
+		return 1;
+	}
+	return -1;
+}
+
+// lerp
+inline a3i32 a3spatialPoseLerp(a3_SpatialPose* spatialPose_out,
+	const a3_SpatialPose* spatialPose0, const a3_SpatialPose* spatialPose1, const a3real u,
+	const a3boolean usingQuaternions)
+{
+	
+	if (spatialPose_out && spatialPose0 && spatialPose1)
+	{
+		a3real3Lerp(spatialPose_out->rotate_euler.v, spatialPose0->rotate_euler.v, spatialPose1->rotate_euler.v, u);
+
+		a3real3Lerp(spatialPose_out->scale.v, spatialPose0->scale.v, spatialPose1->scale.v, u);
+
+		a3real3Lerp(spatialPose_out->translation.v, spatialPose0->translation.v, spatialPose1->translation.v, u);
+
+		return 1;
+	}
+	return -1;
+	
+}
+
+//-----------------------------------------------------------------------------
+
+
+#endif	// !__ANIMAL3D_SPATIALPOSE_INL
+#endif	// __ANIMAL3D_SPATIALPOSE_H

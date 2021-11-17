@@ -114,6 +114,7 @@ struct a3_SpatialPose
 {
 	a3mat4 transformMat;
 	a3dualquat transformDQ;
+	a3vec4 rotateQuat;
 	a3vec4 rotate;
 	a3vec4 scale;
 	a3vec4 translate;
