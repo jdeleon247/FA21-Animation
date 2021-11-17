@@ -172,6 +172,8 @@ void a3animation_update_fk(a3_HierarchyState* activeHS,
 			activeHS->hierarchy->numNodes,
 			poseGroup->channel,
 			poseGroup->order);
+		a3hierarchyPoseRestore(activeHS->localSpace, activeHS->hierarchy->numNodes, poseGroup->channel, poseGroup->order);
+		a3hierarchyPoseConvert(activeHS->localSpace,activeHS->hierarchy->numNodes,poseGroup->channel,poseGroup->order);
 		a3kinematicsSolveForward(activeHS);
 	}
 }
@@ -244,15 +246,19 @@ void a3animation_update_applyEffectors(a3_DemoMode1_Animation* demoMode,
 			a3vec4 y;
 			a3real3Cross(y.v, z.xyz.v, x.xyz.v);
 
-			a3mat4 rotmat = { x.v0, y.v0, z.v0, 0,
-							  x.v1, y.v1, z.v1, 0,
-							  x.v2, y.v2, z.v2, 0,
-							  0, 0, 0, 1 };
+			a3mat3 rotmat = { x.v0, y.v0, z.v0,
+							  x.v1, y.v1, z.v1,
+							  x.v2, y.v2, z.v2 };
+
+			a3real3 rotation = { a3atan2d(rotmat.m21, rotmat.m22),
+					a3atan2d(-rotmat.m20, (a3real)a3sqrtf((rotmat.m21 * rotmat.m21) + (rotmat.m22 * rotmat.m22))),
+					a3atan2d(rotmat.m10, rotmat.m00) };
 
 			// ****TO-DO: 
 			// reassign resolved transforms to OBJECT-SPACE matrices
 			// resolve local and animation pose for affected joint
 			//	(instead of doing IK for whole skeleton when only one joint has changed)
+
 
 		}
 

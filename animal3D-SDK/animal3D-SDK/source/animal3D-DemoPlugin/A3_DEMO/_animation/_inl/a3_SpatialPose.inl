@@ -138,7 +138,27 @@ inline a3i32 a3spatialPoseRestore(a3_SpatialPose* spatialPose, const a3_SpatialP
 {
 	if (spatialPose)
 	{
+		// Extract translation
+		spatialPose->translate = spatialPose->transformMat.v3;
+		
+		// Extract scales
+		spatialPose->scale.x = a3real3Length(spatialPose->transformMat.v0.v);
+		spatialPose->scale.y = a3real3Length(spatialPose->transformMat.v1.v);
+		spatialPose->scale.z = a3real3Length(spatialPose->transformMat.v2.v);
 
+		// extract rotation
+		a3mat3 rotMat = { spatialPose->transformMat.m00, spatialPose->transformMat.m10, spatialPose->transformMat.m20,
+						  spatialPose->transformMat.m01, spatialPose->transformMat.m11, spatialPose->transformMat.m21,
+						  spatialPose->transformMat.m02, spatialPose->transformMat.m12, spatialPose->transformMat.m22 };
+
+		a3vec4 rotation = { a3atan2d(rotMat.m21, rotMat.m22),
+							a3atan2d(-rotMat.m20, (a3real)a3sqrtf((rotMat.m21 * rotMat.m21) + (rotMat.m22 * rotMat.m22))),
+							//a3atan2d(-rotMat.m20, (a3real)a3sqrtf0x((rotMat.m21 * rotMat.m21) + (rotMat.m22 * rotMat.m22))),
+							a3atan2d(rotMat.m10, rotMat.m00), 0 };
+
+		spatialPose->rotate = rotation;
+
+		return 1;
 	}
 	return -1;
 }
