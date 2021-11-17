@@ -228,6 +228,27 @@ void a3animation_update_applyEffectors(a3_DemoMode1_Animation* demoMode,
 			// make "look-at" matrix
 			// in this example, +Z is towards locator, +Y is up
 
+			// z = v/|v|
+			// x = up (cross) z
+			// x = x/|x|
+			// y = z (cross) x
+
+			a3vec4 z;
+			a3real4Diff(z.v, controlLocator_neckLookat.v, jointTransform_neck.v3.v);
+			a3real4Normalize(z.v);
+			a3vec4 up = { 0,1,0,0 };
+
+			a3vec4 x;
+			a3real3Cross(x.v, up.xyz.v, z.xyz.v);
+
+			a3vec4 y;
+			a3real3Cross(y.v, z.xyz.v, x.xyz.v);
+
+			a3mat4 rotmat = { x.v0, y.v0, z.v0, 0,
+							  x.v1, y.v1, z.v1, 0,
+							  x.v2, y.v2, z.v2, 0,
+							  0, 0, 0, 1 };
+
 			// ****TO-DO: 
 			// reassign resolved transforms to OBJECT-SPACE matrices
 			// resolve local and animation pose for affected joint
