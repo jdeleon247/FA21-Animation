@@ -126,19 +126,13 @@ void a3animation_input(a3_DemoState* demoState, a3_DemoMode1_Animation* demoMode
 			dt, projector->ctrlMoveSpeed, projector->ctrlRotateSpeed, projector->ctrlZoomSpeed);
 		break;
 	case animation_ctrl_character:
-	case animation_ctrl_neckLookat:
-	case animation_ctrl_wristEffector_r:
-	case animation_ctrl_wristConstraint_r:
-		sceneObject = demoMode->obj_skeleton_ctrl + demoMode->ctrl_target - animation_ctrl_character;
-		a3demo_input_controlObject(demoState, sceneObject, dt, a3real_one, a3real_zero);
-		
-	/*	// capture axes
+		// capture axes
 		if (a3XboxControlIsConnected(demoState->xcontrol))
 		{
 			// ****TO-DO:
 			// get directly from joysticks
 			a3XboxControlGetJoysticks(demoState->xcontrol, demoMode->axis_l, demoMode->axis_r);
-		
+
 		}
 		else
 		{
@@ -169,7 +163,13 @@ void a3animation_input(a3_DemoState* demoState, a3_DemoMode1_Animation* demoMode
 			a3boolean buttonPress = a3keyboardGetState(demoState->keyboard, a3key_tilde);
 			a3clipControllerCondition(clipCtrl, buttonPress);
 		}
-	*/	break;
+		break;
+		break;
+	case animation_ctrl_neckLookat:
+	case animation_ctrl_wristEffector_r:
+	case animation_ctrl_wristConstraint_r:
+		sceneObject = demoMode->obj_skeleton_ctrl + demoMode->ctrl_target - animation_ctrl_character;
+		a3demo_input_controlObject(demoState, sceneObject, dt, a3real_one, a3real_zero);
 	}
 
 	// allow the controller, if connected, to change control targets

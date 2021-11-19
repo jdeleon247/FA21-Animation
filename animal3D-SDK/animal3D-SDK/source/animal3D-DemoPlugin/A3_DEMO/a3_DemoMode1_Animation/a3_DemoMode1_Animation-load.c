@@ -128,9 +128,9 @@ void a3animation_init_animation(a3_DemoState const* demoState, a3_DemoMode1_Anim
 		a3hierarchySetNode(demoMode->sceneGraph, 2, 0, "scene_light_main");
 		a3hierarchySetNode(demoMode->sceneGraph, 3, 0, "scene_skybox");
 		a3hierarchySetNode(demoMode->sceneGraph, 4, 0, "scene_skeleton_ctrl");
-		a3hierarchySetNode(demoMode->sceneGraph, 5, 4, "scene_skeleton_neckLookat_ctrl");
-		a3hierarchySetNode(demoMode->sceneGraph, 6, 4, "scene_skeleton_wristEff_r_ctrl");
-		a3hierarchySetNode(demoMode->sceneGraph, 7, 4, "scene_skeleton_wristCon_r_ctrl");
+		a3hierarchySetNode(demoMode->sceneGraph, 5, 0, "scene_skeleton_neckLookat_ctrl");
+		a3hierarchySetNode(demoMode->sceneGraph, 6, 0, "scene_skeleton_wristEff_r_ctrl");
+		a3hierarchySetNode(demoMode->sceneGraph, 7, 0, "scene_skeleton_wristCon_r_ctrl");
 		a3hierarchySetNode(demoMode->sceneGraph, 8, 4, "scene_skeleton");
 
 	/*
@@ -501,8 +501,12 @@ void a3animation_init_animation(a3_DemoState const* demoState, a3_DemoMode1_Anim
 		a3clipControllerInit(demoMode->clipCtrlA, "xbot_ctrlA", demoMode->clipPool, j, rate, fps);
 		a3clipTransitionInit(demoMode->clipPool->clip[j].transitionForward, a3clip_branchFlag, 0, demoMode->clipPool->clip + j);
 		//demoMode->clipPool->clip[j].transitionForward->onTransition = TransitionTestSpeed;
-		j = a3clipGetIndexInPool(demoMode->clipPool, "xbot_skintest");
+		j = a3clipGetIndexInPool(demoMode->clipPool, "xbot_walk_f");
 		a3clipControllerInit(demoMode->clipCtrlB, "xbot_ctrlB", demoMode->clipPool, j, rate, fps);
+		j = a3clipGetIndexInPool(demoMode->clipPool, "xbot_jump_f");
+		a3clipControllerInit(demoMode->clipCtrlC, "xbot_ctrlC", demoMode->clipPool, j, rate, fps);
+		j = a3clipGetIndexInPool(demoMode->clipPool, "xbot_run_f");
+		a3clipControllerInit(demoMode->clipCtrlD, "xbot_ctrlD", demoMode->clipPool, j, rate, fps);
 	}
 
 	// finally set up hierarchy states
