@@ -115,6 +115,8 @@ struct a3_ClipTransition
 	a3_ClipTransitionFlag flag;
 	a3i32 offset;
 	a3i32 clipIndex;
+
+	a3boolean (*onTransition)();
 };
 
 // description of single clip
