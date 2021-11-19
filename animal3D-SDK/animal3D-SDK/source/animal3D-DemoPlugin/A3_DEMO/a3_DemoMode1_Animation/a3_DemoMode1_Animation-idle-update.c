@@ -197,6 +197,35 @@ void a3animation_update_ik(a3_HierarchyState* activeHS,
 	}
 }
 
+void a3animation_update_ik_single(a3_HierarchyState* activeHS,
+	a3_HierarchyState const* baseHS, a3_HierarchyPoseGroup const* poseGroup, const a3ui32 index, const a3ui32 parentIndex)
+{
+	if (activeHS->hierarchy == baseHS->hierarchy &&
+		activeHS->hierarchy == poseGroup->hierarchy)
+	{
+		a3kinematicsSolveInverseSingle(activeHS, index, parentIndex);
+		a3spatialPoseRestore(activeHS->localSpace->pose + index, *poseGroup->channel, *poseGroup->order);
+		a3spatialPoseDeconcat(activeHS->animPose->pose + index, activeHS->localSpace->pose + index, baseHS->localSpace->pose + index);
+	}
+}
+
+void a3animation_update_ik_partial(a3_HierarchyState* activeHS,
+	a3_HierarchyState const* baseHS, a3_HierarchyPoseGroup const* poseGroup, const a3ui32 index, const a3ui32 numNodes)
+{
+	if (activeHS->hierarchy == baseHS->hierarchy &&
+		activeHS->hierarchy == poseGroup->hierarchy)
+	{
+		a3kinematicsSolveInversePartial(activeHS, index, numNodes);
+		const a3_HierarchyNode* itr = activeHS->hierarchy->nodes + index;
+		const a3_HierarchyNode* const end = itr + numNodes;
+		for (; itr < end; ++itr)
+		{
+			a3spatialPoseRestore(activeHS->localSpace->pose + itr->index, *poseGroup->channel, *poseGroup->order);
+			a3spatialPoseDeconcat(activeHS->animPose->pose + itr->index, activeHS->localSpace->pose + itr->index, baseHS->localSpace->pose + itr->index);
+		}
+	}
+}
+
 void a3animation_update_skin(a3_HierarchyState* activeHS,
 	a3_HierarchyState const* baseHS)
 {
@@ -237,10 +266,6 @@ void a3animation_update_applyEffectors(a3_DemoMode1_Animation* demoMode,
 			// make "look-at" matrix
 			// in this example, +Z is towards locator, +Y is up
 
-			// z = v/|v|
-			// x = up (cross) z
-			// x = x/|x|
-			// y = z (cross) x
 			a3vec4 x,y,z;
 			a3vec4 up = { 0,1,0,0 };
 
@@ -248,20 +273,25 @@ void a3animation_update_applyEffectors(a3_DemoMode1_Animation* demoMode,
 			a3real4Normalize(z.v);
 			a3real3CrossUnit(x.v, up.xyz.v, z.xyz.v);
 			a3real3CrossUnit(y.v, z.xyz.v, x.xyz.v);
-
-			a3mat4 targetTransformMat = { x.v0, x.v1, x.v2, 0,
+			a3mat4 neckMat = { x.v0, x.v1, x.v2, 0,
 							  y.v0, y.v1, y.v2, 0,
 							  z.v0, z.v1, z.v2, 0,
 							  jointTransform_neck.v3.x, jointTransform_neck.v3.y, jointTransform_neck.v3.z, 1 };
+
+			// Built-in way >>> a3real4x4MakeLookAt seems to look away instead, so pass in transforms in opposite slots, and reset position manually.
+			//a3real4x4MakeLookAt(targetTransformMat.m, 0, controlLocator_neckLookat.v, jointTransform_neck.v3.v, up.v);
+			//targetTransformMat.v3 = jointTransform_neck.v3;
 
 			// ****TO-DO: 
 			// reassign resolved transforms to OBJECT-SPACE matrices
 			// resolve local and animation pose for affected joint
 			//	(instead of doing IK for whole skeleton when only one joint has changed)
 
-			activeHS->objectSpace->pose[j].transformMat = targetTransformMat;
-			//a3kinematicsSolveInversePartial(activeHS, j, baseHS->hierarchy->numNodes - j);
-			a3animation_update_ik(activeHS, baseHS, poseGroup);
+			activeHS->objectSpace->pose[j_neck].transformMat = neckMat;
+			a3real4x4TransformInvert(neckMat.m);
+			activeHS->localSpaceInv->pose[j_neck].transformMat = neckMat;
+
+			a3animation_update_ik_single(activeHS, baseHS, poseGroup, j_neck, j_neck - 1);
 		}
 
 		// RIGHT ARM REACH
@@ -291,11 +321,109 @@ void a3animation_update_applyEffectors(a3_DemoMode1_Animation* demoMode,
 			// 1) check if solution exists
 			//	-> get vector between base and end effector; if it extends max length, straighten limb
 			//	-> position of end effector's target is at the minimum possible distance along this vector
-			
-			// ****TO-DO: 
-			// reassign resolved transforms to OBJECT-SPACE matrices
-			// work from root to leaf too get correct transformations
+			a3real sideLength1, sideLength2, triangleArea, baseToEndLength, triangleHeight, s, triangleBaseLength;
+			a3vec4 up = { 0,1,0,0 };
+			a3vec3 x, y, z;
+			a3vec3 baseToEnd, baseToConstraint;
+			a3vec3 triangleUp;
+			a3vec3 planeNormal;
 
+			sideLength1 = a3real3Distance(baseHS->objectSpace->pose[j_shoulder].transformMat.v3.v, baseHS->objectSpace->pose[j_elbow].transformMat.v3.v);
+			sideLength2 = a3real3Distance(baseHS->objectSpace->pose[j_elbow].transformMat.v3.v, baseHS->objectSpace->pose[j_wrist].transformMat.v3.v);
+			//sideLength1 = a3real3Length(baseHS->localSpace->pose[j_shoulder].scale.v);
+			//sideLength2 = a3real3Length(baseHS->localSpace->pose[j_elbow].scale.v);
+
+			a3real3Diff(baseToEnd.v, controlLocator_wristEffector.v, jointTransform_shoulder.v3.v);
+			a3real3Normalize(baseToEnd.v);
+
+			baseToEndLength = a3real3Distance(controlLocator_wristEffector.v, jointTransform_shoulder.v3.v);
+			if (baseToEndLength > sideLength1 + sideLength2)
+			{
+				a3real3Diff(baseToConstraint.v, controlLocator_wristConstraint.v, jointTransform_shoulder.v3.v);
+				a3real3CrossUnit(planeNormal.v, baseToConstraint.v, baseToEnd.v);
+				y = planeNormal;
+
+				a3real3Diff(x.v, jointTransform_shoulder.v3.v, controlLocator_wristEffector.v);
+				a3real3Normalize(x.v);
+				a3real3CrossUnit(z.v, x.v, y.v);
+				a3mat4 shoulderMat = { x.v0, x.v1, x.v2, 0,
+								  y.v0, y.v1, y.v2, 0,
+								  z.v0, z.v1, z.v2, 0,
+								  jointTransform_shoulder.v3.x, jointTransform_shoulder.v3.y, jointTransform_shoulder.v3.z, 1 };
+
+				a3vec3 elbowPos = { jointTransform_shoulder.v3.x + baseToEnd.x * sideLength1, jointTransform_shoulder.v3.y + baseToEnd.y * sideLength1, jointTransform_shoulder.v3.z + baseToEnd.z * sideLength1 };
+				a3mat4 elbowMat = { x.v0, x.v1, x.v2, 0,
+								  y.v0, y.v1, y.v2, 0,
+								  z.v0, z.v1, z.v2, 0,
+								  elbowPos.x, elbowPos.y, elbowPos.z, 1 };
+				a3vec4 wristPos = { elbowPos.x + baseToEnd.x * sideLength1, elbowPos.y + baseToEnd.y * sideLength1, elbowPos.z + baseToEnd.z * sideLength1, 1 };
+
+				activeHS->objectSpace->pose[j_shoulder].transformMat = shoulderMat;
+				a3real4x4TransformInvert(shoulderMat.m);
+				activeHS->objectSpaceInv->pose[j_shoulder].transformMat = shoulderMat;
+				a3animation_update_ik_single(activeHS, baseHS, poseGroup, j_shoulder, j_shoulder - 1);
+
+				activeHS->objectSpace->pose[j_elbow].transformMat = elbowMat;
+				a3real4x4TransformInvert(elbowMat.m);
+				activeHS->objectSpaceInv->pose[j_elbow].transformMat = elbowMat;
+				a3animation_update_ik_single(activeHS, baseHS, poseGroup, j_elbow, j_shoulder);
+
+				activeHS->objectSpace->pose[j_wrist].transformMat.v3 = wristPos;
+				a3animation_update_ik_single(activeHS, baseHS, poseGroup, j_wrist, j_elbow);
+			}
+			else
+			{
+				a3real3Diff(baseToConstraint.v, controlLocator_wristConstraint.v, jointTransform_shoulder.v3.v);
+				a3real3CrossUnit(planeNormal.v, baseToConstraint.v, baseToEnd.v);
+				a3real3CrossUnit(triangleUp.v, baseToEnd.v, planeNormal.v);
+
+				s = a3real_half * (baseToEndLength + sideLength1 + sideLength2);
+				triangleArea = a3sqrtf(s * (s - baseToEndLength) * (s - sideLength1) * (s - sideLength2));
+				triangleHeight = 2 * triangleArea / baseToEndLength;
+				triangleBaseLength = a3sqrtf((sideLength1 * sideLength1) - (triangleHeight * triangleHeight));
+
+				a3vec3 elbowPos;
+
+				a3real3MulS(baseToEnd.v, triangleBaseLength);
+				a3real3MulS(triangleUp.v, triangleHeight);
+				a3real3Sum(elbowPos.v, triangleUp.v, baseToEnd.v);
+				a3real3Add(elbowPos.v, jointTransform_shoulder.v3.v);
+
+				a3real3Diff(x.v, jointTransform_shoulder.v3.v, elbowPos.v);
+				a3real3Normalize(x.v);
+				y = planeNormal;
+				a3real3CrossUnit(z.v, x.v, y.v);
+				a3mat4 shoulderMat = { x.v0, x.v1, x.v2, 0,
+								  y.v0, y.v1, y.v2, 0,
+								  z.v0, z.v1, z.v2, 0,
+								  jointTransform_shoulder.v3.x, jointTransform_shoulder.v3.y, jointTransform_shoulder.v3.z, 1 };
+
+				a3real3Diff(x.v, elbowPos.v, controlLocator_wristEffector.v);
+				a3real3Normalize(x.v);
+				a3real3CrossUnit(z.v, x.v, y.v);
+				a3mat4 elbowMat = { x.v0, x.v1, x.v2, 0,
+								  y.v0, y.v1, y.v2, 0,
+								  z.v0, z.v1, z.v2, 0,
+								  elbowPos.x, elbowPos.y, elbowPos.z, 1 };
+
+				// ****TO-DO: 
+				// reassign resolved transforms to OBJECT-SPACE matrices
+				// work from root to leaf too get correct transformations
+
+				activeHS->objectSpace->pose[j_shoulder].transformMat = shoulderMat;
+				a3real4x4TransformInvert(shoulderMat.m);
+				activeHS->objectSpaceInv->pose[j_shoulder].transformMat = shoulderMat;
+				a3animation_update_ik_single(activeHS, baseHS, poseGroup, j_shoulder, j_shoulder - 1);
+
+				activeHS->objectSpace->pose[j_elbow].transformMat = elbowMat;
+				a3real4x4TransformInvert(elbowMat.m);
+				activeHS->objectSpaceInv->pose[j_elbow].transformMat = elbowMat;
+				a3animation_update_ik_single(activeHS, baseHS, poseGroup, j_elbow, j_shoulder);
+
+				activeHS->objectSpace->pose[j_wrist].transformMat.v3 = controlLocator_wristEffector;
+				a3animation_update_ik_single(activeHS, baseHS, poseGroup, j_wrist, j_elbow);
+			}
+			
 		}
 	}
 }
