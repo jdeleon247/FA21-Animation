@@ -70,15 +70,17 @@ void a3animation_input_keyCharPress(a3_DemoState const* demoState, a3_DemoMode1_
 
 		// toggle rotation input mode
 		a3demoCtrlCasesLoop(demoMode->ctrl_rotation, animation_inputmode_max, '+', '_');
+
+		a3demoCtrlCaseToggle(demoMode->doInverseKinematics, 'c');
 	}
 }
 
 void a3animation_input_keyCharHold(a3_DemoState const* demoState, a3_DemoMode1_Animation* demoMode, a3i32 const asciiKey, a3i32 const state)
 {
-//	switch (asciiKey)
-//	{
-//
-//	}
+	//switch (asciiKey)
+	//{
+	
+	//}
 }
 
 
@@ -148,6 +150,8 @@ void a3animation_input(a3_DemoState* demoState, a3_DemoMode1_Animation* demoMode
 				demoMode->axis_l[0] = l.x;
 				demoMode->axis_l[1] = l.y;
 			}
+
+			demoMode->sprint = (a3real)a3keyboardGetState(demoState->keyboard, a3key_shift);
 
 			// rotation
 			demoMode->axis_r[0] = (a3f64)a3keyboardGetDifference(demoState->keyboard, a3key_L, a3key_J);

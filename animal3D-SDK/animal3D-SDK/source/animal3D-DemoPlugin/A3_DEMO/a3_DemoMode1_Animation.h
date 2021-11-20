@@ -164,6 +164,8 @@ typedef enum a3_DemoMode1_Animation_InputMode				a3_DemoMode1_Animation_InputMod
 		a3_ClipController clipCtrl[1], clipCtrlA[1], clipCtrlB[1], clipCtrlC[1], clipCtrlD[1];
 		a3_ClipPool clipPool[1];
 
+		a3boolean doInverseKinematics;
+
 		// skeletal animation
 		union {
 			a3_HierarchyState hierarchyState_skel[4];
@@ -191,6 +193,7 @@ typedef enum a3_DemoMode1_Animation_InputMode				a3_DemoMode1_Animation_InputMod
 		a3f64 axis_l[2], axis_r[2];
 		a3vec2 pos, vel, acc;
 		a3real rot, velr, accr;
+		a3real sprint;
 
 		// objects
 		union {

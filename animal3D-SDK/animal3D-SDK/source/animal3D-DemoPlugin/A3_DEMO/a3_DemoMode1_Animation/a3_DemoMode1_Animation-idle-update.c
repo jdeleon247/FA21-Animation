@@ -501,29 +501,32 @@ void a3animation_update_animation(a3_DemoMode1_Animation* demoMode, a3f64 const 
 		a3hierarchyPoseBlendNodeCall(&node);
 	}
 
-	// resolve IK state
-	// copy FK to IK
-	node.op = a3hierarchyPoseOpCopy;
-	node.pose_out = activeHS_ik->animPose;
-	node.pose_ctrl[0] = activeHS->animPose;
-	a3hierarchyPoseBlendNodeCall(&node);
-
-	// run FK
-	a3animation_update_fk(activeHS_ik, baseHS, poseGroup);
-	if (updateIK)
+	if (demoMode->doInverseKinematics)
 	{
-		// invert object-space
-		a3hierarchyStateUpdateObjectInverse(activeHS_ik);
-		// run solvers
-		a3animation_update_applyEffectors(demoMode, activeHS_ik, baseHS, poseGroup);
-		// run full IK pipeline (if not resolving with effectors)
-		//a3animation_update_ik(activeHS_ik, baseHS, poseGroup);
-	}
+		// resolve IK state
+		// copy FK to IK
+		node.op = a3hierarchyPoseOpCopy;
+		node.pose_out = activeHS_ik->animPose;
+		node.pose_ctrl[0] = activeHS->animPose;
+		a3hierarchyPoseBlendNodeCall(&node);
 
-	node.op = a3hierarchyPoseOpCopy;
-	node.pose_out = activeHS->animPose;
-	node.pose_ctrl[0] = activeHS_ik->animPose;
-	a3hierarchyPoseBlendNodeCall(&node);
+		// run FK
+		a3animation_update_fk(activeHS_ik, baseHS, poseGroup);
+		if (updateIK)
+		{
+			// invert object-space
+			a3hierarchyStateUpdateObjectInverse(activeHS_ik);
+			// run solvers
+			a3animation_update_applyEffectors(demoMode, activeHS_ik, baseHS, poseGroup);
+			// run full IK pipeline (if not resolving with effectors)
+			//a3animation_update_ik(activeHS_ik, baseHS, poseGroup);
+		}
+
+		node.op = a3hierarchyPoseOpCopy;
+		node.pose_out = activeHS->animPose;
+		node.pose_ctrl[0] = activeHS_ik->animPose;
+		a3hierarchyPoseBlendNodeCall(&node);
+	}
 
 	// run FK pipeline (skinning optional)
 	a3animation_update_fk(activeHS, baseHS, poseGroup);
@@ -603,7 +606,7 @@ void a3animation_update(a3_DemoState* demoState, a3_DemoMode1_Animation* demoMod
 	// process input
 
 	a3real distMult = 3;
-	a3real speedMult = 5;
+	a3real speedMult = 5 + (4 * demoMode->sprint);
 	switch (demoMode->ctrl_position)
 	{
 	case animation_input_direct:
