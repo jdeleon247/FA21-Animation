@@ -442,10 +442,6 @@ void a3animation_sampleClipController(a3_DemoMode1_Animation* demoMode, a3f64 co
 	a3hierarchyPoseLerp(activeHS_fk->animPose,
 		poseGroup->hpose + sampleIndex0, poseGroup->hpose + sampleIndex1,
 		(a3real)clipCtrl_fk->keyframeParam, activeHS_fk->hierarchy->numNodes);
-
-	// Root motion to negate movement away from origin;
-	a3vec3 rootMotion = { activeHS_fk->animPose->pose->translate.x, activeHS_fk->animPose->pose->translate.z, activeHS_fk->animPose->pose->translate.y };
-	a3real3GetNegative(demoMode->obj_skeleton->position.v, rootMotion.v);
 }
 void a3animation_update_animation(a3_DemoMode1_Animation* demoMode, a3f64 const dt,
 	a3boolean const updateIK)
@@ -459,8 +455,7 @@ void a3animation_update_animation(a3_DemoMode1_Animation* demoMode, a3f64 const 
 	// switch controller to see different states
 
 	// resolve FK state
-	a3_ClipController* clipCtrl_fk = demoMode->clipCtrlD;
-	a3animation_sampleClipController(demoMode, dt, clipCtrl_fk, activeHS_fk, poseGroup);
+	a3animation_sampleClipController(demoMode, dt, demoMode->clipCtrlD, activeHS_fk, poseGroup);
 	// run FK pipeline
 	a3animation_update_fk(activeHS_fk, baseHS, poseGroup);
 
@@ -490,9 +485,35 @@ void a3animation_update_animation(a3_DemoMode1_Animation* demoMode, a3f64 const 
 		activeHS_ik->animPose,	// src: IK anim
 		//baseHS->animPose,	// src: base anim (identity)
 		activeHS->hierarchy->numNodes);
+
+	a3_HierarchyPose const* blendControls[16];
+	a3f64 const* inputParams[8];
+
+	blendControls[0] = activeHS_fk->animPose;
+	a3animation_sampleClipController(demoMode, dt, demoMode->clipCtrlA, activeHS_ik, poseGroup);
+	blendControls[1] = activeHS_ik->animPose;
+	inputParams[0] = &demoMode->clipCtrlD->clipParam;
+
+	a3_HierarchyPoseBlendNode node;
+	node.pose_out = activeHS->animPose;
+	node.numNodes = demoMode->hierarchy_skel->numNodes;
+	for (a3ui32 i = 0; i < 8; ++i) {
+		node.param[i] = inputParams[i];
+		node.pose_ctrl[i] = blendControls[i];
+	}
+
+	node.op = a3hierarchyPoseOpLERP;
+	a3hierarchyPoseBlendNodeCall(&node);
+	
+	
+
 	// run FK pipeline (skinning optional)
 	a3animation_update_fk(activeHS, baseHS, poseGroup);
 	a3animation_update_skin(activeHS, baseHS);
+
+	// Root motion to negate movement away from origin;
+	a3vec3 rootMotion = { activeHS->animPose->pose->translate.x, activeHS->animPose->pose->translate.z, activeHS->animPose->pose->translate.y };
+	a3real3GetNegative(demoMode->obj_skeleton->position.v, rootMotion.v);
 }
 
 void a3animation_update_sceneGraph(a3_DemoMode1_Animation* demoMode, a3f64 const dt)

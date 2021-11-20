@@ -36,7 +36,7 @@
 // (Pointer-based)
 
 // reset/identity operation for single spatial pose
-inline a3_SpatialPose* a3spatialPoseOpIdentity(a3_SpatialPose* pose_out, a3_SpatialPose const* pose_ctrl[1], a3real const* param[1])
+inline a3_SpatialPose* a3spatialPoseOpIdentity(a3_SpatialPose* pose_out, a3_SpatialPose const* pose_ctrl[1], a3f64 const* param[1])
 {
 	pose_out->transformMat = a3mat4_identity;
 	pose_out->rotateQuat = a3vec4_w;
@@ -59,7 +59,7 @@ inline a3_SpatialPose* a3spatialPoseOpConstruct(a3_SpatialPose* pose_out, a3vec4
 }
 
 // returns/sets the unchanged control pose
-inline a3_SpatialPose* a3spatialPoseOpCopy(a3_SpatialPose* pose_out, a3_SpatialPose const* pose_ctrl[1], a3real const* param[1])
+inline a3_SpatialPose* a3spatialPoseOpCopy(a3_SpatialPose* pose_out, a3_SpatialPose const* pose_ctrl[1], a3f64 const* param[1])
 {
 	pose_out->transformMat = pose_ctrl[0]->transformMat;
 	pose_out->rotate = pose_ctrl[0]->rotate;
@@ -71,7 +71,7 @@ inline a3_SpatialPose* a3spatialPoseOpCopy(a3_SpatialPose* pose_out, a3_SpatialP
 }
 
 // calculates the opposite/inverse pose description that "undoes" the control pose.
-inline a3_SpatialPose* a3spatialPoseOpInvert(a3_SpatialPose* pose_out, a3_SpatialPose const* pose_ctrl[1], a3real const* param[1])
+inline a3_SpatialPose* a3spatialPoseOpInvert(a3_SpatialPose* pose_out, a3_SpatialPose const* pose_ctrl[1], a3f64 const* param[1])
 {
 	a3quatGetInverse(pose_out->rotateQuat.v, pose_ctrl[0]->rotateQuat.v);
 	a3real4GetNegative(pose_out->rotate.v, pose_ctrl[0]->rotate.v); // Additive -> make negative
@@ -82,14 +82,14 @@ inline a3_SpatialPose* a3spatialPoseOpInvert(a3_SpatialPose* pose_out, a3_Spatia
 }
 
 // piecewise concatenation of each part of a spatialPose
-inline a3_SpatialPose* a3spatialPoseOpConcat(a3_SpatialPose* pose_out, a3_SpatialPose const* pose_ctrl[2], a3real const* param[1])
+inline a3_SpatialPose* a3spatialPoseOpConcat(a3_SpatialPose* pose_out, a3_SpatialPose const* pose_ctrl[2], a3f64 const* param[1])
 {
 	a3spatialPoseConcat(pose_out, pose_ctrl[0], pose_ctrl[1]);
 	return pose_out;
 }
 
 // selects one of the two control poses using nearest interpolation.
-inline a3_SpatialPose* a3spatialPoseOpNearest(a3_SpatialPose* pose_out, a3_SpatialPose const* pose_ctrl[2], a3real const* param[1])
+inline a3_SpatialPose* a3spatialPoseOpNearest(a3_SpatialPose* pose_out, a3_SpatialPose const* pose_ctrl[2], a3f64 const* param[1])
 {
 	if (*param[0] <= 0.5)
 	{
@@ -103,23 +103,23 @@ inline a3_SpatialPose* a3spatialPoseOpNearest(a3_SpatialPose* pose_out, a3_Spati
 }
 
 // LERP operation for single spatial pose
-inline a3_SpatialPose* a3spatialPoseOpLERP(a3_SpatialPose* pose_out, a3_SpatialPose const* pose_ctrl[2], a3real const* param[1])
+inline a3_SpatialPose* a3spatialPoseOpLERP(a3_SpatialPose* pose_out, a3_SpatialPose const* pose_ctrl[2], a3f64 const* param[1])
 {
-	a3real4Slerp(pose_out->rotateQuat.v, pose_ctrl[0]->rotateQuat.v, pose_ctrl[1]->rotateQuat.v, *param[0]);
-	a3real4Lerp(pose_out->rotate.v, pose_ctrl[0]->rotate.v, pose_ctrl[1]->rotate.v, *param[0]);
-	a3real4Lerp(pose_out->scale.v, pose_ctrl[0]->scale.v, pose_ctrl[1]->scale.v, *param[0]);
-	a3real4Lerp(pose_out->translate.v, pose_ctrl[0]->translate.v, pose_ctrl[1]->translate.v, *param[0]);
+	a3real4Slerp(pose_out->rotateQuat.v, pose_ctrl[0]->rotateQuat.v, pose_ctrl[1]->rotateQuat.v, (a3real)*param[0]);
+	a3real4Lerp(pose_out->rotate.v, pose_ctrl[0]->rotate.v, pose_ctrl[1]->rotate.v, (a3real)*param[0]);
+	a3real4Lerp(pose_out->scale.v, pose_ctrl[0]->scale.v, pose_ctrl[1]->scale.v, (a3real)*param[0]);
+	a3real4Lerp(pose_out->translate.v, pose_ctrl[0]->translate.v, pose_ctrl[1]->translate.v, (a3real)*param[0]);
 
 	return pose_out;
 }
 
 // Cubic interpolation for poses
-inline a3_SpatialPose* a3spatialPoseOpCubic(a3_SpatialPose* pose_out, a3_SpatialPose const* pose_ctrl[4], a3real const* param[1])
+inline a3_SpatialPose* a3spatialPoseOpCubic(a3_SpatialPose* pose_out, a3_SpatialPose const* pose_ctrl[4], a3f64 const* param[1])
 {
-	a3real4CatmullRom(pose_out->rotateQuat.v, pose_ctrl[0]->rotateQuat.v, pose_ctrl[1]->rotateQuat.v, pose_ctrl[2]->rotateQuat.v, pose_ctrl[3]->rotateQuat.v, *param[0]); // Maybe not right
-	a3real4CatmullRom(pose_out->rotate.v, pose_ctrl[0]->rotate.v, pose_ctrl[1]->rotate.v, pose_ctrl[2]->rotate.v, pose_ctrl[3]->rotate.v, *param[0]);
-	a3real4CatmullRom(pose_out->scale.v, pose_ctrl[0]->scale.v, pose_ctrl[1]->scale.v, pose_ctrl[2]->scale.v, pose_ctrl[3]->scale.v, *param[0]);
-	a3real4CatmullRom(pose_out->translate.v, pose_ctrl[0]->translate.v, pose_ctrl[1]->translate.v, pose_ctrl[2]->translate.v, pose_ctrl[3]->translate.v, *param[0]);
+	a3real4CatmullRom(pose_out->rotateQuat.v, pose_ctrl[0]->rotateQuat.v, pose_ctrl[1]->rotateQuat.v, pose_ctrl[2]->rotateQuat.v, pose_ctrl[3]->rotateQuat.v, (a3real)*param[0]); // Maybe not right
+	a3real4CatmullRom(pose_out->rotate.v, pose_ctrl[0]->rotate.v, pose_ctrl[1]->rotate.v, pose_ctrl[2]->rotate.v, pose_ctrl[3]->rotate.v, (a3real)*param[0]);
+	a3real4CatmullRom(pose_out->scale.v, pose_ctrl[0]->scale.v, pose_ctrl[1]->scale.v, pose_ctrl[2]->scale.v, pose_ctrl[3]->scale.v, (a3real)*param[0]);
+	a3real4CatmullRom(pose_out->translate.v, pose_ctrl[0]->translate.v, pose_ctrl[1]->translate.v, pose_ctrl[2]->translate.v, pose_ctrl[3]->translate.v, (a3real)*param[0]);
 	return pose_out;
 }
 
@@ -130,7 +130,7 @@ inline a3_SpatialPose* a3spatialPoseOpCubic(a3_SpatialPose* pose_out, a3_Spatial
 // (Pointer-based)
 
 // calculates the "difference" or "split" between the two control poses.
-inline a3_SpatialPose* a3spatialPoseOpSplit(a3_SpatialPose* pose_out, a3_SpatialPose const* pose_ctrl[2], a3real const* param[1])
+inline a3_SpatialPose* a3spatialPoseOpSplit(a3_SpatialPose* pose_out, a3_SpatialPose const* pose_ctrl[2], a3f64 const* param[1])
 {
 	pose_out->rotate.x = a3trigValid_sind(pose_ctrl[0]->rotate.x - pose_ctrl[1]->rotate.x);
 	pose_out->rotate.y = a3trigValid_sind(pose_ctrl[0]->rotate.y - pose_ctrl[1]->rotate.y);
@@ -148,7 +148,7 @@ inline a3_SpatialPose* a3spatialPoseOpSplit(a3_SpatialPose* pose_out, a3_Spatial
 }
 
 // calculates the "scaled" pose, which is some blend between the identity pose and the control pose.
-inline a3_SpatialPose* a3spatialPoseOpScale(a3_SpatialPose* pose_out, a3_SpatialPose const* pose_ctrl[1], a3real const* param[1])
+inline a3_SpatialPose* a3spatialPoseOpScale(a3_SpatialPose* pose_out, a3_SpatialPose const* pose_ctrl[1], a3f64 const* param[1])
 {
 	a3_SpatialPose const* lerpControls[2];
 	lerpControls[0] = a3spatialPoseOpIdentity(pose_out, pose_ctrl, param);
@@ -158,13 +158,13 @@ inline a3_SpatialPose* a3spatialPoseOpScale(a3_SpatialPose* pose_out, a3_Spatial
 }
 
 // triangular interpolation for poses.
-inline a3_SpatialPose* a3spatialPoseOpTriangular(a3_SpatialPose* pose_out, a3_SpatialPose const* pose_ctrl[3], a3real const* param[2])
+inline a3_SpatialPose* a3spatialPoseOpTriangular(a3_SpatialPose* pose_out, a3_SpatialPose const* pose_ctrl[3], a3f64 const* param[2])
 {
 	a3_SpatialPose const* concatControls1[2];
 	a3_SpatialPose const* concatControls2[2];
 
-	a3real paramU = 1 - *param[0] - *param[1];
-	const a3real* u[1];
+	a3f64 paramU = 1 - *param[0] - *param[1];
+	const a3f64* u[1];
 	u[0] = &paramU;
 
 	concatControls1[0] = a3spatialPoseOpScale(pose_out, &pose_ctrl[0], u);
@@ -180,7 +180,7 @@ inline a3_SpatialPose* a3spatialPoseOpTriangular(a3_SpatialPose* pose_out, a3_Sp
 }
 
 // bilinear nearest function for poses.
-inline a3_SpatialPose* a3spatialPoseOpBiNearest(a3_SpatialPose* pose_out, a3_SpatialPose const* pose_ctrl[4], a3real const* param[3])
+inline a3_SpatialPose* a3spatialPoseOpBiNearest(a3_SpatialPose* pose_out, a3_SpatialPose const* pose_ctrl[4], a3f64 const* param[3])
 {
 	a3_SpatialPose* tmpPoses[2];
 	a3spatialPoseOpNearest(tmpPoses[0], &pose_ctrl[0], &param[0]);
@@ -191,19 +191,19 @@ inline a3_SpatialPose* a3spatialPoseOpBiNearest(a3_SpatialPose* pose_out, a3_Spa
 }
 
 // bilinear interpolation function for poses.
-inline a3_SpatialPose* a3spatialPoseOpBiLerp(a3_SpatialPose* pose_out, a3_SpatialPose const* pose_ctrl[4], a3real const* param[3])
+inline a3_SpatialPose* a3spatialPoseOpBiLerp(a3_SpatialPose* pose_out, a3_SpatialPose const* pose_ctrl[4], a3f64 const* param[3])
 {
 	a3_SpatialPose tmpPose0[1];
 	a3_SpatialPose tmpPose1[1];
-	a3spatialPoseLerp(tmpPose0, pose_ctrl[0], pose_ctrl[1], *param[0]);
-	a3spatialPoseLerp(tmpPose1, pose_ctrl[2], pose_ctrl[3], *param[1]);
+	a3spatialPoseLerp(tmpPose0, pose_ctrl[0], pose_ctrl[1], (a3real)*param[0]);
+	a3spatialPoseLerp(tmpPose1, pose_ctrl[2], pose_ctrl[3], (a3real)*param[1]);
 
-	a3spatialPoseLerp(pose_out, tmpPose0, tmpPose1, *param[2]);
+	a3spatialPoseLerp(pose_out, tmpPose0, tmpPose1, (a3real)*param[2]);
 	return pose_out;
 }
 
 // bicubic interpolation algorithm for poses.
-inline a3_SpatialPose* a3spatialPoseOpBiCubic(a3_SpatialPose* pose_out, a3_SpatialPose const* pose_ctrl[16], a3real const* param[5])
+inline a3_SpatialPose* a3spatialPoseOpBiCubic(a3_SpatialPose* pose_out, a3_SpatialPose const* pose_ctrl[16], a3f64 const* param[5])
 {
 	a3_SpatialPose* tmpPoses;
 	tmpPoses = (a3_SpatialPose*)malloc(sizeof(a3_SpatialPose) * 4);
@@ -224,10 +224,10 @@ inline a3_SpatialPose* a3spatialPoseOpBiCubic(a3_SpatialPose* pose_out, a3_Spati
 // (Pointer-based)
 
 // Hermite interpolation for poses
-inline a3_SpatialPose* a3spatialPoseOpSmoothstep(a3_SpatialPose* pose_out, a3_SpatialPose const* pose_ctrl[2], a3real const* param[1])
+inline a3_SpatialPose* a3spatialPoseOpSmoothstep(a3_SpatialPose* pose_out, a3_SpatialPose const* pose_ctrl[2], a3f64 const* param[1])
 {
-	a3real uParam = 3 * *param[0] * *param[0] - 2 * *param[0] * *param[0] * *param[0];
-	a3real const* u = &uParam;
+	a3f64 uParam = 3 * *param[0] * *param[0] - 2 * *param[0] * *param[0] * *param[0];
+	a3f64 const* u = &uParam;
 
 
 	a3spatialPoseOpLERP(pose_out, pose_ctrl, &u);
@@ -236,7 +236,7 @@ inline a3_SpatialPose* a3spatialPoseOpSmoothstep(a3_SpatialPose* pose_out, a3_Sp
 }
 
 // calculates the "descaled" pose, which is some blend between the identity pose and the inverted control pose.
-inline a3_SpatialPose* a3spatialPoseOpDescale(a3_SpatialPose* pose_out, a3_SpatialPose const* pose_ctrl[1], a3real const* param[1])
+inline a3_SpatialPose* a3spatialPoseOpDescale(a3_SpatialPose* pose_out, a3_SpatialPose const* pose_ctrl[1], a3f64 const* param[1])
 {
 	const a3_SpatialPose* tmpPoses[2];
 	tmpPoses[0] = a3spatialPoseOpIdentity(pose_out, pose_ctrl, param);
@@ -270,7 +270,7 @@ inline a3_SpatialPose a3spatialPoseDOpIdentity()
 }
 
 // data-based LERP
-inline a3_SpatialPose a3spatialPoseDOpLERP(a3_SpatialPose const pose0, a3_SpatialPose const pose1, a3real const u)
+inline a3_SpatialPose a3spatialPoseDOpLERP(a3_SpatialPose const pose0, a3_SpatialPose const pose1, a3f64 const u)
 {
 	a3_SpatialPose result = { 0 };
 	// ...
@@ -286,7 +286,7 @@ inline a3_SpatialPose a3spatialPoseDOpLERP(a3_SpatialPose const pose0, a3_Spatia
 // (Pointer-based)
 
 // reset/identity operation for hierarchical pose
-inline a3_HierarchyPose* a3hierarchyPoseOpIdentity(a3_HierarchyPose* pose_out, a3_HierarchyPose const* pose_ctrl[1], a3real const* param[1], a3ui32 numNodes)
+inline a3_HierarchyPose* a3hierarchyPoseOpIdentity(a3_HierarchyPose* pose_out, a3_HierarchyPose const* pose_ctrl[1], a3f64 const* param[1], a3ui32 numNodes)
 {
 	a3_SpatialPose* dummy[1];
 	for (a3index i = 0; i < numNodes; ++i)
@@ -307,7 +307,7 @@ inline a3_HierarchyPose* a3hierarchyPoseOpConstruct(a3_HierarchyPose* pose_out, 
 }
 
 // returns/sets the unchanged control pose
-inline a3_HierarchyPose* a3hierarchyPoseOpCopy(a3_HierarchyPose* pose_out, a3_HierarchyPose const* pose_ctrl[1], a3real const* param[1], a3ui32 numNodes)
+inline a3_HierarchyPose* a3hierarchyPoseOpCopy(a3_HierarchyPose* pose_out, a3_HierarchyPose const* pose_ctrl[1], a3f64 const* param[1], a3ui32 numNodes)
 {
 	for (a3index i = 0; i < numNodes; ++i)
 	{
@@ -318,7 +318,7 @@ inline a3_HierarchyPose* a3hierarchyPoseOpCopy(a3_HierarchyPose* pose_out, a3_Hi
 }
 
 // calculates the opposite/inverse pose description that "undoes" the control pose.
-inline a3_HierarchyPose* a3hierarchyPoseOpInvert(a3_HierarchyPose* pose_out, a3_HierarchyPose const* pose_ctrl[1], a3real const* param[1], a3ui32 numNodes)
+inline a3_HierarchyPose* a3hierarchyPoseOpInvert(a3_HierarchyPose* pose_out, a3_HierarchyPose const* pose_ctrl[1], a3f64 const* param[1], a3ui32 numNodes)
 {
 	for (a3index i = 0; i < numNodes; ++i)
 	{
@@ -329,7 +329,7 @@ inline a3_HierarchyPose* a3hierarchyPoseOpInvert(a3_HierarchyPose* pose_out, a3_
 }
 
 // piecewise concatenation of each part of a spatialPose
-inline a3_HierarchyPose* a3hierarchyPoseOpConcat(a3_HierarchyPose* pose_out, a3_HierarchyPose const* pose_ctrl[2], a3real const* param[1], a3ui32 numNodes)
+inline a3_HierarchyPose* a3hierarchyPoseOpConcat(a3_HierarchyPose* pose_out, a3_HierarchyPose const* pose_ctrl[2], a3f64 const* param[1], a3ui32 numNodes)
 {
 	a3_SpatialPose* poses[2];
 	for (a3index i = 0; i < numNodes; ++i)
@@ -342,7 +342,7 @@ inline a3_HierarchyPose* a3hierarchyPoseOpConcat(a3_HierarchyPose* pose_out, a3_
 }
 
 // selects one of the two control poses using nearest interpolation.
-inline a3_HierarchyPose* a3hierarchyPoseOpNearest(a3_HierarchyPose* pose_out, a3_HierarchyPose const* pose_ctrl[2], a3real const* param[1], a3ui32 numNodes)
+inline a3_HierarchyPose* a3hierarchyPoseOpNearest(a3_HierarchyPose* pose_out, a3_HierarchyPose const* pose_ctrl[2], a3f64 const* param[1], a3ui32 numNodes)
 {
 	a3_SpatialPose* poses[2];
 	for (a3index i = 0; i < numNodes; ++i)
@@ -355,7 +355,7 @@ inline a3_HierarchyPose* a3hierarchyPoseOpNearest(a3_HierarchyPose* pose_out, a3
 }
 
 // LERP operation for single spatial pose
-inline a3_HierarchyPose* a3hierarchyPoseOpLERP(a3_HierarchyPose* pose_out, a3_HierarchyPose const* pose_ctrl[2], a3real const* param[1], a3ui32 numNodes)
+inline a3_HierarchyPose* a3hierarchyPoseOpLERP(a3_HierarchyPose* pose_out, a3_HierarchyPose const* pose_ctrl[2], a3f64 const* param[1], a3ui32 numNodes)
 {
 	a3_SpatialPose* poses[2];
 	for (a3index i = 0; i < numNodes; ++i)
@@ -368,7 +368,7 @@ inline a3_HierarchyPose* a3hierarchyPoseOpLERP(a3_HierarchyPose* pose_out, a3_Hi
 }
 
 // Cubic interpolation for poses
-inline a3_HierarchyPose* a3hierarchyPoseOpCubic(a3_HierarchyPose* pose_out, a3_HierarchyPose const* pose_ctrl[4], a3real const* param[1], a3ui32 numNodes)
+inline a3_HierarchyPose* a3hierarchyPoseOpCubic(a3_HierarchyPose* pose_out, a3_HierarchyPose const* pose_ctrl[4], a3f64 const* param[1], a3ui32 numNodes)
 {
 	a3_SpatialPose* poses[4];
 	for (a3index i = 0; i < numNodes; ++i)
@@ -389,7 +389,7 @@ inline a3_HierarchyPose* a3hierarchyPoseOpCubic(a3_HierarchyPose* pose_out, a3_H
 // (Pointer-based)
 
 // calculates the "difference" or "split" between the two control poses.
-inline a3_HierarchyPose* a3hierarchyPoseOpSplit(a3_HierarchyPose* pose_out, a3_HierarchyPose const* pose_ctrl[2], a3real const* param[1], a3ui32 numNodes)
+inline a3_HierarchyPose* a3hierarchyPoseOpSplit(a3_HierarchyPose* pose_out, a3_HierarchyPose const* pose_ctrl[2], a3f64 const* param[1], a3ui32 numNodes)
 {
 	a3_SpatialPose* poses[2];
 	for (a3index i = 0; i < numNodes; ++i)
@@ -402,7 +402,7 @@ inline a3_HierarchyPose* a3hierarchyPoseOpSplit(a3_HierarchyPose* pose_out, a3_H
 }
 
 // calculates the "scaled" pose, which is some blend between the identity pose and the control pose.
-inline a3_HierarchyPose* a3hierarchyPoseOpScale(a3_HierarchyPose* pose_out, a3_HierarchyPose const* pose_ctrl[1], a3real const* param[1], a3ui32 numNodes)
+inline a3_HierarchyPose* a3hierarchyPoseOpScale(a3_HierarchyPose* pose_out, a3_HierarchyPose const* pose_ctrl[1], a3f64 const* param[1], a3ui32 numNodes)
 {
 	for (a3index i = 0; i < numNodes; ++i)
 	{
@@ -413,7 +413,7 @@ inline a3_HierarchyPose* a3hierarchyPoseOpScale(a3_HierarchyPose* pose_out, a3_H
 }
 
 // triangular interpolation for poses.
-inline a3_HierarchyPose* a3hierarchyPoseOpTriangular(a3_HierarchyPose* pose_out, a3_HierarchyPose const* pose_ctrl[3], a3real const* param[2], a3ui32 numNodes)
+inline a3_HierarchyPose* a3hierarchyPoseOpTriangular(a3_HierarchyPose* pose_out, a3_HierarchyPose const* pose_ctrl[3], a3f64 const* param[2], a3ui32 numNodes)
 {
 	a3_SpatialPose* poses[3];
 	for (a3index i = 0; i < numNodes; ++i)
@@ -427,7 +427,7 @@ inline a3_HierarchyPose* a3hierarchyPoseOpTriangular(a3_HierarchyPose* pose_out,
 }
 
 // bilinear nearest function for poses.
-inline a3_HierarchyPose* a3hierarchyPoseOpBiNearest(a3_HierarchyPose* pose_out, a3_HierarchyPose const* pose_ctrl[4], a3real const* param[3], a3ui32 numNodes)
+inline a3_HierarchyPose* a3hierarchyPoseOpBiNearest(a3_HierarchyPose* pose_out, a3_HierarchyPose const* pose_ctrl[4], a3f64 const* param[3], a3ui32 numNodes)
 {
 	a3_SpatialPose* poses[4];
 	for (a3index i = 0; i < numNodes; ++i)
@@ -442,7 +442,7 @@ inline a3_HierarchyPose* a3hierarchyPoseOpBiNearest(a3_HierarchyPose* pose_out, 
 }
 
 // bilinear interpolation function for poses.
-inline a3_HierarchyPose* a3hierarchyPoseOpBiLerp(a3_HierarchyPose* pose_out, a3_HierarchyPose const* pose_ctrl[4], a3real const* param[3], a3ui32 numNodes)
+inline a3_HierarchyPose* a3hierarchyPoseOpBiLerp(a3_HierarchyPose* pose_out, a3_HierarchyPose const* pose_ctrl[4], a3f64 const* param[3], a3ui32 numNodes)
 {
 	a3_SpatialPose* poses[4];
 	for (a3index i = 0; i < numNodes; ++i)
@@ -457,7 +457,7 @@ inline a3_HierarchyPose* a3hierarchyPoseOpBiLerp(a3_HierarchyPose* pose_out, a3_
 }
 
 // bicubic interpolation algorithm for poses.
-inline a3_HierarchyPose* a3hierarchyPoseOpBiCubic(a3_HierarchyPose* pose_out, a3_HierarchyPose const* pose_ctrl[16], a3real const* param[5], a3ui32 numNodes)
+inline a3_HierarchyPose* a3hierarchyPoseOpBiCubic(a3_HierarchyPose* pose_out, a3_HierarchyPose const* pose_ctrl[16], a3f64 const* param[5], a3ui32 numNodes)
 {
 	a3_SpatialPose* poses[16];
 	//poses[0] = (a3_SpatialPose*)malloc(sizeof(a3_SpatialPose) * 16);
@@ -485,7 +485,7 @@ inline a3_HierarchyPose* a3hierarchyPoseOpBiCubic(a3_HierarchyPose* pose_out, a3
 }
 
 // Hermite interpolation for poses
-inline a3_HierarchyPose* a3hierarchyPoseOpSmoothstep(a3_HierarchyPose* pose_out, a3_HierarchyPose const* pose_ctrl[2], a3real const* param[1], a3ui32 numNodes)
+inline a3_HierarchyPose* a3hierarchyPoseOpSmoothstep(a3_HierarchyPose* pose_out, a3_HierarchyPose const* pose_ctrl[2], a3f64 const* param[1], a3ui32 numNodes)
 {
 	a3_SpatialPose* poses[2];
 	for (a3index i = 0; i < numNodes; ++i)
@@ -496,7 +496,7 @@ inline a3_HierarchyPose* a3hierarchyPoseOpSmoothstep(a3_HierarchyPose* pose_out,
 	}	return pose_out;
 }
 // calculates the "descaled" pose, which is some blend between the identity pose and the inverted control pose.
-inline a3_HierarchyPose* a3hierarchyPoseOpDescale(a3_HierarchyPose* pose_out, a3_HierarchyPose const* pose_ctrl[1], a3real const* param[1], a3ui32 numNodes)
+inline a3_HierarchyPose* a3hierarchyPoseOpDescale(a3_HierarchyPose* pose_out, a3_HierarchyPose const* pose_ctrl[1], a3f64 const* param[1], a3ui32 numNodes)
 {
 	for (a3index i = 0; i < numNodes; ++i)
 	{
@@ -550,7 +550,7 @@ inline a3_HierarchyPose* a3hierarchyPoseOpIK(a3_HierarchyPose* pose_out, a3_Hier
 {
 	const a3_HierarchyNode* itr = hierarchy->nodes;
 	const a3_HierarchyNode* const end = itr + hierarchy->numNodes;
-	const a3real* param0 = 0;
+	const a3f64* param0 = 0;
 	a3hierarchyPoseOpInvert(pose_out, poseCtrl, &param0, hierarchy->numNodes);
 
 	for (; itr < end; ++itr)
@@ -568,7 +568,7 @@ inline a3_HierarchyPose* a3hierarchyPoseOpIK(a3_HierarchyPose* pose_out, a3_Hier
 }
 
 
-inline a3_HierarchyPose* a3hierarchyPoseClipOpLerp(a3_HierarchyPose* pose_out, a3_Clip* clip0, a3_Clip* clip1, a3real const* param[3])
+inline a3_HierarchyPose* a3hierarchyPoseClipOpLerp(a3_HierarchyPose* pose_out, a3_Clip* clip0, a3_Clip* clip1, a3f64 const* param[3])
 {
 	/*a3ui32 currentKeyframe = clip0->keyframeIndex_first;
 	a3f32 clipTime = clip0->duration_sec * *param[0];
@@ -580,17 +580,17 @@ inline a3_HierarchyPose* a3hierarchyPoseClipOpLerp(a3_HierarchyPose* pose_out, a
 	return pose_out;
 }
 
-inline a3_HierarchyPose* a3hierarchyPoseClipOpAdd(a3_HierarchyPose* pose_out, a3_Clip* clip0, a3_Clip* clip1, a3real const* param[3])
+inline a3_HierarchyPose* a3hierarchyPoseClipOpAdd(a3_HierarchyPose* pose_out, a3_Clip* clip0, a3_Clip* clip1, a3f64 const* param[3])
 {
 	return pose_out;
 }
 
-inline a3_HierarchyPose* a3hierarchyPoseClipOpScale(a3_HierarchyPose* pose_out, a3_Clip* clip0, a3real const* param[3])
+inline a3_HierarchyPose* a3hierarchyPoseClipOpScale(a3_HierarchyPose* pose_out, a3_Clip* clip0, a3f64 const* param[3])
 {
 	return pose_out;
 }
 
-inline a3_HierarchyPose* a3hierarchyPoseClipCtrlOpLerp(a3_HierarchyPose* pose_out, a3_ClipController* clipCtrl0, a3_ClipController* clipCtrl1, a3real const* param[1], a3ui32 numNodes)
+inline a3_HierarchyPose* a3hierarchyPoseClipCtrlOpLerp(a3_HierarchyPose* pose_out, a3_ClipController* clipCtrl0, a3_ClipController* clipCtrl1, a3f64 const* param[1], a3ui32 numNodes)
 {
 	/*a3_Sample pose0;
 	a3_Sample pose1;
@@ -608,7 +608,7 @@ inline a3_HierarchyPose* a3hierarchyPoseClipCtrlOpLerp(a3_HierarchyPose* pose_ou
 	return pose_out;
 }
 
-inline a3_HierarchyPose* a3hierarchyPoseClipCtrlOpAdd(a3_HierarchyPose* pose_out, a3_ClipController* clipCtrl0, a3_ClipController* clipCtrl1, a3real const* param[1], a3ui32 numNodes)
+inline a3_HierarchyPose* a3hierarchyPoseClipCtrlOpAdd(a3_HierarchyPose* pose_out, a3_ClipController* clipCtrl0, a3_ClipController* clipCtrl1, a3f64 const* param[1], a3ui32 numNodes)
 {
 	/*a3_Sample pose0;
 	a3_Sample pose1;
@@ -626,7 +626,7 @@ inline a3_HierarchyPose* a3hierarchyPoseClipCtrlOpAdd(a3_HierarchyPose* pose_out
 	return pose_out;
 }
 
-inline a3_HierarchyPose* a3hierarchyPoseClipCtrlOpScale(a3_HierarchyPose* pose_out, a3_ClipController* clipCtrl0, a3_ClipController* clipCtrl1, a3real const* param[1], a3ui32 numNodes)
+inline a3_HierarchyPose* a3hierarchyPoseClipCtrlOpScale(a3_HierarchyPose* pose_out, a3_ClipController* clipCtrl0, a3_ClipController* clipCtrl1, a3f64 const* param[1], a3ui32 numNodes)
 {
 	/*a3_Sample pose0;
 	a3sampleInit(&pose0, numNodes);

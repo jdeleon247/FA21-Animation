@@ -100,6 +100,7 @@ inline a3i32 a3clipControllerUpdate(a3_ClipController* clipCtrl, a3f64 dt)
 				clipCtrl->keyframeIndex = clipCtrl->clip->keyframeIndex_first;
 				clipCtrl->keyframe = clipCtrl->clipPool->keyframe + clipCtrl->keyframeIndex;
 				clipCtrl->keyframeTime_sec = overstep;
+				clipCtrl->clipTime_sec = overstep;
 			}
 			// are we simply moving to the next keyframe
 			else

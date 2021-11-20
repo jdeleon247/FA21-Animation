@@ -321,7 +321,7 @@ A3DYLIBSYMBOL a3_DemoState *a3demoCB_load(a3_DemoState *demoState, a3boolean hot
 		demoState->textMode = demoState_textControls;
 
 		// enable asset streaming between loads
-		demoState->streaming = a3false;
+		demoState->streaming = a3true;
 
 		// create directory for data
 		a3fileStreamMakeDirectory("./data");
