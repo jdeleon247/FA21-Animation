@@ -169,7 +169,7 @@ void a3animation_input(a3_DemoState* demoState, a3_DemoMode1_Animation* demoMode
 	case animation_ctrl_wristEffector_r:
 	case animation_ctrl_wristConstraint_r:
 		sceneObject = demoMode->obj_skeleton_ctrl + demoMode->ctrl_target - animation_ctrl_character;
-		a3demo_input_controlObject(demoState, sceneObject, dt, a3real_one, a3real_zero);
+		a3demo_input_controlObject(demoState, sceneObject, dt, a3real_three, a3real_one);
 	}
 
 	// allow the controller, if connected, to change control targets

@@ -171,6 +171,9 @@ typedef enum a3_DemoMode1_Animation_InputMode				a3_DemoMode1_Animation_InputMod
 				a3_HierarchyState
 					hierarchyState_skel_ik[1],
 					hierarchyState_skel_fk[1],
+					hierarchyState_skel_walk[1],
+					hierarchyState_skel_jump[1],
+					hierarchyState_skel_run[1],
 					hierarchyState_skel_final[1],
 					hierarchyState_skel_base[1];
 			};

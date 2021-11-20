@@ -503,9 +503,9 @@ void a3animation_init_animation(a3_DemoState const* demoState, a3_DemoMode1_Anim
 		//demoMode->clipPool->clip[j].transitionForward->onTransition = TransitionTestSpeed;
 		j = a3clipGetIndexInPool(demoMode->clipPool, "xbot_walk_f");
 		a3clipControllerInit(demoMode->clipCtrlB, "xbot_ctrlB", demoMode->clipPool, j, rate, fps);
-		j = a3clipGetIndexInPool(demoMode->clipPool, "xbot_jump_f");
-		a3clipControllerInit(demoMode->clipCtrlC, "xbot_ctrlC", demoMode->clipPool, j, rate, fps);
 		j = a3clipGetIndexInPool(demoMode->clipPool, "xbot_run_f");
+		a3clipControllerInit(demoMode->clipCtrlC, "xbot_ctrlC", demoMode->clipPool, j, rate, fps);
+		j = a3clipGetIndexInPool(demoMode->clipPool, "xbot_jump_f");
 		a3clipControllerInit(demoMode->clipCtrlD, "xbot_ctrlD", demoMode->clipPool, j, rate, fps);
 	}
 
@@ -522,6 +522,21 @@ void a3animation_init_animation(a3_DemoState const* demoState, a3_DemoMode1_Anim
 
 	// FK state
 	hierarchyState = demoMode->hierarchyState_skel_fk;
+	hierarchyState->hierarchy = 0;
+	a3hierarchyStateCreate(hierarchyState, hierarchy);
+
+	// Walk state
+	hierarchyState = demoMode->hierarchyState_skel_walk;
+	hierarchyState->hierarchy = 0;
+	a3hierarchyStateCreate(hierarchyState, hierarchy);
+
+	// Run state
+	hierarchyState = demoMode->hierarchyState_skel_run;
+	hierarchyState->hierarchy = 0;
+	a3hierarchyStateCreate(hierarchyState, hierarchy);
+
+	// Jump state
+	hierarchyState = demoMode->hierarchyState_skel_jump;
 	hierarchyState->hierarchy = 0;
 	a3hierarchyStateCreate(hierarchyState, hierarchy);
 

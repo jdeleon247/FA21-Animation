@@ -448,14 +448,15 @@ void a3animation_update_animation(a3_DemoMode1_Animation* demoMode, a3f64 const 
 {
 	a3_HierarchyState* activeHS_fk = demoMode->hierarchyState_skel_fk;
 	a3_HierarchyState* activeHS_ik = demoMode->hierarchyState_skel_ik;
+	a3_HierarchyState* activeHS_walk = demoMode->hierarchyState_skel_walk;
+	a3_HierarchyState* activeHS_run = demoMode->hierarchyState_skel_run;
+	a3_HierarchyState* activeHS_jump = demoMode->hierarchyState_skel_jump;
 	a3_HierarchyState* activeHS = demoMode->hierarchyState_skel_final;
 	a3_HierarchyState const* baseHS = demoMode->hierarchyState_skel_base;
 	a3_HierarchyPoseGroup const* poseGroup = demoMode->hierarchyPoseGroup_skel;
 
-	// switch controller to see different states
-
 	// resolve FK state
-	a3animation_sampleClipController(demoMode, dt, demoMode->clipCtrlD, activeHS_fk, poseGroup);
+	a3animation_sampleClipController(demoMode, dt, demoMode->clipCtrlA, activeHS_fk, poseGroup);
 	// run FK pipeline
 	a3animation_update_fk(activeHS_fk, baseHS, poseGroup);
 
@@ -486,26 +487,47 @@ void a3animation_update_animation(a3_DemoMode1_Animation* demoMode, a3f64 const 
 		//baseHS->animPose,	// src: base anim (identity)
 		activeHS->hierarchy->numNodes);
 
-	a3_HierarchyPose const* blendControls[16];
-	a3f64 const* inputParams[8];
-
-	blendControls[0] = activeHS_fk->animPose;
-	a3animation_sampleClipController(demoMode, dt, demoMode->clipCtrlA, activeHS_ik, poseGroup);
-	blendControls[1] = activeHS_ik->animPose;
-	inputParams[0] = &demoMode->clipCtrlD->clipParam;
-
+	//a3_HierarchyPose const* blendControls[16];
+	//a3f64 const* inputParams[8];
 	a3_HierarchyPoseBlendNode node;
 	node.pose_out = activeHS->animPose;
 	node.numNodes = demoMode->hierarchy_skel->numNodes;
-	for (a3ui32 i = 0; i < 8; ++i) {
-		node.param[i] = inputParams[i];
-		node.pose_ctrl[i] = blendControls[i];
-	}
+	//node.param = inputParams;
+	//node.pose_ctrl = blendControls;
+	
+
+	a3f64 moveMagnitude = a3real2Length(demoMode->vel.v);
+
+	a3f64 walkMult = 1.5;
+	a3f64 runMult = 0.75;
+	a3f64 speedWalk = demoMode->clipCtrlB->clip->duration_sec / demoMode->clipCtrlC->clip->duration_sec;
+	a3f64 speedRun = demoMode->clipCtrlC->clip->duration_sec / demoMode->clipCtrlB->clip->duration_sec;
+	
+	demoMode->clipCtrlB->clip->duration_sec;
+
+	a3animation_sampleClipController(demoMode, dt, demoMode->clipCtrlA, activeHS_fk, poseGroup);
+	a3animation_sampleClipController(demoMode, dt * moveMagnitude * 0.12f, demoMode->clipCtrlB, activeHS_walk, poseGroup);
+	a3animation_sampleClipController(demoMode, dt * moveMagnitude * 0.06f, demoMode->clipCtrlC, activeHS_run, poseGroup);
+	a3animation_sampleClipController(demoMode, dt, demoMode->clipCtrlD, activeHS_jump, poseGroup);
+
+	a3f64 walkParam = a3clamp(0, 1, moveMagnitude);
+	a3f64 runParam = a3clamp(0, 1, moveMagnitude - 5);
+	//a3f64 runParam = a3clamp(0, 1, a3lerpInverse(6, 13, (a3real)moveMagnitude));
 
 	node.op = a3hierarchyPoseOpLERP;
+	node.param[0] = &walkParam;
+	node.pose_ctrl[0] = activeHS_fk->animPose;
+	node.pose_ctrl[1] = activeHS_walk->animPose; 
 	a3hierarchyPoseBlendNodeCall(&node);
-	
-	
+
+	if (moveMagnitude >= 5)
+	{
+		node.param[0] = &runParam;
+		node.pose_ctrl[0] = activeHS_walk->animPose;
+		node.pose_ctrl[1] = activeHS_run->animPose;
+		a3hierarchyPoseBlendNodeCall(&node);
+	}
+
 
 	// run FK pipeline (skinning optional)
 	a3animation_update_fk(activeHS, baseHS, poseGroup);
