@@ -442,6 +442,10 @@ void a3animation_sampleClipController(a3_DemoMode1_Animation* demoMode, a3f64 co
 	a3hierarchyPoseLerp(activeHS_fk->animPose,
 		poseGroup->hpose + sampleIndex0, poseGroup->hpose + sampleIndex1,
 		(a3real)clipCtrl_fk->keyframeParam, activeHS_fk->hierarchy->numNodes);
+
+	// Root motion to negate movement away from origin;
+	a3vec3 rootMotion = { activeHS_fk->animPose->pose->translate.x, activeHS_fk->animPose->pose->translate.z, activeHS_fk->animPose->pose->translate.y };
+	a3real3GetNegative(demoMode->obj_skeleton->position.v, rootMotion.v);
 }
 void a3animation_update_animation(a3_DemoMode1_Animation* demoMode, a3f64 const dt,
 	a3boolean const updateIK)
@@ -453,18 +457,9 @@ void a3animation_update_animation(a3_DemoMode1_Animation* demoMode, a3f64 const 
 	a3_HierarchyPoseGroup const* poseGroup = demoMode->hierarchyPoseGroup_skel;
 
 	// switch controller to see different states
-	// A is idle, arms down; B is skin test, arms out
-
 
 	// resolve FK state
-	// update clip controller, keyframe lerp
-	/*a3clipControllerUpdate(clipCtrl_fk, dt);
-	sampleIndex0 = demoMode->clipPool->keyframe[clipCtrl_fk->keyframeIndex].sampleIndex0;
-	sampleIndex1 = demoMode->clipPool->keyframe[clipCtrl_fk->keyframeIndex].sampleIndex1;
-	a3hierarchyPoseLerp(activeHS_fk->animPose,
-		poseGroup->hpose + sampleIndex0, poseGroup->hpose + sampleIndex1,
-		(a3real)clipCtrl_fk->keyframeParam, activeHS_fk->hierarchy->numNodes);*/
-	a3_ClipController* clipCtrl_fk = demoMode->clipCtrlC;
+	a3_ClipController* clipCtrl_fk = demoMode->clipCtrlD;
 	a3animation_sampleClipController(demoMode, dt, clipCtrl_fk, activeHS_fk, poseGroup);
 	// run FK pipeline
 	a3animation_update_fk(activeHS_fk, baseHS, poseGroup);
@@ -628,9 +623,11 @@ void a3animation_update(a3_DemoState* demoState, a3_DemoMode1_Animation* demoMod
 	}
 
 	// apply input
+
 	demoMode->obj_skeleton_ctrl->position.x = +(demoMode->pos.x);
 	demoMode->obj_skeleton_ctrl->position.y = +(demoMode->pos.y);
 	demoMode->obj_skeleton_ctrl->euler.z = -a3trigValid_sind(demoMode->rot);
+	
 }
 
 
