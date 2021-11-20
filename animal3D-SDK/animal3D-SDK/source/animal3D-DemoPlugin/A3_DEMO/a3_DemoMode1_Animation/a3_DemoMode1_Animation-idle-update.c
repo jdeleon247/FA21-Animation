@@ -260,6 +260,7 @@ void a3animation_update_applyEffectors(a3_DemoMode1_Animation* demoMode,
 			sceneObject = demoMode->obj_skeleton_neckLookat_ctrl;
 			a3real4Real4x4Product(controlLocator_neckLookat.v, controlToSkeleton.m,
 				demoMode->sceneGraphState->localSpace->pose[sceneObject->sceneGraphIndex].transformMat.v3.v);
+			//controlLocator_neckLookat = demoMode->sceneGraphState->localSpace->pose[sceneObject->sceneGraphIndex].transformMat.v3;
 			j = j_neck = a3hierarchyGetNodeIndex(activeHS->hierarchy, "mixamorig:Neck");
 			jointTransform_neck = activeHS->objectSpace->pose[j].transformMat;
 
@@ -290,7 +291,7 @@ void a3animation_update_applyEffectors(a3_DemoMode1_Animation* demoMode,
 
 			activeHS->objectSpace->pose[j_neck].transformMat = neckMat;
 			a3real4x4TransformInvert(neckMat.m);
-			activeHS->localSpaceInv->pose[j_neck].transformMat = neckMat;
+			activeHS->objectSpaceInv->pose[j_neck].transformMat = neckMat;
 
 			a3animation_update_ik_single(activeHS, baseHS, poseGroup, j_neck, j_neck - 1);
 		}
@@ -424,7 +425,6 @@ void a3animation_update_applyEffectors(a3_DemoMode1_Animation* demoMode,
 				activeHS->objectSpace->pose[j_wrist].transformMat.v3 = controlLocator_wristEffector;
 				a3animation_update_ik_single(activeHS, baseHS, poseGroup, j_wrist, j_elbow);
 			}
-			
 		}
 	}
 }
@@ -460,13 +460,54 @@ void a3animation_update_animation(a3_DemoMode1_Animation* demoMode, a3f64 const 
 	// run FK pipeline
 	a3animation_update_fk(activeHS_fk, baseHS, poseGroup);
 
+
+
+	// blend FK/IK to final
+	// testing: copy source to final
+	//a3hierarchyPoseCopy(activeHS->animPose,	// dst: final anim
+		//activeHS_fk->animPose,	// src: FK anim
+	//	activeHS_ik->animPose,	// src: IK anim
+		//baseHS->animPose,	// src: base anim (identity)
+	//	activeHS->hierarchy->numNodes);
+
+	a3_HierarchyPoseBlendNode node;
+	node.pose_out = activeHS->animPose;
+	node.numNodes = demoMode->hierarchy_skel->numNodes;
+
+	a3f64 moveMagnitude = a3real2Length(demoMode->vel.v);
+
+	a3f64 antiSkateWalk = 0.12f;
+	a3f64 antiSkateRun = 0.06f;
+
+	a3animation_sampleClipController(demoMode, dt, demoMode->clipCtrlA, activeHS_fk, poseGroup);
+	a3animation_sampleClipController(demoMode, dt * moveMagnitude * antiSkateWalk, demoMode->clipCtrlB, activeHS_walk, poseGroup);
+	a3animation_sampleClipController(demoMode, dt * moveMagnitude * antiSkateRun, demoMode->clipCtrlC, activeHS_run, poseGroup);
+	a3animation_sampleClipController(demoMode, dt, demoMode->clipCtrlD, activeHS_jump, poseGroup);
+
+	a3f64 walkParam = a3clamp(0, 1, moveMagnitude);
+	a3f64 runParam = a3clamp(0, 1, moveMagnitude - 6);
+
+	node.op = a3hierarchyPoseOpLERP;
+	node.param[0] = &walkParam;
+	node.pose_ctrl[0] = activeHS_fk->animPose;
+	node.pose_ctrl[1] = activeHS_walk->animPose; 
+	a3hierarchyPoseBlendNodeCall(&node);
+
+	if (moveMagnitude >= 6)
+	{
+		node.param[0] = &runParam;
+		node.pose_ctrl[0] = activeHS_walk->animPose;
+		node.pose_ctrl[1] = activeHS_run->animPose;
+		a3hierarchyPoseBlendNodeCall(&node);
+	}
+
 	// resolve IK state
 	// copy FK to IK
-	a3hierarchyPoseCopy(
-		activeHS_ik->animPose,	// dst: IK anim
-		activeHS_fk->animPose,	// src: FK anim
-		//baseHS->animPose,	// src: base anim
-		activeHS_ik->hierarchy->numNodes);
+	node.op = a3hierarchyPoseOpCopy;
+	node.pose_out = activeHS_ik->animPose;
+	node.pose_ctrl[0] = activeHS->animPose;
+	a3hierarchyPoseBlendNodeCall(&node);
+
 	// run FK
 	a3animation_update_fk(activeHS_ik, baseHS, poseGroup);
 	if (updateIK)
@@ -479,63 +520,19 @@ void a3animation_update_animation(a3_DemoMode1_Animation* demoMode, a3f64 const 
 		//a3animation_update_ik(activeHS_ik, baseHS, poseGroup);
 	}
 
-	// blend FK/IK to final
-	// testing: copy source to final
-	a3hierarchyPoseCopy(activeHS->animPose,	// dst: final anim
-		//activeHS_fk->animPose,	// src: FK anim
-		activeHS_ik->animPose,	// src: IK anim
-		//baseHS->animPose,	// src: base anim (identity)
-		activeHS->hierarchy->numNodes);
-
-	//a3_HierarchyPose const* blendControls[16];
-	//a3f64 const* inputParams[8];
-	a3_HierarchyPoseBlendNode node;
+	node.op = a3hierarchyPoseOpCopy;
 	node.pose_out = activeHS->animPose;
-	node.numNodes = demoMode->hierarchy_skel->numNodes;
-	//node.param = inputParams;
-	//node.pose_ctrl = blendControls;
-	
-
-	a3f64 moveMagnitude = a3real2Length(demoMode->vel.v);
-
-	a3f64 walkMult = 1.5;
-	a3f64 runMult = 0.75;
-	a3f64 speedWalk = demoMode->clipCtrlB->clip->duration_sec / demoMode->clipCtrlC->clip->duration_sec;
-	a3f64 speedRun = demoMode->clipCtrlC->clip->duration_sec / demoMode->clipCtrlB->clip->duration_sec;
-	
-	demoMode->clipCtrlB->clip->duration_sec;
-
-	a3animation_sampleClipController(demoMode, dt, demoMode->clipCtrlA, activeHS_fk, poseGroup);
-	a3animation_sampleClipController(demoMode, dt * moveMagnitude * 0.12f, demoMode->clipCtrlB, activeHS_walk, poseGroup);
-	a3animation_sampleClipController(demoMode, dt * moveMagnitude * 0.06f, demoMode->clipCtrlC, activeHS_run, poseGroup);
-	a3animation_sampleClipController(demoMode, dt, demoMode->clipCtrlD, activeHS_jump, poseGroup);
-
-	a3f64 walkParam = a3clamp(0, 1, moveMagnitude);
-	a3f64 runParam = a3clamp(0, 1, moveMagnitude - 5);
-	//a3f64 runParam = a3clamp(0, 1, a3lerpInverse(6, 13, (a3real)moveMagnitude));
-
-	node.op = a3hierarchyPoseOpLERP;
-	node.param[0] = &walkParam;
-	node.pose_ctrl[0] = activeHS_fk->animPose;
-	node.pose_ctrl[1] = activeHS_walk->animPose; 
+	node.pose_ctrl[0] = activeHS_ik->animPose;
 	a3hierarchyPoseBlendNodeCall(&node);
-
-	if (moveMagnitude >= 5)
-	{
-		node.param[0] = &runParam;
-		node.pose_ctrl[0] = activeHS_walk->animPose;
-		node.pose_ctrl[1] = activeHS_run->animPose;
-		a3hierarchyPoseBlendNodeCall(&node);
-	}
-
 
 	// run FK pipeline (skinning optional)
 	a3animation_update_fk(activeHS, baseHS, poseGroup);
 	a3animation_update_skin(activeHS, baseHS);
 
 	// Root motion to negate movement away from origin;
-	a3vec3 rootMotion = { activeHS->animPose->pose->translate.x, activeHS->animPose->pose->translate.z, activeHS->animPose->pose->translate.y };
-	a3real3GetNegative(demoMode->obj_skeleton->position.v, rootMotion.v);
+	a3vec4 rootMotion = { activeHS->animPose->pose->translate.x, activeHS->animPose->pose->translate.z, activeHS->animPose->pose->translate.y, 0 };
+	a3real3GetNegative(demoMode->obj_skeleton->position.v, rootMotion.xyz.v);
+	
 }
 
 void a3animation_update_sceneGraph(a3_DemoMode1_Animation* demoMode, a3f64 const dt)

@@ -38,11 +38,11 @@
 void a3animation_load_resetEffectors(a3_DemoMode1_Animation* demoMode,
 	a3_HierarchyState* hierarchyState, a3_HierarchyPoseGroup const* poseGroup)
 {
-	a3_DemoSceneObject* sceneObject = demoMode->obj_skeleton;
+	a3_DemoSceneObject* sceneObject = demoMode->obj_skeleton_ctrl;
 	a3ui32 j = sceneObject->sceneGraphIndex;
 
 	// need to properly transform joints to their parent frame
-	a3mat4 const skeletonToControl = demoMode->sceneGraphState->localSpace->pose[j].transformMat;
+	a3mat4 const skeletonToControl = demoMode->sceneGraphState->objectSpace->pose[j].transformMat;
 	a3vec4 controlLocator;
 
 	// look-at effector
@@ -51,9 +51,9 @@ void a3animation_load_resetEffectors(a3_DemoMode1_Animation* demoMode,
 	sceneObject = demoMode->obj_skeleton_neckLookat_ctrl;
 	a3real4Real4x4Product(controlLocator.v, skeletonToControl.m,
 		hierarchyState->objectSpace->pose[j].transformMat.v3.v);
-	sceneObject->position.x = controlLocator.x;
-	sceneObject->position.y = controlLocator.y + a3real_four;
-	sceneObject->position.z = controlLocator.z;
+	sceneObject->position.x = controlLocator.x + 5;
+	sceneObject->position.y = controlLocator.y + 15;
+	sceneObject->position.z = controlLocator.z + a3real_five;
 	sceneObject->scale.x = a3real_third;
 	sceneObject->scaleMode = 1;
 
@@ -65,7 +65,7 @@ void a3animation_load_resetEffectors(a3_DemoMode1_Animation* demoMode,
 		hierarchyState->objectSpace->pose[j].transformMat.v3.v);
 	sceneObject->position.x = controlLocator.x;
 	sceneObject->position.y = controlLocator.y;
-	sceneObject->position.z = controlLocator.z;
+	sceneObject->position.z = controlLocator.z + 5;
 	sceneObject->scale.x = a3real_third;
 	sceneObject->scaleMode = 1;
 
@@ -77,7 +77,7 @@ void a3animation_load_resetEffectors(a3_DemoMode1_Animation* demoMode,
 		hierarchyState->objectSpace->pose[j].transformMat.v3.v);
 	sceneObject->position.x = controlLocator.x;
 	sceneObject->position.y = controlLocator.y - a3real_half;
-	sceneObject->position.z = controlLocator.z;
+	sceneObject->position.z = controlLocator.z + 6;
 	sceneObject->scale.x = a3real_third;
 	sceneObject->scaleMode = 1;
 
