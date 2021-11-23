@@ -688,12 +688,12 @@ void a3animation_update(a3_DemoState* demoState, a3_DemoMode1_Animation* demoMod
 	{
 		demoMode->currentFloorHeight = 0;
 	}
-	if (demoMode->obj_skeleton_ctrl->position.x >= 3 &&
+	if (demoMode->obj_skeleton_ctrl->position.x >= 2.9f &&
 		demoMode->pos.z < 4)
 	{
 		demoMode->acc.x = 0;
 		demoMode->vel.x = 0;
-		demoMode->pos.x = 3;
+		demoMode->pos.x = 2.88f;
 	}
 
 	// do jump
