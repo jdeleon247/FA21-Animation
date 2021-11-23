@@ -35,6 +35,8 @@
 
 #include "../_a3_demo_utilities/a3_DemoMacros.h"
 
+#include <math.h>
+
 
 //-----------------------------------------------------------------------------
 // UTILS
@@ -454,11 +456,9 @@ void a3animation_update_animation(a3_DemoMode1_Animation* demoMode, a3f64 const 
 	a3_HierarchyPoseGroup const* poseGroup = demoMode->hierarchyPoseGroup_skel;
 
 	// resolve FK state
-	a3animation_sampleClipController(demoMode, dt, demoMode->clipCtrlA, activeHS_fk, poseGroup);
+	//a3animation_sampleClipController(demoMode, dt, demoMode->clipCtrlA, activeHS_fk, poseGroup);
 	// run FK pipeline
 	a3animation_update_fk(activeHS_fk, baseHS, poseGroup);
-
-
 
 	// blend FK/IK to final
 	// testing: copy source to final
@@ -482,24 +482,35 @@ void a3animation_update_animation(a3_DemoMode1_Animation* demoMode, a3f64 const 
 	a3animation_sampleClipController(demoMode, dt, demoMode->clipCtrlA, activeHS_fk, poseGroup);
 	a3animation_sampleClipController(demoMode, dt * moveMagnitude * antiSkateWalk, demoMode->clipCtrlB, activeHS_walk, poseGroup);
 	a3animation_sampleClipController(demoMode, dt * moveMagnitude * antiSkateRun, demoMode->clipCtrlC, activeHS_run, poseGroup);
-	a3animation_sampleClipController(demoMode, dt, demoMode->clipCtrlD, activeHS_jump, poseGroup);
 
-	a3f64 walkParam = a3clamp(0, 1, moveMagnitude);
-	a3f64 runParam = a3clamp(0, 1, moveMagnitude - 6);
-
-	// Lerp from idle to walk animation
-	node.op = a3hierarchyPoseOpLERP;
-	node.param[0] = &walkParam;
-	node.pose_ctrl[0] = activeHS_fk->animPose;
-	node.pose_ctrl[1] = activeHS_walk->animPose; 
-	a3hierarchyPoseBlendNodeCall(&node);
-
-	// If moving fast enough, do running animation.
-	if (moveMagnitude >= 6)
+	if (demoMode->pos.z <= demoMode->currentFloorHeight)
 	{
-		node.param[0] = &runParam;
-		node.pose_ctrl[0] = activeHS_walk->animPose;
-		node.pose_ctrl[1] = activeHS_run->animPose;
+		a3f64 walkParam = a3clamp(0, 1, moveMagnitude);
+		a3f64 runParam = a3clamp(0, 1, moveMagnitude - 6);
+
+		// Lerp from idle to walk animation
+		node.op = a3hierarchyPoseOpLERP;
+		node.param[0] = &walkParam;
+		node.pose_ctrl[0] = activeHS_fk->animPose;
+		node.pose_ctrl[1] = activeHS_walk->animPose;
+		a3hierarchyPoseBlendNodeCall(&node);
+
+		// If moving fast enough, do running animation.
+		if (moveMagnitude >= 6)
+		{
+			node.param[0] = &runParam;
+			node.pose_ctrl[0] = activeHS_walk->animPose;
+			node.pose_ctrl[1] = activeHS_run->animPose;
+			a3hierarchyPoseBlendNodeCall(&node);
+		}
+	}
+	else //
+	{
+		a3real jumpAnimMult = a3clamp(0,1,(a3real)pow(a3absolute(demoMode->pos.z + 0 + demoMode->currentFloorHeight), -1));
+		a3animation_sampleClipController(demoMode, dt * jumpAnimMult, demoMode->clipCtrlD, activeHS_jump, poseGroup);
+		node.op = a3hierarchyPoseOpCopy;
+		node.pose_out = activeHS->animPose;
+		node.pose_ctrl[0] = activeHS_jump->animPose;
 		a3hierarchyPoseBlendNodeCall(&node);
 	}
 
@@ -667,6 +678,46 @@ void a3animation_update(a3_DemoState* demoState, a3_DemoMode1_Animation* demoMod
 	demoMode->obj_skeleton_ctrl->position.x = +(demoMode->pos.x);
 	demoMode->obj_skeleton_ctrl->position.y = +(demoMode->pos.y);
 	demoMode->obj_skeleton_ctrl->euler.z = -a3trigValid_sind(demoMode->rot);
+
+	// Arbitrary collision at 3x, 4z, infite y.
+	if (demoMode->obj_skeleton_ctrl->position.x >= 3)
+	{
+		demoMode->currentFloorHeight = 4;
+	}
+	else
+	{
+		demoMode->currentFloorHeight = 0;
+	}
+	if (demoMode->obj_skeleton_ctrl->position.x >= 3 &&
+		demoMode->pos.z < 4)
+	{
+		demoMode->acc.x = 0;
+		demoMode->vel.x = 0;
+		demoMode->pos.x = 3;
+	}
+
+	// do jump
+	if (demoMode->doJump && demoMode->pos.z <= demoMode->currentFloorHeight)
+	{
+		demoMode->vel.z = 10;
+	}
+	demoMode->doJump = false;
+
+	// universal gravity
+	demoMode->acc.z = -9.8f;
+	demoMode->vel.z += demoMode->acc.z * (a3real)dt;
+	demoMode->pos.z += demoMode->vel.z * (a3real)dt;
+
+	// Deal with varying floor heights
+	if (demoMode->pos.z <= demoMode->currentFloorHeight)
+	{
+		demoMode->acc.z = 0;
+		demoMode->vel.z = 0;
+		demoMode->pos.z = demoMode->currentFloorHeight;
+		demoMode->clipCtrlD->keyframeIndex = demoMode->clipCtrlD->clip->keyframeIndex_first;
+	}
+	// Update Z pos
+	demoMode->obj_skeleton_ctrl->position.z = +(demoMode->pos.z);
 	
 }
 

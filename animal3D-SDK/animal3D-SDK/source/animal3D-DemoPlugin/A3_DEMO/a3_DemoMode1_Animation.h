@@ -191,9 +191,12 @@ typedef enum a3_DemoMode1_Animation_InputMode				a3_DemoMode1_Animation_InputMod
 
 		// input axes & integration variables
 		a3f64 axis_l[2], axis_r[2];
-		a3vec2 pos, vel, acc;
+		a3vec3 pos, vel, acc;
 		a3real rot, velr, accr;
 		a3real sprint;
+		a3real jumpTimeRemaining;
+		a3boolean doJump;
+		a3real currentFloorHeight;
 
 		// objects
 		union {

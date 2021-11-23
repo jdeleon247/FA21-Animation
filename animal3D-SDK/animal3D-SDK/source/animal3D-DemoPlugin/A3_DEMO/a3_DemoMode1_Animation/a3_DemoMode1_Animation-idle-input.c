@@ -152,6 +152,11 @@ void a3animation_input(a3_DemoState* demoState, a3_DemoMode1_Animation* demoMode
 			}
 
 			demoMode->sprint = (a3real)a3keyboardGetState(demoState->keyboard, a3key_shift);
+			if (a3keyboardGetState(demoState->keyboard, a3key_space))
+			{
+				demoMode->doJump = true;
+				//demoMode->jumpTimeRemaining = (a3real)demoMode->clipCtrlD->clip->duration_sec;
+			}
 
 			// rotation
 			demoMode->axis_r[0] = (a3f64)a3keyboardGetDifference(demoState->keyboard, a3key_L, a3key_J);
@@ -164,6 +169,8 @@ void a3animation_input(a3_DemoState* demoState, a3_DemoMode1_Animation* demoMode
 				demoMode->axis_r[1] = r.y;
 			}
 			a3_ClipController* clipCtrl = demoMode->clipCtrl;
+
+
 			a3boolean buttonPress = a3keyboardGetState(demoState->keyboard, a3key_tilde);
 			a3clipControllerCondition(clipCtrl, buttonPress);
 		}

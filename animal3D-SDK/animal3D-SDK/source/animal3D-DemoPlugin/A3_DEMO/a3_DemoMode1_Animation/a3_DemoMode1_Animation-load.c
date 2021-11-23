@@ -561,6 +561,9 @@ void a3animation_init_animation(a3_DemoState const* demoState, a3_DemoMode1_Anim
 	demoMode->obj_skeleton_ctrl->position.y = +a3real_four;
 	demoMode->obj_skeleton_ctrl->euler.z = a3real_oneeighty;
 
+	// current floor height
+	demoMode->currentFloorHeight = 0;
+
 	// effectors
 	// do one update to get first pose for target IK frame
 	{
